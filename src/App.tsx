@@ -74,7 +74,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-09";
+const appVersion = "2026-06-24-10";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -171,6 +171,15 @@ function copyTextFallback(text: string) {
   return copied;
 }
 
+function formatCountdown(milliseconds: number) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":");
+}
+
 function useBrowserLanguages() {
   const [languages, setLanguages] = useState(() => [
     ...(navigator.languages || []),
@@ -216,13 +225,16 @@ function AppShell() {
     [excludedServerSet, todayGroup],
   );
 
-  const missionDateLabel = useMemo(
+  const countdownLabel = useMemo(
+    () => formatCountdown(missionDay.nextResetDate.getTime() - now.getTime()),
+    [missionDay.nextResetDate, now],
+  );
+  const serverDateValue = useMemo(
     () =>
       new Intl.DateTimeFormat(copy.dateLocale, {
         day: "numeric",
-        month: "long",
+        month: "2-digit",
         timeZone: "UTC",
-        weekday: "short",
         year: "numeric",
       }).format(missionDay.date),
     [copy.dateLocale, missionDay.date],
@@ -261,7 +273,7 @@ function AppShell() {
   }, [copy.htmlLang, copy.title, locale, localePreference]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 60 * 1000);
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -386,12 +398,17 @@ function AppShell() {
               <p className="text-xs font-semibold tracking-normal text-muted-foreground uppercase">
                 {copy.missionLabel}
               </p>
-              <CardTitle className="mt-1 text-4xl leading-tight font-semibold tabular-nums sm:text-5xl">
-                {missionDateLabel}
+              <CardTitle className="mt-1 text-3xl leading-tight font-semibold tabular-nums sm:text-5xl">
+                {copy.countdownTitle(countdownLabel)}
               </CardTitle>
+              <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
+                <span>{copy.nextResetLabel}</span>
+                <span>{copy.serverDateLabel(serverDateValue)}</span>
+              </div>
             </div>
-            <div className="flex size-16 shrink-0 items-center justify-center rounded-lg border bg-background/70 text-4xl font-semibold">
-              {todayGroup}
+            <div className="flex min-w-24 shrink-0 flex-col items-center justify-center rounded-lg border bg-background/70 px-3 py-2">
+              <span className="text-xs font-semibold text-muted-foreground">{copy.currentTargetLabel}</span>
+              <span className="text-4xl leading-none font-semibold">{todayGroup}</span>
             </div>
           </div>
           <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>

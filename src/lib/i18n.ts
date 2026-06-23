@@ -24,6 +24,8 @@ type Translation = {
   copyHint: string;
   copyServersAria: string;
   copySuccess: string;
+  countdownTitle: (time: string) => string;
+  currentTargetLabel: string;
   dateLocale: string;
   exclusionSettingsTitle: string;
   groupLegendAria: string;
@@ -33,8 +35,10 @@ type Translation = {
   languageAria: string;
   languageAuto: string;
   missionLabel: string;
+  nextResetLabel: string;
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
+  serverDateLabel: (date: string) => string;
   serverAria: (number: number, group: string) => string;
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
@@ -69,6 +73,8 @@ const en: Translation = {
   copyHint: "Tap the list to copy",
   copyServersAria: "Copy today's server list",
   copySuccess: "copied",
+  countdownTitle: (time) => `Mission switches in ${time}`,
+  currentTargetLabel: "Current target",
   dateLocale: "en-US",
   exclusionSettingsTitle: "Exclusion settings",
   groupLegendAria: "Group legend",
@@ -78,8 +84,10 @@ const en: Translation = {
   languageAria: "Language",
   languageAuto: "Auto",
   missionLabel: "Star Mission Servers",
+  nextResetLabel: "Next update: 00:00 server time",
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
+  serverDateLabel: (date) => `Server day: ${date}`,
   serverAria: (number, group) => `Server ${number}, group ${group}`,
   themeAria: "Display theme",
   themeOptions: {
@@ -101,6 +109,8 @@ export const translations: Record<LocaleCode, Translation> = {
     copyFailed: "コピーできませんでした",
     copyHint: "リストをタップでコピー",
     copyServersAria: "今日のサーバーリストをコピー",
+    countdownTitle: (time) => `星任務切り替えまで ${time}`,
+    currentTargetLabel: "現在の対象",
     dateLocale: "ja-JP",
     exclusionSettingsTitle: "除外サーバー設定",
     groupLegendAria: "グループ凡例",
@@ -110,6 +120,8 @@ export const translations: Record<LocaleCode, Translation> = {
     languageAria: "言語",
     languageAuto: "自動",
     missionLabel: "星任務サーバー",
+    nextResetLabel: "次回更新：00:00 サーバー時間",
+    serverDateLabel: (date) => `サーバー日：${date}`,
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
     themeAria: "表示テーマ",
     themeOptions: {
