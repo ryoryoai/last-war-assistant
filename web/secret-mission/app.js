@@ -107,11 +107,6 @@ function createServerChip(record, options = {}) {
   number.textContent = `#${record.number}`;
   chip.append(number);
 
-  const badge = document.createElement("span");
-  badge.className = "chip-group";
-  badge.textContent = record.group;
-  chip.append(badge);
-
   if (options.interactive) {
     chip.type = "button";
     chip.dataset.server = String(record.number);

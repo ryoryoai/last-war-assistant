@@ -258,18 +258,6 @@ button.server-chip:focus-visible {
   outline: 3px solid color-mix(in oklch, var(--focus) 28%, transparent);
 }
 
-.server-chip .chip-group {
-  display: inline-flex;
-  min-width: 20px;
-  min-height: 20px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: color-mix(in oklch, var(--surface) 78%, transparent);
-  font-size: 11px;
-  line-height: 1;
-}
-
 .server-chip.group-a,
 .legend-item.group-a {
   border-color: var(--a-border);
