@@ -22,6 +22,8 @@ type Translation = {
   closedServerAria: (number: number) => string;
   copyFailed: string;
   copyHint: string;
+  copyNextListButton: (group: string) => string;
+  copyNextServersAria: (group: string) => string;
   copyServersAria: string;
   copySuccess: string;
   countdownTitle: (time: string) => string;
@@ -71,6 +73,8 @@ const en: Translation = {
   closedServerAria: (number) => `Server ${number}, closed`,
   copyFailed: "Copy failed",
   copyHint: "Tap the list to copy",
+  copyNextListButton: (group) => `Copy next list (${group})`,
+  copyNextServersAria: (group) => `Copy next ${group} server list`,
   copyServersAria: "Copy today's server list",
   copySuccess: "copied",
   countdownTitle: (time) => `Mission switches in ${time}`,
@@ -108,6 +112,8 @@ export const translations: Record<LocaleCode, Translation> = {
     closedServerAria: (number) => `サーバー ${number} 閉鎖`,
     copyFailed: "コピーできませんでした",
     copyHint: "リストをタップでコピー",
+    copyNextListButton: (group) => `次のリストをコピー（${group}）`,
+    copyNextServersAria: (group) => `次の${group}サーバーリストをコピー`,
     copyServersAria: "今日のサーバーリストをコピー",
     countdownTitle: (time) => `星任務切り替えまで ${time}`,
     currentTargetLabel: "現在の対象",

@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
+  Copy,
   Home,
   Languages,
   Monitor,
@@ -74,7 +75,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-10";
+const appVersion = "2026-06-24-11";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -211,6 +212,7 @@ function AppShell() {
 
   const missionDay = useMemo(() => getServerMissionDay(now), [now]);
   const todayGroup = useMemo(() => getGroupForSerial(missionDay.serial), [missionDay.serial]);
+  const nextGroup = useMemo(() => getGroupForSerial(missionDay.serial + 1), [missionDay.serial]);
   const [calendarMonth, setCalendarMonth] = useState(() =>
     serialToLocalCalendarDate(getServerMonthRange(missionDay.serial).firstSerial),
   );
@@ -223,6 +225,10 @@ function AppShell() {
   const todayServers = useMemo(
     () => serverGroups[todayGroup].filter((number) => !excludedServerSet.has(number)),
     [excludedServerSet, todayGroup],
+  );
+  const nextServers = useMemo(
+    () => serverGroups[nextGroup].filter((number) => !excludedServerSet.has(number)),
+    [excludedServerSet, nextGroup],
   );
 
   const countdownLabel = useMemo(
@@ -339,8 +345,8 @@ function AppShell() {
     };
   }, [checkForAppUpdate, showUpdateDialog]);
 
-  const copyTodayServerList = async () => {
-    const text = todayServers.join(",");
+  const copyServerList = async (serverNumbers: number[]) => {
+    const text = serverNumbers.join(",");
 
     try {
       if (window.isSecureContext && navigator.clipboard?.writeText) {
@@ -358,6 +364,8 @@ function AppShell() {
       copyTextFallback(text) ? toast.success(copy.copySuccess) : toast.error(copy.copyFailed);
     }
   };
+  const copyTodayServerList = () => copyServerList(todayServers);
+  const copyNextServerList = () => copyServerList(nextServers);
 
   const handleInstall = async () => {
     if (!deferredInstallPrompt) {
@@ -411,7 +419,20 @@ function AppShell() {
               <span className="text-4xl leading-none font-semibold">{todayGroup}</span>
             </div>
           </div>
-          <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-fit bg-background/80"
+              aria-label={copy.copyNextServersAria(nextGroup)}
+              onClick={copyNextServerList}
+            >
+              <Copy className="size-4" />
+              {copy.copyNextListButton(nextGroup)}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <button
