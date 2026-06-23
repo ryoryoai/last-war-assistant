@@ -23,12 +23,35 @@ const rotationAnchor = {
   date: "2026-06-23",
   group: "A",
 };
+const themeSymbols = {
+  dark: "☾",
+  light: "☀",
+  system: "◐",
+};
+const languageOptions = [
+  { value: "auto", label: null },
+  { value: "ja", label: "日本語" },
+  { value: "en", label: "English" },
+  { value: "ko", label: "한국어" },
+  { value: "zh-Hans", label: "简体中文" },
+  { value: "zh-Hant", label: "繁體中文" },
+  { value: "es", label: "Español" },
+  { value: "pt", label: "Português" },
+  { value: "fr", label: "Français" },
+  { value: "de", label: "Deutsch" },
+  { value: "id", label: "Indonesia" },
+  { value: "vi", label: "Tiếng Việt" },
+  { value: "th", label: "ไทย" },
+  { value: "ru", label: "Русский" },
+];
 
 const translations = {
   en: {
     dateLocale: "en-US",
     htmlLang: "en",
     groupLegendAria: "Group legend",
+    languageAria: "Language",
+    languageAuto: "Auto",
     serverAria: (number, group) => `Server ${number}, group ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "server" : "servers"}`,
     serverRangeAria: "Server range selection",
@@ -46,6 +69,8 @@ const translations = {
     dateLocale: "ja-JP",
     htmlLang: "ja",
     groupLegendAria: "グループ凡例",
+    languageAria: "言語",
+    languageAuto: "自動",
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
     serverCount: (count) => `${count}サーバー`,
     serverRangeAria: "サーバー範囲設定",
@@ -63,6 +88,8 @@ const translations = {
     dateLocale: "ko-KR",
     htmlLang: "ko",
     groupLegendAria: "그룹 범례",
+    languageAria: "언어",
+    languageAuto: "자동",
     serverAria: (number, group) => `서버 ${number}, 그룹 ${group}`,
     serverCount: (count) => `${count}개 서버`,
     serverRangeAria: "서버 범위 선택",
@@ -80,6 +107,8 @@ const translations = {
     dateLocale: "zh-CN",
     htmlLang: "zh-Hans",
     groupLegendAria: "分组图例",
+    languageAria: "语言",
+    languageAuto: "自动",
     serverAria: (number, group) => `服务器 ${number}，分组 ${group}`,
     serverCount: (count) => `${count} 个服务器`,
     serverRangeAria: "服务器范围选择",
@@ -97,6 +126,8 @@ const translations = {
     dateLocale: "zh-TW",
     htmlLang: "zh-Hant",
     groupLegendAria: "分組圖例",
+    languageAria: "語言",
+    languageAuto: "自動",
     serverAria: (number, group) => `伺服器 ${number}，分組 ${group}`,
     serverCount: (count) => `${count} 個伺服器`,
     serverRangeAria: "伺服器範圍選擇",
@@ -114,6 +145,8 @@ const translations = {
     dateLocale: "es-ES",
     htmlLang: "es",
     groupLegendAria: "Leyenda de grupos",
+    languageAria: "Idioma",
+    languageAuto: "Automático",
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
     serverRangeAria: "Selección de rango de servidores",
@@ -131,6 +164,8 @@ const translations = {
     dateLocale: "pt-BR",
     htmlLang: "pt",
     groupLegendAria: "Legenda de grupos",
+    languageAria: "Idioma",
+    languageAuto: "Automático",
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
     serverRangeAria: "Seleção de intervalo de servidores",
@@ -148,6 +183,8 @@ const translations = {
     dateLocale: "fr-FR",
     htmlLang: "fr",
     groupLegendAria: "Légende des groupes",
+    languageAria: "Langue",
+    languageAuto: "Auto",
     serverAria: (number, group) => `Serveur ${number}, groupe ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "serveur" : "serveurs"}`,
     serverRangeAria: "Sélection de plage de serveurs",
@@ -165,6 +202,8 @@ const translations = {
     dateLocale: "de-DE",
     htmlLang: "de",
     groupLegendAria: "Gruppenlegende",
+    languageAria: "Sprache",
+    languageAuto: "Automatisch",
     serverAria: (number, group) => `Server ${number}, Gruppe ${group}`,
     serverCount: (count) => `${count} Server`,
     serverRangeAria: "Serverbereich auswählen",
@@ -182,6 +221,8 @@ const translations = {
     dateLocale: "id-ID",
     htmlLang: "id",
     groupLegendAria: "Legenda grup",
+    languageAria: "Bahasa",
+    languageAuto: "Otomatis",
     serverAria: (number, group) => `Server ${number}, grup ${group}`,
     serverCount: (count) => `${count} server`,
     serverRangeAria: "Pilihan rentang server",
@@ -199,6 +240,8 @@ const translations = {
     dateLocale: "vi-VN",
     htmlLang: "vi",
     groupLegendAria: "Chú giải nhóm",
+    languageAria: "Ngôn ngữ",
+    languageAuto: "Tự động",
     serverAria: (number, group) => `Máy chủ ${number}, nhóm ${group}`,
     serverCount: (count) => `${count} máy chủ`,
     serverRangeAria: "Chọn phạm vi máy chủ",
@@ -216,6 +259,8 @@ const translations = {
     dateLocale: "th-TH-u-ca-gregory",
     htmlLang: "th",
     groupLegendAria: "คำอธิบายกลุ่ม",
+    languageAria: "ภาษา",
+    languageAuto: "อัตโนมัติ",
     serverAria: (number, group) => `เซิร์ฟเวอร์ ${number} กลุ่ม ${group}`,
     serverCount: (count) => `${count} เซิร์ฟเวอร์`,
     serverRangeAria: "เลือกช่วงเซิร์ฟเวอร์",
@@ -233,6 +278,8 @@ const translations = {
     dateLocale: "ru-RU",
     htmlLang: "ru",
     groupLegendAria: "Обозначения групп",
+    languageAria: "Язык",
+    languageAuto: "Авто",
     serverAria: (number, group) => `Сервер ${number}, группа ${group}`,
     serverCount: (count) => `${count} ${russianServerWord(count)}`,
     serverRangeAria: "Выбор диапазона серверов",
@@ -257,6 +304,7 @@ const todayCount = document.querySelector("#today-count");
 const todayServerList = document.querySelector("#today-server-list");
 const themeToggle = document.querySelector(".theme-toggle");
 const themeButtons = document.querySelectorAll("[data-theme-option]");
+const languageSelect = document.querySelector("#language-select");
 const filterSection = document.querySelector(".filter-section");
 const groupLegend = document.querySelector(".legend");
 const allServerList = document.querySelector("#all-server-list");
@@ -269,8 +317,9 @@ const anchorSerial = serialFromDateString(rotationAnchor.date);
 const gameDay = getJstGameDay();
 const todayGroup = getGroupForSerial(gameDay.serial);
 const rangeCookieName = "lastwar-secret-mission-range";
-const locale = resolveLocale();
-const copy = translations[locale];
+let localePreference = storedLocalePreference();
+let locale = resolveLocale(localePreference);
+let copy = translations[locale];
 let nextRangePick = "start";
 let selectedRangeStart = minServerNumber;
 let selectedRangeEnd = maxServerNumber;
@@ -301,7 +350,36 @@ function russianServerWord(count) {
   return lastDigit >= 2 && lastDigit <= 4 ? "сервера" : "серверов";
 }
 
-function resolveLocale() {
+function storedLocalePreference() {
+  try {
+    const preference = localStorage.getItem("lastwar-locale") || "auto";
+    return preference === "auto" || translations[preference] ? preference : "auto";
+  } catch (_error) {
+    return "auto";
+  }
+}
+
+function saveLocalePreference(preference) {
+  localePreference = preference === "auto" || translations[preference] ? preference : "auto";
+
+  try {
+    localStorage.setItem("lastwar-locale", localePreference);
+  } catch (_error) {
+    // Ignore storage errors and still apply the selected language.
+  }
+
+  locale = resolveLocale(localePreference);
+  copy = translations[locale];
+  applyLocale();
+  renderToday();
+  renderServerRange();
+}
+
+function resolveLocale(preference = "auto") {
+  if (preference !== "auto" && translations[preference]) {
+    return preference;
+  }
+
   const languages = [
     ...(navigator.languages || []),
     navigator.language,
@@ -376,15 +454,34 @@ function getGroupForSerial(serial) {
 function applyLocale() {
   document.documentElement.lang = copy.htmlLang;
   document.documentElement.dataset.locale = locale;
+  document.documentElement.dataset.localePreference = localePreference;
   document.title = copy.title;
   todayTitle.textContent = copy.todayTitle;
   themeToggle.setAttribute("aria-label", copy.themeAria);
+  languageSelect.setAttribute("aria-label", copy.languageAria);
   filterSection.setAttribute("aria-label", copy.serverRangeAria);
   groupLegend.setAttribute("aria-label", copy.groupLegendAria);
+  renderLanguageOptions();
 
   themeButtons.forEach((button) => {
-    button.textContent = copy.themeOptions[button.dataset.themeOption];
+    const label = copy.themeOptions[button.dataset.themeOption];
+    button.textContent = themeSymbols[button.dataset.themeOption];
+    button.setAttribute("aria-label", label);
+    button.title = label;
   });
+}
+
+function renderLanguageOptions() {
+  languageSelect.innerHTML = "";
+
+  languageOptions.forEach((option) => {
+    const optionElement = document.createElement("option");
+    optionElement.value = option.value;
+    optionElement.textContent = option.value === "auto" ? copy.languageAuto : option.label;
+    languageSelect.append(optionElement);
+  });
+
+  languageSelect.value = localePreference;
 }
 
 function formatGameDate(date) {
@@ -646,6 +743,7 @@ function finishRangeDrag(event) {
 themeButtons.forEach((button) => {
   button.addEventListener("click", () => saveThemePreference(button.dataset.themeOption));
 });
+languageSelect.addEventListener("change", () => saveLocalePreference(languageSelect.value));
 themeMedia.addEventListener("change", () => {
   if (storedThemePreference() === "system") {
     applyThemePreference("system");
