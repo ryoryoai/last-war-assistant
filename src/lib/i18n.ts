@@ -41,7 +41,6 @@ type Translation = {
   installSteps: Record<InstallGuidePlatform, string[]>;
   languageAria: string;
   languageAuto: string;
-  missionLabel: string;
   nextGroupLabel: string;
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
@@ -115,7 +114,6 @@ const en: Translation = {
   },
   languageAria: "Language",
   languageAuto: "Auto",
-  missionLabel: "Star Mission Servers",
   nextGroupLabel: "Next group",
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
@@ -176,7 +174,6 @@ export const translations: Record<LocaleCode, Translation> = {
     },
     languageAria: "言語",
     languageAuto: "自動",
-    missionLabel: "星任務サーバー",
     nextGroupLabel: "次のグループ",
     serverDateLabel: (date) => `サーバー日：${date}`,
     serverListTabsAria: "サーバーリスト切替",

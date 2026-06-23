@@ -53,6 +53,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   allServerRecords,
   getGroupForSerial,
@@ -75,7 +76,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-17";
+const appVersion = "2026-06-24-18";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -97,10 +98,15 @@ const groupClassName: Record<MissionGroup, string> = {
   B: "border-[var(--mission-b-border)] bg-[var(--mission-b-bg)] text-[var(--mission-b-foreground)] hover:bg-[var(--mission-b-hover)]",
   C: "border-[var(--mission-c-border)] bg-[var(--mission-c-bg)] text-[var(--mission-c-foreground)] hover:bg-[var(--mission-c-hover)]",
 };
-const groupButtonClassName: Record<MissionGroup, string> = {
-  A: "!border-[var(--mission-a-border)] !bg-[var(--mission-a-bg)] !text-[var(--mission-a-foreground)] hover:!bg-[var(--mission-a-hover)]",
-  B: "!border-[var(--mission-b-border)] !bg-[var(--mission-b-bg)] !text-[var(--mission-b-foreground)] hover:!bg-[var(--mission-b-hover)]",
-  C: "!border-[var(--mission-c-border)] !bg-[var(--mission-c-bg)] !text-[var(--mission-c-foreground)] hover:!bg-[var(--mission-c-hover)]",
+const groupSurfaceClassName: Record<MissionGroup, string> = {
+  A: "border-[var(--mission-a-border)] bg-[var(--mission-a-bg)] text-[var(--mission-a-foreground)]",
+  B: "border-[var(--mission-b-border)] bg-[var(--mission-b-bg)] text-[var(--mission-b-foreground)]",
+  C: "border-[var(--mission-c-border)] bg-[var(--mission-c-bg)] text-[var(--mission-c-foreground)]",
+};
+const groupTabClassName: Record<MissionGroup, string> = {
+  A: "border-[var(--mission-a-border)] text-[var(--mission-a-foreground)] hover:bg-[var(--mission-a-bg)] data-active:bg-[var(--mission-a-bg)] data-active:text-[var(--mission-a-foreground)]",
+  B: "border-[var(--mission-b-border)] text-[var(--mission-b-foreground)] hover:bg-[var(--mission-b-bg)] data-active:bg-[var(--mission-b-bg)] data-active:text-[var(--mission-b-foreground)]",
+  C: "border-[var(--mission-c-border)] text-[var(--mission-c-foreground)] hover:bg-[var(--mission-c-bg)] data-active:bg-[var(--mission-c-bg)] data-active:text-[var(--mission-c-foreground)]",
 };
 
 type BeforeInstallPromptEvent = Event & {
@@ -267,13 +273,27 @@ function AppShell() {
     () => serverGroups[nextGroup].filter((number) => !excludedServerSet.has(number)),
     [excludedServerSet, nextGroup],
   );
-  const activeGroup = activeServerList === "today" ? todayGroup : nextGroup;
-  const activeServers = activeServerList === "today" ? todayServers : nextServers;
-  const activeCopyAria =
-    activeServerList === "today" ? copy.copyServersAria : copy.copyNextServersAria(nextGroup);
-  const serverListTabs: Array<{ group: MissionGroup; label: string; value: ServerListMode }> = [
-    { group: todayGroup, label: copy.currentTargetLabel, value: "today" },
-    { group: nextGroup, label: copy.nextGroupLabel, value: "next" },
+  const serverListTabs: Array<{
+    copyAria: string;
+    group: MissionGroup;
+    label: string;
+    servers: number[];
+    value: ServerListMode;
+  }> = [
+    {
+      copyAria: copy.copyServersAria,
+      group: todayGroup,
+      label: copy.currentTargetLabel,
+      servers: todayServers,
+      value: "today",
+    },
+    {
+      copyAria: copy.copyNextServersAria(nextGroup),
+      group: nextGroup,
+      label: copy.nextGroupLabel,
+      servers: nextServers,
+      value: "next",
+    },
   ];
 
   const countdownLabel = useMemo(
@@ -435,7 +455,11 @@ function AppShell() {
       copyTextFallback(text) ? toast.success(copy.copySuccess) : toast.error(copy.copyFailed);
     }
   };
-  const copyActiveServerList = () => copyServerList(activeServers);
+  const handleServerListChange = (value: unknown) => {
+    if (value === "today" || value === "next") {
+      setActiveServerList(value);
+    }
+  };
 
   const handleInstall = async () => {
     if (isInstalledApp || isRunningStandalone()) {
@@ -480,75 +504,67 @@ function AppShell() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:py-6">
-      <Card className={cn("shadow-sm transition-colors", groupClassName[activeGroup])}>
-        <CardHeader className="gap-4">
-          <div className="flex flex-col gap-4">
-            <div className="min-w-0">
-              <p className="text-xs font-semibold tracking-normal text-muted-foreground uppercase">
-                {copy.missionLabel}
-              </p>
-              <CardTitle className="mt-1 text-3xl leading-tight font-semibold tabular-nums sm:text-5xl">
-                {copy.countdownTitle(countdownLabel)}
-              </CardTitle>
-              <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
-                <span>{copy.serverDateLabel(serverDateValue)}</span>
-              </div>
-            </div>
-            <div
-              className="grid grid-cols-2 gap-2 rounded-xl border border-border/70 bg-background/60 p-1.5"
-              role="tablist"
-              aria-label={copy.serverListTabsAria}
-            >
-              {serverListTabs.map((tab) => {
-                const isActive = activeServerList === tab.value;
-
-                return (
-                  <button
-                    key={tab.value}
-                    type="button"
-                    id={`server-list-tab-${tab.value}`}
-                    role="tab"
-                    aria-selected={isActive}
-                    aria-controls="mission-server-list"
-                    className={cn(
-                      "flex min-h-16 flex-col items-center justify-center rounded-lg border px-3 py-2 text-center transition focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-                      groupButtonClassName[tab.group],
-                      isActive
-                        ? "shadow-sm ring-2 ring-foreground/70 ring-offset-2 ring-offset-background"
-                        : "opacity-70 saturate-75 hover:opacity-100 hover:saturate-100",
-                    )}
-                    onClick={() => setActiveServerList(tab.value)}
-                  >
-                    <span className="text-xs font-semibold opacity-80">{tab.label}</span>
-                    <span className="text-4xl leading-none font-semibold">{tab.group}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>
+      <Card className="shadow-sm">
+        <CardHeader className="gap-3">
+          <CardTitle className="text-3xl leading-tight font-semibold tabular-nums sm:text-5xl">
+            {copy.countdownTitle(countdownLabel)}
+          </CardTitle>
+          <div className="flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
+            <span>{copy.serverDateLabel(serverDateValue)}</span>
           </div>
         </CardHeader>
+      </Card>
+
+      <Card className="shadow-sm">
         <CardContent>
-          <div
-            id="mission-server-list"
-            role="tabpanel"
-            aria-labelledby={`server-list-tab-${activeServerList}`}
+          <Tabs
+            value={activeServerList}
+            onValueChange={handleServerListChange}
+            className="w-full"
           >
-            <button
-              type="button"
-              className="grid w-full grid-cols-[repeat(5,minmax(0,1fr))] gap-2 text-left sm:grid-cols-[repeat(10,minmax(0,1fr))] md:grid-cols-[repeat(14,minmax(0,1fr))] lg:grid-cols-[repeat(18,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))]"
-              aria-label={activeCopyAria}
-              onClick={copyActiveServerList}
-            >
-              {activeServers.map((number) => (
-                <ServerChip
-                  key={number}
-                  record={{ closed: false, group: activeGroup, number }}
-                  className="cursor-copy"
-                />
+            <TabsList className="grid grid-cols-2" aria-label={copy.serverListTabsAria}>
+              {serverListTabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className={cn(
+                    "min-h-16 flex-col rounded-b-none border-b px-3 data-active:-mb-px data-active:border-b-transparent data-active:shadow-sm",
+                    groupTabClassName[tab.group],
+                  )}
+                >
+                  <span className="text-xs font-semibold opacity-80">{tab.label}</span>
+                  <span className="text-4xl leading-none font-semibold">{tab.group}</span>
+                </TabsTrigger>
               ))}
-            </button>
-          </div>
+            </TabsList>
+            {serverListTabs.map((tab) => (
+              <TabsContent
+                key={tab.value}
+                value={tab.value}
+                className={cn(
+                  "-mt-px border p-3 sm:p-4",
+                  tab.value === "today" ? "rounded-r-xl rounded-b-xl" : "rounded-b-xl rounded-l-xl",
+                  groupSurfaceClassName[tab.group],
+                )}
+              >
+                <p className="mb-3 text-sm font-medium opacity-75">{copy.copyHint}</p>
+                <button
+                  type="button"
+                  className="grid w-full grid-cols-[repeat(5,minmax(0,1fr))] gap-2 text-left sm:grid-cols-[repeat(10,minmax(0,1fr))] md:grid-cols-[repeat(14,minmax(0,1fr))] lg:grid-cols-[repeat(18,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))]"
+                  aria-label={tab.copyAria}
+                  onClick={() => copyServerList(tab.servers)}
+                >
+                  {tab.servers.map((number) => (
+                    <ServerChip
+                      key={number}
+                      record={{ closed: false, group: tab.group, number }}
+                      className="cursor-copy"
+                    />
+                  ))}
+                </button>
+              </TabsContent>
+            ))}
+          </Tabs>
         </CardContent>
       </Card>
 
