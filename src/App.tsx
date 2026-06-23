@@ -70,12 +70,13 @@ import {
   languageOptions,
   resolveLocale,
   translations,
+  type InstallGuidePlatform,
   type LocaleCode,
   type LocalePreference,
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-11";
+const appVersion = "2026-06-24-12";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -102,6 +103,32 @@ type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
+type NavigatorWithStandalone = Navigator & {
+  standalone?: boolean;
+};
+
+function detectInstallGuidePlatform(): InstallGuidePlatform {
+  const userAgent = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const isIpadOnDesktopMode = platform === "MacIntel" && navigator.maxTouchPoints > 1;
+
+  if (/iPad|iPhone|iPod/.test(userAgent) || isIpadOnDesktopMode) {
+    return "ios";
+  }
+
+  if (/Android/.test(userAgent)) {
+    return "android";
+  }
+
+  return "desktop";
+}
+
+function isRunningStandalone() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as NavigatorWithStandalone).standalone === true
+  );
+}
 
 function readStoredLocalePreference(): LocalePreference {
   const preference = localStorage.getItem("lastwar-locale") as LocalePreference | null;
@@ -207,6 +234,10 @@ function AppShell() {
   const [isExclusionOpen, setIsExclusionOpen] = useState(false);
   const [deferredInstallPrompt, setDeferredInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
+  const [installDialogOpen, setInstallDialogOpen] = useState(false);
+  const [installGuidePlatform, setInstallGuidePlatform] =
+    useState<InstallGuidePlatform>("desktop");
+  const [isInstalledApp, setIsInstalledApp] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [waitingServiceWorker, setWaitingServiceWorker] = useState<ServiceWorker | null>(null);
 
@@ -302,6 +333,32 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
+    const displayModeQuery = window.matchMedia("(display-mode: standalone)");
+    const legacyDisplayModeQuery = displayModeQuery as MediaQueryList & {
+      addListener?: (listener: () => void) => void;
+      removeListener?: (listener: () => void) => void;
+    };
+    const updateInstalledState = () => setIsInstalledApp(isRunningStandalone());
+
+    updateInstalledState();
+    window.addEventListener("appinstalled", updateInstalledState);
+    if ("addEventListener" in displayModeQuery) {
+      displayModeQuery.addEventListener("change", updateInstalledState);
+    } else {
+      legacyDisplayModeQuery.addListener?.(updateInstalledState);
+    }
+
+    return () => {
+      window.removeEventListener("appinstalled", updateInstalledState);
+      if ("removeEventListener" in displayModeQuery) {
+        displayModeQuery.removeEventListener("change", updateInstalledState);
+      } else {
+        legacyDisplayModeQuery.removeListener?.(updateInstalledState);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!("serviceWorker" in navigator)) {
       return;
     }
@@ -368,14 +425,25 @@ function AppShell() {
   const copyNextServerList = () => copyServerList(nextServers);
 
   const handleInstall = async () => {
-    if (!deferredInstallPrompt) {
-      toast.info(copy.installHelp);
+    if (isInstalledApp || isRunningStandalone()) {
+      toast.info(copy.installAlreadyAdded);
       return;
     }
 
-    await deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    setDeferredInstallPrompt(null);
+    if (!deferredInstallPrompt) {
+      setInstallGuidePlatform(detectInstallGuidePlatform());
+      setInstallDialogOpen(true);
+      return;
+    }
+
+    try {
+      await deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      setDeferredInstallPrompt(null);
+    } catch (_error) {
+      setInstallGuidePlatform(detectInstallGuidePlatform());
+      setInstallDialogOpen(true);
+    }
   };
 
   const handleUpdate = () => {
@@ -565,11 +633,35 @@ function AppShell() {
             </SelectContent>
           </Select>
         </div>
-        <Button variant="outline" onClick={handleInstall}>
-          <Home className="size-4" />
-          {copy.installButton}
-        </Button>
+        {!isInstalledApp && (
+          <Button variant="outline" onClick={handleInstall}>
+            <Home className="size-4" />
+            {copy.installButton}
+          </Button>
+        )}
       </footer>
+
+      <Dialog open={installDialogOpen} onOpenChange={setInstallDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{copy.installDialogTitle}</DialogTitle>
+            <DialogDescription>{copy.installDialogDescription}</DialogDescription>
+          </DialogHeader>
+          <ol className="grid gap-2 text-sm">
+            {copy.installSteps[installGuidePlatform].map((step, index) => (
+              <li key={step} className="flex gap-3 rounded-lg border bg-muted/40 p-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                  {index + 1}
+                </span>
+                <span className="leading-6">{step}</span>
+              </li>
+            ))}
+          </ol>
+          <DialogFooter>
+            <Button onClick={() => setInstallDialogOpen(false)}>{copy.closeButton}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen}>
         <DialogContent showCloseButton={false}>

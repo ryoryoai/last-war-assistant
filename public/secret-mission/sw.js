@@ -1,9 +1,12 @@
-const CACHE_NAME = "last-war-secret-mission-2026-06-24-11";
+const CACHE_NAME = "last-war-secret-mission-2026-06-24-12";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon.svg",
+  "./apple-touch-icon.png",
+  "./icon-192.png",
+  "./icon-512.png",
   "./version.json",
 ];
 

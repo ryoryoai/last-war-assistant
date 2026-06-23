@@ -14,11 +14,13 @@ export type LocaleCode =
   | "ru";
 
 export type LocalePreference = LocaleCode | "auto";
+export type InstallGuidePlatform = "android" | "desktop" | "ios";
 
 type Translation = {
   calendarNextMonth: string;
   calendarPreviousMonth: string;
   calendarTitle: string;
+  closeButton: string;
   closedServerAria: (number: number) => string;
   copyFailed: string;
   copyHint: string;
@@ -32,8 +34,12 @@ type Translation = {
   exclusionSettingsTitle: string;
   groupLegendAria: string;
   htmlLang: string;
+  installAlreadyAdded: string;
   installButton: string;
+  installDialogDescription: string;
+  installDialogTitle: string;
   installHelp: string;
+  installSteps: Record<InstallGuidePlatform, string[]>;
   languageAria: string;
   languageAuto: string;
   missionLabel: string;
@@ -70,6 +76,7 @@ const en: Translation = {
   calendarNextMonth: "Next month",
   calendarPreviousMonth: "Previous month",
   calendarTitle: "Mission Calendar",
+  closeButton: "OK",
   closedServerAria: (number) => `Server ${number}, closed`,
   copyFailed: "Copy failed",
   copyHint: "Tap the list to copy",
@@ -83,8 +90,30 @@ const en: Translation = {
   exclusionSettingsTitle: "Exclusion settings",
   groupLegendAria: "Group legend",
   htmlLang: "en",
+  installAlreadyAdded: "Already added to Home.",
   installButton: "Add to Home",
+  installDialogDescription: "Follow these steps for your device.",
+  installDialogTitle: "Add to Home",
   installHelp: "Use your browser menu to add this page to Home.",
+  installSteps: {
+    android: [
+      "Open this page in Chrome.",
+      "Tap the browser menu.",
+      "Choose Add to Home screen or Install app.",
+      "Tap Add or Install.",
+    ],
+    desktop: [
+      "Open the browser menu.",
+      "Choose Install app or Add to Home screen.",
+      "Confirm the install.",
+    ],
+    ios: [
+      "Open this page in Safari.",
+      "Tap the Share button.",
+      "Choose Add to Home Screen.",
+      "Tap Add.",
+    ],
+  },
   languageAria: "Language",
   languageAuto: "Auto",
   missionLabel: "Star Mission Servers",
@@ -109,6 +138,7 @@ export const translations: Record<LocaleCode, Translation> = {
   ja: {
     ...en,
     calendarTitle: "任務カレンダー",
+    closeButton: "OK",
     closedServerAria: (number) => `サーバー ${number} 閉鎖`,
     copyFailed: "コピーできませんでした",
     copyHint: "リストをタップでコピー",
@@ -121,8 +151,30 @@ export const translations: Record<LocaleCode, Translation> = {
     exclusionSettingsTitle: "除外サーバー設定",
     groupLegendAria: "グループ凡例",
     htmlLang: "ja",
+    installAlreadyAdded: "すでにホームに追加されています",
     installButton: "ホームに追加",
+    installDialogDescription: "端末に合わせて次の手順で追加できます",
+    installDialogTitle: "ホームに追加",
     installHelp: "ブラウザメニューからホームに追加できます",
+    installSteps: {
+      android: [
+        "Chromeでこのページを開く",
+        "右上のメニュー（︙）をタップ",
+        "「ホーム画面に追加」または「アプリをインストール」を選ぶ",
+        "「追加」または「インストール」をタップ",
+      ],
+      desktop: [
+        "ブラウザのメニューを開く",
+        "「アプリをインストール」または「ホーム画面に追加」を選ぶ",
+        "インストールを確定する",
+      ],
+      ios: [
+        "Safariでこのページを開く",
+        "共有ボタンをタップ",
+        "「ホーム画面に追加」を選ぶ",
+        "右上の「追加」をタップ",
+      ],
+    },
     languageAria: "言語",
     languageAuto: "自動",
     missionLabel: "星任務サーバー",
