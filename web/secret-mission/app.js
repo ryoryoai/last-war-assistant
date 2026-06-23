@@ -1,9 +1,9 @@
 const serverGroups = {
   A: [
-    [69, 75, 81, 82, 85, 89, 90],
-    [99, 100, 102, 110, 111, 112, 113],
+    [69, 75, 81, 82, 88, 89, 90],
+    [98, 99, 100, 110, 111, 112, 113],
     [122, 123, 124, 125, 134, 135, 145],
-    [146, 147, 148, 155, 157, 158, 169],
+    [146, 147, 155, 156, 157, 158, 169],
     [170, 171, 172, 182, 183, 184, 185],
     [186, 187, 196, null, null, null, null],
   ],
@@ -142,23 +142,22 @@ function getServerRecord(serverNumber) {
 
 function createServerChip(record) {
   const button = document.createElement("button");
-  const groupClass = record.groups.length === 1 ? `group-${record.groups[0].toLowerCase()}` : "multi";
+  const group = record.groups[0];
+  const groupClass = `group-${group.toLowerCase()}`;
   button.className = `server-chip ${groupClass}`;
   button.type = "button";
   button.dataset.server = String(record.number);
-  button.dataset.groups = record.groups.join("/");
-  button.setAttribute("aria-label", `サーバー ${record.number} グループ ${record.groups.join("/")}`);
+  button.dataset.group = group;
+  button.setAttribute("aria-label", `サーバー ${record.number} グループ ${group}`);
 
   const number = document.createElement("span");
   number.textContent = `#${record.number}`;
   button.append(number);
 
-  record.groups.forEach((group) => {
-    const badge = document.createElement("span");
-    badge.className = "chip-group";
-    badge.textContent = group;
-    button.append(badge);
-  });
+  const badge = document.createElement("span");
+  badge.className = "chip-group";
+  badge.textContent = group;
+  button.append(badge);
 
   button.addEventListener("click", () => {
     input.value = String(record.number);
@@ -290,11 +289,11 @@ function lookupServer(rawValue) {
     return;
   }
 
-  const groups = [...new Set(matches.map((match) => match.group))];
-  result.dataset.state = groups.length > 1 ? "multi" : "found";
+  const group = matches[0].group;
+  result.dataset.state = "found";
   result.innerHTML = `
     <span class="result-label">#${serverNumber}</span>
-    <strong>${groups.join(" / ")}</strong>
+    <strong>${group}</strong>
   `;
   renderGroups();
 }
