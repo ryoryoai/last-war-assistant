@@ -76,7 +76,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-13";
+const appVersion = "2026-06-24-14";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -504,7 +504,7 @@ function AppShell() {
         <CardContent>
           <button
             type="button"
-            className="grid w-full grid-cols-3 gap-2 text-left sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-9 xl:grid-cols-10"
+            className="grid w-full grid-cols-[repeat(5,minmax(0,1fr))] gap-2 text-left sm:grid-cols-[repeat(10,minmax(0,1fr))] md:grid-cols-[repeat(14,minmax(0,1fr))] lg:grid-cols-[repeat(18,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))]"
             aria-label={copy.copyServersAria}
             onClick={copyTodayServerList}
           >
