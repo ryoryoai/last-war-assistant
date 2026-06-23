@@ -28,6 +28,7 @@ const todayCard = document.querySelector("#today-card");
 const todayGroupBadge = document.querySelector("#today-group-badge");
 const todayDate = document.querySelector("#today-date");
 const todayCycle = document.querySelector("#today-cycle");
+const todayCount = document.querySelector("#today-count");
 const todayServerList = document.querySelector("#today-server-list");
 const allServerList = document.querySelector("#all-server-list");
 const minRange = document.querySelector("#server-min-range");
@@ -104,7 +105,8 @@ function renderToday() {
   todayCard.dataset.group = todayGroup;
   todayGroupBadge.textContent = todayGroup;
   todayDate.textContent = gameDay.label;
-  todayCycle.textContent = `グループ ${todayGroup}`;
+  todayCycle.textContent = `対象グループ ${todayGroup}`;
+  todayCount.textContent = `${serverGroups[todayGroup].length}サーバー`;
   todayServerList.innerHTML = "";
 
   serverGroups[todayGroup].forEach((number) => {
