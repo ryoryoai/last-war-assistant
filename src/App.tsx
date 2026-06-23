@@ -76,7 +76,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-14";
+const appVersion = "2026-06-24-15";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -97,6 +97,11 @@ const groupClassName: Record<MissionGroup, string> = {
   A: "border-[var(--mission-a-border)] bg-[var(--mission-a-bg)] text-[var(--mission-a-foreground)] hover:bg-[var(--mission-a-hover)]",
   B: "border-[var(--mission-b-border)] bg-[var(--mission-b-bg)] text-[var(--mission-b-foreground)] hover:bg-[var(--mission-b-hover)]",
   C: "border-[var(--mission-c-border)] bg-[var(--mission-c-bg)] text-[var(--mission-c-foreground)] hover:bg-[var(--mission-c-hover)]",
+};
+const groupButtonClassName: Record<MissionGroup, string> = {
+  A: "!border-[var(--mission-a-border)] !bg-[var(--mission-a-bg)] !text-[var(--mission-a-foreground)] hover:!bg-[var(--mission-a-hover)]",
+  B: "!border-[var(--mission-b-border)] !bg-[var(--mission-b-bg)] !text-[var(--mission-b-foreground)] hover:!bg-[var(--mission-b-hover)]",
+  C: "!border-[var(--mission-c-border)] !bg-[var(--mission-c-bg)] !text-[var(--mission-c-foreground)] hover:!bg-[var(--mission-c-hover)]",
 };
 
 type BeforeInstallPromptEvent = Event & {
@@ -492,7 +497,7 @@ function AppShell() {
               type="button"
               variant="outline"
               size="sm"
-              className="w-fit bg-background/80"
+              className={cn("w-fit", groupButtonClassName[nextGroup])}
               aria-label={copy.copyNextServersAria(nextGroup)}
               onClick={copyNextServerList}
             >
