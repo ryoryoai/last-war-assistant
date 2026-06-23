@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f7f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#252525" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>今日の星任務サーバー | Last War Assistant</title>
     <script>
       (() => {
@@ -21,6 +24,9 @@
         document.documentElement.dataset.themePreference = preference;
       })();
     </script>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
     <link rel="stylesheet" href="./styles.css" />
     <script src="./app.js" defer></script>
   </head>
@@ -34,16 +40,10 @@
           </div>
           <div class="header-actions">
             <div class="header-controls">
-              <div class="theme-toggle" role="group" aria-label="表示テーマ">
-                <button type="button" data-theme-option="system">◐</button>
-                <button type="button" data-theme-option="light">☀</button>
-                <button type="button" data-theme-option="dark">☾</button>
-              </div>
               <div class="time-toggle" role="group" aria-label="時間表示">
                 <button type="button" data-time-display="local">現地</button>
                 <button type="button" data-time-display="server">サーバー</button>
               </div>
-              <select class="language-select" id="language-select" aria-label="言語"></select>
             </div>
             <span class="today-badge" id="today-group-badge">-</span>
           </div>
@@ -51,6 +51,7 @@
         <div class="today-meta">
           <span id="today-date">-</span>
         </div>
+        <p class="copy-hint" id="copy-hint">リストをタップでコピー</p>
         <div class="server-chip-list today-server-list" id="today-server-list" role="button" tabindex="0"></div>
         <div class="copy-status" id="copy-status" role="status" aria-live="polite" hidden></div>
       </section>
@@ -79,6 +80,28 @@
           <div class="server-chip-list all-server-list" id="all-server-list"></div>
         </div>
       </details>
+
+      <section class="settings-section" aria-labelledby="settings-title">
+        <div class="section-head">
+          <h2 id="settings-title">設定</h2>
+        </div>
+        <div class="settings-grid">
+          <div class="theme-toggle" role="group" aria-label="表示テーマ">
+            <button type="button" data-theme-option="system">◐</button>
+            <button type="button" data-theme-option="light">☀</button>
+            <button type="button" data-theme-option="dark">☾</button>
+          </div>
+          <select class="language-select" id="language-select" aria-label="言語"></select>
+          <button type="button" class="install-button" id="install-button">ホームに追加</button>
+        </div>
+      </section>
+
+      <dialog class="update-dialog" id="update-dialog">
+        <form method="dialog" class="update-dialog-body">
+          <p id="update-dialog-message">新しいバージョンがあります</p>
+          <button type="button" id="update-button">更新</button>
+        </form>
+      </dialog>
     </main>
   </body>
 </html>

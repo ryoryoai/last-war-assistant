@@ -20,6 +20,7 @@ const groupOrder = ["A", "B", "C"];
 const hourInMilliseconds = 60 * 60 * 1000;
 const dayInMilliseconds = 24 * 60 * 60 * 1000;
 const serverUtcOffsetHours = -2;
+const appVersion = "2026-06-24-02";
 const rotationAnchor = {
   date: "2026-06-23",
   group: "A",
@@ -57,16 +58,22 @@ const translations = {
     calendarItemAria: (date, group) => `${date}, group ${group}`,
     calendarTitle: "This Month's Mission Calendar",
     copyFailed: "Copy failed",
+    copyHint: "Tap the list to copy",
     copyServersAria: "Copy today's server list",
-    copySuccess: (count) => `Copied ${count} servers`,
+    copySuccess: () => "copied",
     exclusionSettingsTitle: "Exclusion settings",
+    installButton: "Add to Home",
+    installHelp: "Use your browser menu to add this page to Home.",
     resetExclusionsAria: "Reset exclusions to default",
     resetExclusionsLabel: "default",
+    settingsTitle: "Settings",
     timeDisplayAria: "Time display",
     timeDisplayOptions: {
       local: "Local",
       server: "Server",
     },
+    updateAvailable: "A new version is available.",
+    updateButton: "Update",
     timeSummary: (mode, current, nextReset) => `${mode} time ${current} / Next update ${nextReset}`,
     missionCalendarAria: "Mission calendar",
     resetNote: "Updates at server time 00:00 (11:00 Japan time)",
@@ -92,16 +99,22 @@ const translations = {
     calendarItemAria: (date, group) => `${date} グループ ${group}`,
     calendarTitle: "今月の任務カレンダー",
     copyFailed: "コピーできませんでした",
+    copyHint: "リストをタップでコピー",
     copyServersAria: "今日のサーバーリストをコピー",
-    copySuccess: (count) => `${count}件のサーバーをコピーしました`,
+    copySuccess: () => "copied",
     exclusionSettingsTitle: "除外設定",
+    installButton: "ホームに追加",
+    installHelp: "ブラウザメニューからホームに追加できます",
     resetExclusionsAria: "除外設定をデフォルトに戻す",
     resetExclusionsLabel: "default",
+    settingsTitle: "設定",
     timeDisplayAria: "時間表示",
     timeDisplayOptions: {
       local: "現地",
       server: "サーバー",
     },
+    updateAvailable: "新しいバージョンがあります",
+    updateButton: "更新",
     timeSummary: (mode, current, nextReset) => `${mode}時間 ${current} / 次回更新 ${nextReset}`,
     missionCalendarAria: "任務カレンダー",
     resetNote: "サーバー時間0:00更新（日本時間11:00）",
@@ -398,6 +411,7 @@ const todayCard = document.querySelector("#today-card");
 const todayGroupBadge = document.querySelector("#today-group-badge");
 const todayTitle = document.querySelector("#today-title");
 const todayDate = document.querySelector("#today-date");
+const copyHint = document.querySelector("#copy-hint");
 const todayServerList = document.querySelector("#today-server-list");
 const copyStatus = document.querySelector("#copy-status");
 const missionCalendarTitle = document.querySelector("#mission-calendar-title");
@@ -413,6 +427,11 @@ const exclusionSettingsTitle = document.querySelector("#exclusion-settings-title
 const groupLegend = document.querySelector(".legend");
 const resetExclusionsButton = document.querySelector("#reset-exclusions-button");
 const allServerList = document.querySelector("#all-server-list");
+const settingsTitle = document.querySelector("#settings-title");
+const installButton = document.querySelector("#install-button");
+const updateDialog = document.querySelector("#update-dialog");
+const updateDialogMessage = document.querySelector("#update-dialog-message");
+const updateButton = document.querySelector("#update-button");
 
 const serverRecords = buildServerRecords();
 const serverGroupByNumber = new Map(serverRecords.map((record) => [record.number, record.group]));
@@ -431,6 +450,8 @@ let copy = translations[locale];
 let timeDisplayMode = storedTimeDisplayPreference();
 const excludedServers = new Set();
 let copyStatusTimer = null;
+let deferredInstallPrompt = null;
+let waitingServiceWorker = null;
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
 function storedLocalePreference() {
@@ -594,6 +615,7 @@ function applyLocale() {
   document.documentElement.dataset.localePreference = localePreference;
   document.title = copy.title;
   todayTitle.textContent = copy.todayTitle;
+  copyHint.textContent = localized("copyHint");
   missionCalendarTitle.textContent = copy.calendarTitle;
   missionResetNote.textContent = copy.resetNote;
   missionCalendar.setAttribute("aria-label", copy.missionCalendarAria);
@@ -608,6 +630,10 @@ function applyLocale() {
   resetExclusionsButton.textContent = localized("resetExclusionsLabel");
   resetExclusionsButton.setAttribute("aria-label", localized("resetExclusionsAria"));
   resetExclusionsButton.title = localized("resetExclusionsAria");
+  settingsTitle.textContent = localized("settingsTitle");
+  installButton.textContent = localized("installButton");
+  updateDialogMessage.textContent = localized("updateAvailable");
+  updateButton.textContent = localized("updateButton");
   renderLanguageOptions();
 
   themeButtons.forEach((button) => {
@@ -849,6 +875,82 @@ function showCopyStatus(message, isError = false) {
   }, 1800);
 }
 
+async function handleInstallButtonClick() {
+  if (!deferredInstallPrompt) {
+    showCopyStatus(localized("installHelp"));
+    return;
+  }
+
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+}
+
+function showUpdateDialog(worker) {
+  waitingServiceWorker = worker || null;
+  updateDialogMessage.textContent = localized("updateAvailable");
+  updateButton.textContent = localized("updateButton");
+
+  if (typeof updateDialog.showModal === "function" && !updateDialog.open) {
+    updateDialog.showModal();
+    return;
+  }
+
+  updateDialog.setAttribute("open", "");
+}
+
+async function checkForAppUpdate() {
+  try {
+    const response = await fetch(`./version.json?time=${Date.now()}`, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const { version } = await response.json();
+
+    if (version && version !== appVersion) {
+      showUpdateDialog(null);
+    }
+  } catch (_error) {
+    // Ignore update check failures; the next interval will retry.
+  }
+}
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    return;
+  }
+
+  navigator.serviceWorker.register("./sw.js").then((registration) => {
+    if (registration.waiting) {
+      showUpdateDialog(registration.waiting);
+    }
+
+    registration.addEventListener("updatefound", () => {
+      const newWorker = registration.installing;
+
+      if (!newWorker) {
+        return;
+      }
+
+      newWorker.addEventListener("statechange", () => {
+        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+          showUpdateDialog(newWorker);
+        }
+      });
+    });
+
+    window.setInterval(() => registration.update(), 60 * 60 * 1000);
+  });
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
+}
+
 function storedThemePreference() {
   try {
     return localStorage.getItem("lastwar-theme") || "system";
@@ -994,6 +1096,15 @@ timeButtons.forEach((button) => {
   button.addEventListener("click", () => saveTimeDisplayPreference(button.dataset.timeDisplay));
 });
 resetExclusionsButton.addEventListener("click", resetExclusionsToDefault);
+installButton.addEventListener("click", handleInstallButtonClick);
+updateButton.addEventListener("click", () => {
+  if (waitingServiceWorker) {
+    waitingServiceWorker.postMessage({ type: "SKIP_WAITING" });
+    return;
+  }
+
+  window.location.reload();
+});
 todayServerList.addEventListener("click", copyTodayServerList);
 todayServerList.addEventListener("keydown", (event) => {
   if (event.key !== "Enter" && event.key !== " ") {
@@ -1009,6 +1120,10 @@ themeMedia.addEventListener("change", () => {
     applyThemePreference("system");
   }
 });
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+});
 
 applyLocale();
 applyThemePreference(storedThemePreference());
@@ -1017,4 +1132,7 @@ initializeExcludedServers();
 renderToday();
 renderMissionCalendar();
 renderServerRange();
+registerServiceWorker();
+checkForAppUpdate();
 window.setInterval(refreshMissionState, 60 * 1000);
+window.setInterval(checkForAppUpdate, 30 * 60 * 1000);
