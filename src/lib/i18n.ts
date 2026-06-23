@@ -43,7 +43,6 @@ type Translation = {
   languageAria: string;
   languageAuto: string;
   missionLabel: string;
-  nextResetLabel: string;
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
   serverDateLabel: (date: string) => string;
@@ -117,7 +116,6 @@ const en: Translation = {
   languageAria: "Language",
   languageAuto: "Auto",
   missionLabel: "Star Mission Servers",
-  nextResetLabel: "Next update: 00:00 server time",
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
   serverDateLabel: (date) => `Server day: ${date}`,
@@ -178,7 +176,6 @@ export const translations: Record<LocaleCode, Translation> = {
     languageAria: "言語",
     languageAuto: "自動",
     missionLabel: "星任務サーバー",
-    nextResetLabel: "次回更新：00:00 サーバー時間",
     serverDateLabel: (date) => `サーバー日：${date}`,
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
     themeAria: "表示テーマ",

@@ -76,7 +76,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-12";
+const appVersion = "2026-06-24-13";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -478,7 +478,6 @@ function AppShell() {
                 {copy.countdownTitle(countdownLabel)}
               </CardTitle>
               <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
-                <span>{copy.nextResetLabel}</span>
                 <span>{copy.serverDateLabel(serverDateValue)}</span>
               </div>
             </div>
