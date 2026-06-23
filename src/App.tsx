@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
-  Copy,
   Home,
   Languages,
   Monitor,
@@ -76,7 +75,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-16";
+const appVersion = "2026-06-24-17";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -111,6 +110,7 @@ type BeforeInstallPromptEvent = Event & {
 type NavigatorWithStandalone = Navigator & {
   standalone?: boolean;
 };
+type ServerListMode = "today" | "next";
 
 function detectInstallGuidePlatform(): InstallGuidePlatform {
   const userAgent = navigator.userAgent || "";
@@ -245,6 +245,7 @@ function AppShell() {
   const [isInstalledApp, setIsInstalledApp] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [waitingServiceWorker, setWaitingServiceWorker] = useState<ServiceWorker | null>(null);
+  const [activeServerList, setActiveServerList] = useState<ServerListMode>("today");
 
   const missionDay = useMemo(() => getServerMissionDay(now), [now]);
   const todayGroup = useMemo(() => getGroupForSerial(missionDay.serial), [missionDay.serial]);
@@ -266,6 +267,14 @@ function AppShell() {
     () => serverGroups[nextGroup].filter((number) => !excludedServerSet.has(number)),
     [excludedServerSet, nextGroup],
   );
+  const activeGroup = activeServerList === "today" ? todayGroup : nextGroup;
+  const activeServers = activeServerList === "today" ? todayServers : nextServers;
+  const activeCopyAria =
+    activeServerList === "today" ? copy.copyServersAria : copy.copyNextServersAria(nextGroup);
+  const serverListTabs: Array<{ group: MissionGroup; label: string; value: ServerListMode }> = [
+    { group: todayGroup, label: copy.currentTargetLabel, value: "today" },
+    { group: nextGroup, label: copy.nextGroupLabel, value: "next" },
+  ];
 
   const countdownLabel = useMemo(
     () => formatCountdown(missionDay.nextResetDate.getTime() - now.getTime()),
@@ -426,8 +435,7 @@ function AppShell() {
       copyTextFallback(text) ? toast.success(copy.copySuccess) : toast.error(copy.copyFailed);
     }
   };
-  const copyTodayServerList = () => copyServerList(todayServers);
-  const copyNextServerList = () => copyServerList(nextServers);
+  const copyActiveServerList = () => copyServerList(activeServers);
 
   const handleInstall = async () => {
     if (isInstalledApp || isRunningStandalone()) {
@@ -472,9 +480,9 @@ function AppShell() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:py-6">
-      <Card className={cn("shadow-sm", groupClassName[todayGroup])}>
+      <Card className={cn("shadow-sm transition-colors", groupClassName[activeGroup])}>
         <CardHeader className="gap-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-4">
             <div className="min-w-0">
               <p className="text-xs font-semibold tracking-normal text-muted-foreground uppercase">
                 {copy.missionLabel}
@@ -486,46 +494,61 @@ function AppShell() {
                 <span>{copy.serverDateLabel(serverDateValue)}</span>
               </div>
             </div>
-            <button
-              type="button"
-              className="flex min-w-24 shrink-0 cursor-copy flex-col items-center justify-center rounded-lg border bg-background/70 px-3 py-2 transition hover:bg-background/90 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-              aria-label={`${copy.currentTargetLabel} ${todayGroup}. ${copy.copyServersAria}`}
-              onClick={copyTodayServerList}
+            <div
+              className="grid grid-cols-2 gap-2 rounded-xl border border-border/70 bg-background/60 p-1.5"
+              role="tablist"
+              aria-label={copy.serverListTabsAria}
             >
-              <span className="text-xs font-semibold text-muted-foreground">{copy.currentTargetLabel}</span>
-              <span className="text-4xl leading-none font-semibold">{todayGroup}</span>
-            </button>
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              {serverListTabs.map((tab) => {
+                const isActive = activeServerList === tab.value;
+
+                return (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    id={`server-list-tab-${tab.value}`}
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls="mission-server-list"
+                    className={cn(
+                      "flex min-h-16 flex-col items-center justify-center rounded-lg border px-3 py-2 text-center transition focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
+                      groupButtonClassName[tab.group],
+                      isActive
+                        ? "shadow-sm ring-2 ring-foreground/70 ring-offset-2 ring-offset-background"
+                        : "opacity-70 saturate-75 hover:opacity-100 hover:saturate-100",
+                    )}
+                    onClick={() => setActiveServerList(tab.value)}
+                  >
+                    <span className="text-xs font-semibold opacity-80">{tab.label}</span>
+                    <span className="text-4xl leading-none font-semibold">{tab.group}</span>
+                  </button>
+                );
+              })}
+            </div>
             <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className={cn("w-fit", groupButtonClassName[nextGroup])}
-              aria-label={copy.copyNextServersAria(nextGroup)}
-              onClick={copyNextServerList}
-            >
-              <Copy className="size-4" />
-              {copy.copyNextListButton(nextGroup)}
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <button
-            type="button"
-            className="grid w-full grid-cols-[repeat(5,minmax(0,1fr))] gap-2 text-left sm:grid-cols-[repeat(10,minmax(0,1fr))] md:grid-cols-[repeat(14,minmax(0,1fr))] lg:grid-cols-[repeat(18,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))]"
-            aria-label={copy.copyServersAria}
-            onClick={copyTodayServerList}
+          <div
+            id="mission-server-list"
+            role="tabpanel"
+            aria-labelledby={`server-list-tab-${activeServerList}`}
           >
-            {todayServers.map((number) => (
-              <ServerChip
-                key={number}
-                record={{ closed: false, group: todayGroup, number }}
-                className="cursor-copy"
-              />
-            ))}
-          </button>
+            <button
+              type="button"
+              className="grid w-full grid-cols-[repeat(5,minmax(0,1fr))] gap-2 text-left sm:grid-cols-[repeat(10,minmax(0,1fr))] md:grid-cols-[repeat(14,minmax(0,1fr))] lg:grid-cols-[repeat(18,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))]"
+              aria-label={activeCopyAria}
+              onClick={copyActiveServerList}
+            >
+              {activeServers.map((number) => (
+                <ServerChip
+                  key={number}
+                  record={{ closed: false, group: activeGroup, number }}
+                  className="cursor-copy"
+                />
+              ))}
+            </button>
+          </div>
         </CardContent>
       </Card>
 
