@@ -4,6 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>今日の星任務サーバー | Last War Assistant</title>
+    <script>
+      (() => {
+        const media = window.matchMedia("(prefers-color-scheme: dark)");
+        let preference = "system";
+
+        try {
+          preference = localStorage.getItem("lastwar-theme") || "system";
+        } catch (_error) {
+          preference = "system";
+        }
+
+        const resolved = preference === "system" ? (media.matches ? "dark" : "light") : preference;
+        document.documentElement.classList.toggle("dark", resolved === "dark");
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themePreference = preference;
+      })();
+    </script>
     <link rel="stylesheet" href="./styles.css" />
     <script src="./app.js" defer></script>
   </head>
@@ -15,7 +32,14 @@
             <p class="eyebrow">Last War</p>
             <h1 id="today-title">今日の星任務サーバー</h1>
           </div>
-          <span class="today-badge" id="today-group-badge">-</span>
+          <div class="header-actions">
+            <div class="theme-toggle" role="group" aria-label="表示テーマ">
+              <button type="button" data-theme-option="system">システム</button>
+              <button type="button" data-theme-option="light">ライト</button>
+              <button type="button" data-theme-option="dark">ダーク</button>
+            </div>
+            <span class="today-badge" id="today-group-badge">-</span>
+          </div>
         </div>
         <div class="today-meta">
           <span id="today-date">-</span>

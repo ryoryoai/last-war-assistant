@@ -30,6 +30,7 @@ const todayDate = document.querySelector("#today-date");
 const todayCycle = document.querySelector("#today-cycle");
 const todayCount = document.querySelector("#today-count");
 const todayServerList = document.querySelector("#today-server-list");
+const themeButtons = document.querySelectorAll("[data-theme-option]");
 const allServerList = document.querySelector("#all-server-list");
 const minRange = document.querySelector("#server-min-range");
 const maxRange = document.querySelector("#server-max-range");
@@ -46,6 +47,7 @@ const anchorSerial = serialFromDateString(rotationAnchor.date);
 const gameDay = getJstGameDay();
 const todayGroup = getGroupForSerial(gameDay.serial);
 let nextRangePick = "start";
+const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
 function buildServerRecords() {
   return Object.entries(serverGroups)
@@ -140,6 +142,38 @@ function renderToday() {
   });
 }
 
+function storedThemePreference() {
+  try {
+    return localStorage.getItem("lastwar-theme") || "system";
+  } catch (_error) {
+    return "system";
+  }
+}
+
+function applyThemePreference(preference) {
+  const resolved = preference === "system" ? (themeMedia.matches ? "dark" : "light") : preference;
+
+  document.documentElement.classList.toggle("dark", resolved === "dark");
+  document.documentElement.dataset.theme = resolved;
+  document.documentElement.dataset.themePreference = preference;
+  document.documentElement.style.colorScheme = resolved;
+
+  themeButtons.forEach((button) => {
+    const selected = button.dataset.themeOption === preference;
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function saveThemePreference(preference) {
+  try {
+    localStorage.setItem("lastwar-theme", preference);
+  } catch (_error) {
+    // Ignore storage errors and still apply the current selection.
+  }
+
+  applyThemePreference(preference);
+}
+
 function initializeRangeControls() {
   [minRange, maxRange].forEach((range) => {
     range.min = String(minServerNumber);
@@ -219,6 +253,15 @@ function selectRangeFromCard(serverNumber) {
 
 minRange.addEventListener("input", () => renderFilteredServers(minRange));
 maxRange.addEventListener("input", () => renderFilteredServers(maxRange));
+themeButtons.forEach((button) => {
+  button.addEventListener("click", () => saveThemePreference(button.dataset.themeOption));
+});
+themeMedia.addEventListener("change", () => {
+  if (storedThemePreference() === "system") {
+    applyThemePreference("system");
+  }
+});
 
+applyThemePreference(storedThemePreference());
 renderToday();
 initializeRangeControls();
