@@ -74,7 +74,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-05";
+const appVersion = "2026-06-24-06";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -669,7 +669,7 @@ function MissionCalendarDayButton({
   return (
     <CalendarDayButton
       className={cn(
-        "h-13 min-h-13 min-w-0 rounded-lg border text-center font-semibold shadow-none sm:h-15 sm:min-h-15",
+        "h-13 min-h-13 min-w-0 rounded-lg border p-0 text-center font-semibold shadow-none sm:h-15 sm:min-h-15 [&>span]:opacity-100",
         groupClassName[group],
         isToday && "ring-2 ring-foreground ring-offset-2 ring-offset-background",
         modifiers.focused && "ring-2 ring-ring",
@@ -679,8 +679,12 @@ function MissionCalendarDayButton({
       modifiers={modifiers}
       {...props}
     >
-      <span className="text-sm leading-none tabular-nums opacity-100">{day.date.getDate()}</span>
-      <span className="text-xs leading-none opacity-80">{group}</span>
+      <span className="absolute top-1.5 left-1.5 text-[11px] leading-none tabular-nums sm:top-2 sm:left-2">
+        {day.date.getDate()}
+      </span>
+      <span className="absolute inset-0 grid place-items-center text-base leading-none sm:text-lg">
+        {group}
+      </span>
     </CalendarDayButton>
   );
 }
