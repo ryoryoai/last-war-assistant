@@ -55,9 +55,7 @@ const translations = {
     exclusionSettingsTitle: "Exclusion settings",
     closedServerAria: (number) => `Server ${number}, closed`,
     serverAria: (number, group) => `Server ${number}, group ${group}`,
-    serverCount: (count) => `${count} ${count === 1 ? "server" : "servers"}`,
     serverRangeAria: "Server exclusion range",
-    targetGroup: (group) => `Target group ${group}`,
     themeAria: "Display theme",
     themeOptions: {
       dark: "Dark",
@@ -76,9 +74,7 @@ const translations = {
     exclusionSettingsTitle: "除外設定",
     closedServerAria: (number) => `サーバー ${number} 閉鎖`,
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
-    serverCount: (count) => `${count}サーバー`,
     serverRangeAria: "除外サーバー範囲設定",
-    targetGroup: (group) => `対象グループ ${group}`,
     themeAria: "表示テーマ",
     themeOptions: {
       dark: "ダーク",
@@ -97,9 +93,7 @@ const translations = {
     exclusionSettingsTitle: "제외 설정",
     closedServerAria: (number) => `서버 ${number}, 폐쇄됨`,
     serverAria: (number, group) => `서버 ${number}, 그룹 ${group}`,
-    serverCount: (count) => `${count}개 서버`,
     serverRangeAria: "제외할 서버 범위 선택",
-    targetGroup: (group) => `대상 그룹 ${group}`,
     themeAria: "표시 테마",
     themeOptions: {
       dark: "다크",
@@ -118,9 +112,7 @@ const translations = {
     exclusionSettingsTitle: "排除设置",
     closedServerAria: (number) => `服务器 ${number}，已关闭`,
     serverAria: (number, group) => `服务器 ${number}，分组 ${group}`,
-    serverCount: (count) => `${count} 个服务器`,
     serverRangeAria: "排除服务器范围选择",
-    targetGroup: (group) => `目标分组 ${group}`,
     themeAria: "显示主题",
     themeOptions: {
       dark: "深色",
@@ -139,9 +131,7 @@ const translations = {
     exclusionSettingsTitle: "排除設定",
     closedServerAria: (number) => `伺服器 ${number}，已關閉`,
     serverAria: (number, group) => `伺服器 ${number}，分組 ${group}`,
-    serverCount: (count) => `${count} 個伺服器`,
     serverRangeAria: "排除伺服器範圍選擇",
-    targetGroup: (group) => `目標分組 ${group}`,
     themeAria: "顯示主題",
     themeOptions: {
       dark: "深色",
@@ -160,9 +150,7 @@ const translations = {
     exclusionSettingsTitle: "Ajustes de exclusión",
     closedServerAria: (number) => `Servidor ${number}, cerrado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
-    serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
     serverRangeAria: "Rango de servidores excluidos",
-    targetGroup: (group) => `Grupo objetivo ${group}`,
     themeAria: "Tema de visualización",
     themeOptions: {
       dark: "Oscuro",
@@ -181,9 +169,7 @@ const translations = {
     exclusionSettingsTitle: "Configurações de exclusão",
     closedServerAria: (number) => `Servidor ${number}, fechado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
-    serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
     serverRangeAria: "Intervalo de servidores excluidos",
-    targetGroup: (group) => `Grupo alvo ${group}`,
     themeAria: "Tema de exibição",
     themeOptions: {
       dark: "Escuro",
@@ -202,9 +188,7 @@ const translations = {
     exclusionSettingsTitle: "Paramètres d'exclusion",
     closedServerAria: (number) => `Serveur ${number}, fermé`,
     serverAria: (number, group) => `Serveur ${number}, groupe ${group}`,
-    serverCount: (count) => `${count} ${count === 1 ? "serveur" : "serveurs"}`,
     serverRangeAria: "Plage de serveurs exclus",
-    targetGroup: (group) => `Groupe cible ${group}`,
     themeAria: "Thème d'affichage",
     themeOptions: {
       dark: "Sombre",
@@ -223,9 +207,7 @@ const translations = {
     exclusionSettingsTitle: "Ausschlusseinstellungen",
     closedServerAria: (number) => `Server ${number}, geschlossen`,
     serverAria: (number, group) => `Server ${number}, Gruppe ${group}`,
-    serverCount: (count) => `${count} Server`,
     serverRangeAria: "Ausgeschlossener Serverbereich",
-    targetGroup: (group) => `Zielgruppe ${group}`,
     themeAria: "Anzeigethema",
     themeOptions: {
       dark: "Dunkel",
@@ -244,9 +226,7 @@ const translations = {
     exclusionSettingsTitle: "Pengaturan pengecualian",
     closedServerAria: (number) => `Server ${number}, ditutup`,
     serverAria: (number, group) => `Server ${number}, grup ${group}`,
-    serverCount: (count) => `${count} server`,
     serverRangeAria: "Rentang server yang dikecualikan",
-    targetGroup: (group) => `Grup target ${group}`,
     themeAria: "Tema tampilan",
     themeOptions: {
       dark: "Gelap",
@@ -265,9 +245,7 @@ const translations = {
     exclusionSettingsTitle: "Cài đặt loại trừ",
     closedServerAria: (number) => `Máy chủ ${number}, đã đóng`,
     serverAria: (number, group) => `Máy chủ ${number}, nhóm ${group}`,
-    serverCount: (count) => `${count} máy chủ`,
     serverRangeAria: "Chọn phạm vi máy chủ bị loại trừ",
-    targetGroup: (group) => `Nhóm mục tiêu ${group}`,
     themeAria: "Giao diện hiển thị",
     themeOptions: {
       dark: "Tối",
@@ -286,9 +264,7 @@ const translations = {
     exclusionSettingsTitle: "ตั้งค่าการยกเว้น",
     closedServerAria: (number) => `เซิร์ฟเวอร์ ${number} ปิดแล้ว`,
     serverAria: (number, group) => `เซิร์ฟเวอร์ ${number} กลุ่ม ${group}`,
-    serverCount: (count) => `${count} เซิร์ฟเวอร์`,
     serverRangeAria: "เลือกช่วงเซิร์ฟเวอร์ที่ยกเว้น",
-    targetGroup: (group) => `กลุ่มเป้าหมาย ${group}`,
     themeAria: "ธีมการแสดงผล",
     themeOptions: {
       dark: "มืด",
@@ -307,9 +283,7 @@ const translations = {
     exclusionSettingsTitle: "Настройки исключений",
     closedServerAria: (number) => `Сервер ${number}, закрыт`,
     serverAria: (number, group) => `Сервер ${number}, группа ${group}`,
-    serverCount: (count) => `${count} ${russianServerWord(count)}`,
     serverRangeAria: "Диапазон исключенных серверов",
-    targetGroup: (group) => `Целевая группа ${group}`,
     themeAria: "Тема отображения",
     themeOptions: {
       dark: "Темная",
@@ -325,8 +299,6 @@ const todayCard = document.querySelector("#today-card");
 const todayGroupBadge = document.querySelector("#today-group-badge");
 const todayTitle = document.querySelector("#today-title");
 const todayDate = document.querySelector("#today-date");
-const todayCycle = document.querySelector("#today-cycle");
-const todayCount = document.querySelector("#today-count");
 const todayServerList = document.querySelector("#today-server-list");
 const themeToggle = document.querySelector(".theme-toggle");
 const themeButtons = document.querySelectorAll("[data-theme-option]");
@@ -363,21 +335,6 @@ const dragSelection = {
   pointerId: null,
   startServer: null,
 };
-
-function russianServerWord(count) {
-  const lastTwoDigits = count % 100;
-  const lastDigit = count % 10;
-
-  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
-    return "серверов";
-  }
-
-  if (lastDigit === 1) {
-    return "сервер";
-  }
-
-  return lastDigit >= 2 && lastDigit <= 4 ? "сервера" : "серверов";
-}
 
 function storedLocalePreference() {
   try {
@@ -568,8 +525,6 @@ function renderToday() {
   todayCard.dataset.group = todayGroup;
   todayGroupBadge.textContent = todayGroup;
   todayDate.textContent = formatGameDate(gameDay.date);
-  todayCycle.textContent = copy.targetGroup(todayGroup);
-  todayCount.textContent = copy.serverCount(todayServers.length);
   todayServerList.innerHTML = "";
 
   todayServers.forEach((number) => {
