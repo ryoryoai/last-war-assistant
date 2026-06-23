@@ -31,7 +31,7 @@ export const serverUtcOffsetHours = -2;
 
 const rotationAnchor = {
   date: "2026-06-23",
-  group: "A" as MissionGroup,
+  group: "C" as MissionGroup,
 };
 
 export const serverRecords = Object.entries(serverGroups)
