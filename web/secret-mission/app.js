@@ -60,6 +60,8 @@ const translations = {
     copyServersAria: "Copy today's server list",
     copySuccess: (count) => `Copied ${count} servers`,
     exclusionSettingsTitle: "Exclusion settings",
+    resetExclusionsAria: "Reset exclusions to default",
+    resetExclusionsLabel: "default",
     timeDisplayAria: "Time display",
     timeDisplayOptions: {
       local: "Local",
@@ -70,7 +72,7 @@ const translations = {
     resetNote: "Updates at server time 00:00 (11:00 Japan time)",
     closedServerAria: (number) => `Server ${number}, closed`,
     serverAria: (number, group) => `Server ${number}, group ${group}`,
-    serverRangeAria: "Server exclusion range",
+    serverRangeAria: "Server exclusions",
     themeAria: "Display theme",
     themeOptions: {
       dark: "Dark",
@@ -93,6 +95,8 @@ const translations = {
     copyServersAria: "今日のサーバーリストをコピー",
     copySuccess: (count) => `${count}件のサーバーをコピーしました`,
     exclusionSettingsTitle: "除外設定",
+    resetExclusionsAria: "除外設定をデフォルトに戻す",
+    resetExclusionsLabel: "default",
     timeDisplayAria: "時間表示",
     timeDisplayOptions: {
       local: "現地",
@@ -103,7 +107,7 @@ const translations = {
     resetNote: "サーバー時間0:00更新（日本時間11:00）",
     closedServerAria: (number) => `サーバー ${number} 閉鎖`,
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
-    serverRangeAria: "除外サーバー範囲設定",
+    serverRangeAria: "除外サーバー設定",
     themeAria: "表示テーマ",
     themeOptions: {
       dark: "ダーク",
@@ -407,6 +411,7 @@ const languageSelect = document.querySelector("#language-select");
 const filterSection = document.querySelector(".filter-section");
 const exclusionSettingsTitle = document.querySelector("#exclusion-settings-title");
 const groupLegend = document.querySelector(".legend");
+const resetExclusionsButton = document.querySelector("#reset-exclusions-button");
 const allServerList = document.querySelector("#all-server-list");
 
 const serverRecords = buildServerRecords();
@@ -414,9 +419,8 @@ const serverGroupByNumber = new Map(serverRecords.map((record) => [record.number
 const minServerNumber = serverRecords[0].number;
 const maxServerNumber = serverRecords[serverRecords.length - 1].number;
 const allServerRecords = buildAllServerRecords();
-const serverNumberSet = new Set(allServerRecords.map((record) => record.number));
 const anchorSerial = serialFromDateString(rotationAnchor.date);
-const excludedRangeCookieName = "lastwar-secret-mission-excluded-range";
+const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 let currentTime = new Date();
 let missionDay = getServerMissionDay(currentTime);
 let todayGroup = getGroupForSerial(missionDay.serial);
@@ -425,21 +429,9 @@ let localePreference = storedLocalePreference();
 let locale = resolveLocale(localePreference);
 let copy = translations[locale];
 let timeDisplayMode = storedTimeDisplayPreference();
-let nextRangePick = "start";
-let excludedRangeStart = null;
-let excludedRangeEnd = null;
+const excludedServers = new Set();
 let copyStatusTimer = null;
-let suppressNextClick = false;
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
-const dragSelection = {
-  active: false,
-  currentServer: null,
-  moved: false,
-  originX: 0,
-  originY: 0,
-  pointerId: null,
-  startServer: null,
-};
 
 function storedLocalePreference() {
   try {
@@ -613,6 +605,9 @@ function applyLocale() {
   filterSection.setAttribute("aria-label", copy.serverRangeAria);
   exclusionSettingsTitle.textContent = copy.exclusionSettingsTitle;
   groupLegend.setAttribute("aria-label", copy.groupLegendAria);
+  resetExclusionsButton.textContent = localized("resetExclusionsLabel");
+  resetExclusionsButton.setAttribute("aria-label", localized("resetExclusionsAria"));
+  resetExclusionsButton.title = localized("resetExclusionsAria");
   renderLanguageOptions();
 
   themeButtons.forEach((button) => {
@@ -727,6 +722,7 @@ function createServerChip(record, options = {}) {
   const chip = document.createElement(options.interactive ? "button" : "span");
   const groupClass = record.closed ? "group-closed" : `group-${record.group.toLowerCase()}`;
   chip.className = `server-chip ${groupClass}`;
+  chip.dataset.server = String(record.number);
   chip.setAttribute(
     "aria-label",
     record.closed ? copy.closedServerAria(record.number) : copy.serverAria(record.number, record.group),
@@ -738,9 +734,7 @@ function createServerChip(record, options = {}) {
 
   if (options.interactive) {
     chip.type = "button";
-    chip.dataset.server = String(record.number);
-    chip.addEventListener("pointerdown", (event) => startRangeDrag(record.number, event));
-    chip.addEventListener("click", (event) => handleServerChipClick(record.number, event));
+    chip.addEventListener("click", () => toggleServerExclusion(record.number));
   }
 
   return chip;
@@ -903,87 +897,61 @@ function getCookieValue(name) {
     ?.slice(name.length + 1);
 }
 
-function saveExcludedRangePreference() {
-  if (excludedRangeStart === null || excludedRangeEnd === null) {
-    document.cookie = `${excludedRangeCookieName}=; path=/; max-age=0; SameSite=Lax`;
+function saveExcludedServersPreference() {
+  if (excludedServers.size === 0) {
+    document.cookie = `${excludedServersCookieName}=; path=/; max-age=0; SameSite=Lax`;
     return;
   }
 
-  const value = encodeURIComponent(`${excludedRangeStart}-${excludedRangeEnd}`);
+  const value = encodeURIComponent([...excludedServers].sort((a, b) => a - b).join(","));
   const oneYear = 60 * 60 * 24 * 365;
-  document.cookie = `${excludedRangeCookieName}=${value}; path=/; max-age=${oneYear}; SameSite=Lax`;
+  document.cookie = `${excludedServersCookieName}=${value}; path=/; max-age=${oneYear}; SameSite=Lax`;
 }
 
-function initializeExcludedRange() {
-  const savedRange = getCookieValue(excludedRangeCookieName);
+function initializeExcludedServers() {
+  const savedServers = getCookieValue(excludedServersCookieName);
 
-  if (!savedRange) {
+  if (!savedServers) {
     return;
   }
-
-  let start;
-  let end;
 
   try {
-    [start, end] = decodeURIComponent(savedRange).split("-").map(Number);
+    decodeURIComponent(savedServers)
+      .split(",")
+      .map(Number)
+      .filter((number) => serverGroupByNumber.has(number))
+      .forEach((number) => excludedServers.add(number));
   } catch (_error) {
-    start = Number.NaN;
-    end = Number.NaN;
+    excludedServers.clear();
+    saveExcludedServersPreference();
   }
-
-  const isValidRange = serverNumberSet.has(start) && serverNumberSet.has(end);
-
-  if (!isValidRange) {
-    excludedRangeStart = null;
-    excludedRangeEnd = null;
-    saveExcludedRangePreference();
-    return;
-  }
-
-  excludedRangeStart = start;
-  excludedRangeEnd = end;
-}
-
-function currentExcludedRangeBounds() {
-  if (excludedRangeStart === null || excludedRangeEnd === null) {
-    return { minValue: null, maxValue: null };
-  }
-
-  return {
-    minValue: Math.min(excludedRangeStart, excludedRangeEnd),
-    maxValue: Math.max(excludedRangeStart, excludedRangeEnd),
-  };
 }
 
 function isServerExcluded(number) {
-  const { minValue, maxValue } = currentExcludedRangeBounds();
-
-  return minValue !== null && number >= minValue && number <= maxValue;
+  return excludedServers.has(number);
 }
 
 function renderServerRange() {
-  const { minValue, maxValue } = currentExcludedRangeBounds();
-  const hasExcludedRange = minValue !== null && maxValue !== null;
-
   allServerList.innerHTML = "";
   allServerRecords.forEach((record) => {
-    const chip = createServerChip(record, { interactive: true });
+    const chip = createServerChip(record, { interactive: !record.closed });
     const excluded = isServerExcluded(record.number);
 
     chip.classList.toggle("is-closed", record.closed);
     chip.classList.toggle("is-excluded", excluded && !record.closed);
-    chip.classList.toggle("is-range-start", hasExcludedRange && record.number === minValue);
-    chip.classList.toggle("is-range-end", hasExcludedRange && record.number === maxValue);
-    chip.setAttribute("aria-pressed", String(excluded));
+
+    if (record.closed) {
+      chip.setAttribute("aria-disabled", "true");
+    } else {
+      chip.setAttribute("aria-pressed", String(excluded));
+    }
 
     allServerList.append(chip);
   });
 }
 
-function updateExcludedRange(startServer, endServer) {
-  excludedRangeStart = startServer;
-  excludedRangeEnd = endServer;
-  saveExcludedRangePreference();
+function updateExcludedServers() {
+  saveExcludedServersPreference();
   renderToday();
   renderServerRange();
 }
@@ -996,106 +964,27 @@ function refreshMissionState() {
   renderMissionCalendar();
 }
 
-function handleServerChipClick(serverNumber, event) {
-  if (suppressNextClick) {
-    event.preventDefault();
-    suppressNextClick = false;
+function toggleServerExclusion(serverNumber) {
+  if (!serverGroupByNumber.has(serverNumber)) {
     return;
   }
 
-  selectRangeFromCard(serverNumber);
-}
-
-function selectRangeFromCard(serverNumber) {
-  if (nextRangePick === "start") {
-    excludedRangeStart = serverNumber;
-    excludedRangeEnd = serverNumber;
-    nextRangePick = "end";
+  if (excludedServers.has(serverNumber)) {
+    excludedServers.delete(serverNumber);
   } else {
-    excludedRangeEnd = serverNumber;
-    nextRangePick = "start";
+    excludedServers.add(serverNumber);
   }
 
-  updateExcludedRange(excludedRangeStart, excludedRangeEnd);
+  updateExcludedServers();
 }
 
-function findDraggedServerNumber(event) {
-  const target = document.elementFromPoint(event.clientX, event.clientY);
-  const chip = target?.closest?.("#all-server-list [data-server]");
-  const serverNumber = Number(chip?.dataset.server);
-
-  return serverNumberSet.has(serverNumber) ? serverNumber : null;
-}
-
-function startRangeDrag(serverNumber, event) {
-  if (event.button !== 0) {
+function resetExclusionsToDefault() {
+  if (excludedServers.size === 0) {
     return;
   }
 
-  dragSelection.active = true;
-  dragSelection.currentServer = serverNumber;
-  dragSelection.moved = false;
-  dragSelection.originX = event.clientX;
-  dragSelection.originY = event.clientY;
-  dragSelection.pointerId = event.pointerId;
-  dragSelection.startServer = serverNumber;
-  allServerList.classList.add("is-dragging");
-
-  document.addEventListener("pointermove", updateRangeDrag);
-  document.addEventListener("pointerup", finishRangeDrag);
-  document.addEventListener("pointercancel", finishRangeDrag);
-}
-
-function updateRangeDrag(event) {
-  if (!dragSelection.active || event.pointerId !== dragSelection.pointerId) {
-    return;
-  }
-
-  const nextServer = findDraggedServerNumber(event);
-  const dragDistance = Math.hypot(event.clientX - dragSelection.originX, event.clientY - dragSelection.originY);
-  const hasDragIntent = nextServer !== null && (nextServer !== dragSelection.startServer || dragDistance > 6);
-
-  if (!dragSelection.moved && !hasDragIntent) {
-    return;
-  }
-
-  if (!dragSelection.moved) {
-    dragSelection.moved = true;
-    suppressNextClick = true;
-  }
-
-  event.preventDefault();
-
-  if (nextServer !== null && nextServer !== dragSelection.currentServer) {
-    dragSelection.currentServer = nextServer;
-    updateExcludedRange(dragSelection.startServer, nextServer);
-  }
-}
-
-function finishRangeDrag(event) {
-  if (!dragSelection.active || event.pointerId !== dragSelection.pointerId) {
-    return;
-  }
-
-  if (dragSelection.moved) {
-    suppressNextClick = true;
-    nextRangePick = "start";
-    updateExcludedRange(dragSelection.startServer, dragSelection.currentServer);
-    window.setTimeout(() => {
-      suppressNextClick = false;
-    }, 0);
-  }
-
-  dragSelection.active = false;
-  dragSelection.currentServer = null;
-  dragSelection.moved = false;
-  dragSelection.pointerId = null;
-  dragSelection.startServer = null;
-  allServerList.classList.remove("is-dragging");
-
-  document.removeEventListener("pointermove", updateRangeDrag);
-  document.removeEventListener("pointerup", finishRangeDrag);
-  document.removeEventListener("pointercancel", finishRangeDrag);
+  excludedServers.clear();
+  updateExcludedServers();
 }
 
 themeButtons.forEach((button) => {
@@ -1104,6 +993,7 @@ themeButtons.forEach((button) => {
 timeButtons.forEach((button) => {
   button.addEventListener("click", () => saveTimeDisplayPreference(button.dataset.timeDisplay));
 });
+resetExclusionsButton.addEventListener("click", resetExclusionsToDefault);
 todayServerList.addEventListener("click", copyTodayServerList);
 todayServerList.addEventListener("keydown", (event) => {
   if (event.key !== "Enter" && event.key !== " ") {
@@ -1123,7 +1013,7 @@ themeMedia.addEventListener("change", () => {
 applyLocale();
 applyThemePreference(storedThemePreference());
 applyTimeDisplayPreference();
-initializeExcludedRange();
+initializeExcludedServers();
 renderToday();
 renderMissionCalendar();
 renderServerRange();

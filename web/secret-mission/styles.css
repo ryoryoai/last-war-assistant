@@ -507,6 +507,24 @@ button.server-chip:focus-visible {
   font-weight: 900;
 }
 
+button.legend-item {
+  appearance: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.reset-exclusions {
+  min-width: 72px;
+  border-color: var(--line);
+  background: var(--surface-soft);
+  color: var(--muted-text);
+}
+
+.reset-exclusions:hover,
+.reset-exclusions:focus-visible {
+  outline: 3px solid color-mix(in oklch, var(--focus) 28%, transparent);
+}
+
 .all-server-list .server-chip {
   touch-action: none;
   user-select: none;
@@ -516,26 +534,10 @@ button.server-chip:focus-visible {
     box-shadow 120ms ease;
 }
 
-.all-server-list.is-dragging,
-.all-server-list.is-dragging .server-chip {
-  cursor: grabbing;
-}
-
 .all-server-list .server-chip.is-closed,
 .all-server-list .server-chip.is-excluded {
   opacity: 0.42;
   box-shadow: none;
-}
-
-.all-server-list .server-chip.is-range-start,
-.all-server-list .server-chip.is-range-end {
-  box-shadow:
-    0 0 0 3px var(--foreground),
-    0 8px 18px rgb(var(--shadow-color) / 18%);
-}
-
-.all-server-list .server-chip.is-range-start.is-range-end {
-  transform: translateY(-1px);
 }
 
 @media (max-width: 720px) {
