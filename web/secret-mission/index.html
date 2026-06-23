@@ -28,20 +28,25 @@
       <section class="filter-section" aria-labelledby="all-server-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Filter</p>
-            <h2 id="all-server-title">全サーバー確認</h2>
+            <p class="eyebrow">Settings</p>
+            <h2 id="all-server-title">表示範囲設定</h2>
           </div>
           <span class="range-count" id="range-count">-</span>
         </div>
 
+        <div class="selected-range" aria-label="選択中のサーバー範囲">
+          <span>開始 <b id="selected-start">-</b></span>
+          <span>終了 <b id="selected-end">-</b></span>
+        </div>
+
         <div class="range-panel">
           <label class="range-field" for="server-min-range">
-            <span>最小</span>
+            <span>開始</span>
             <input id="server-min-range" type="range" />
             <output id="server-min-output" for="server-min-range">-</output>
           </label>
           <label class="range-field" for="server-max-range">
-            <span>最大</span>
+            <span>終了</span>
             <input id="server-max-range" type="range" />
             <output id="server-max-output" for="server-max-range">-</output>
           </label>

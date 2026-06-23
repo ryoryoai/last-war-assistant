@@ -33,6 +33,10 @@ input {
   font: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
 .shell {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -147,6 +151,7 @@ h2 {
   min-height: 42px;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0 8px;
@@ -154,6 +159,27 @@ h2 {
   color: var(--ink);
   font-size: 14px;
   font-weight: 900;
+}
+
+button.server-chip {
+  appearance: none;
+}
+
+button.server-chip:hover,
+button.server-chip:focus-visible {
+  outline: 3px solid rgb(49 110 203 / 20%);
+}
+
+.server-chip .chip-group {
+  display: inline-flex;
+  min-width: 20px;
+  min-height: 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 76%);
+  font-size: 11px;
+  line-height: 1;
 }
 
 .server-chip.group-a,
@@ -201,6 +227,31 @@ h2 {
   color: var(--muted);
   font-size: 13px;
   font-weight: 800;
+}
+
+.selected-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.selected-range span {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.selected-range b {
+  color: var(--ink);
 }
 
 .range-panel {
@@ -257,6 +308,32 @@ input[type="range"] {
   border-radius: 999px;
   font-size: 13px;
   font-weight: 900;
+}
+
+.all-server-list .server-chip {
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.all-server-list .server-chip.is-outside-range {
+  opacity: 0.34;
+}
+
+.all-server-list .server-chip.is-in-range {
+  box-shadow: 0 6px 14px rgb(17 24 39 / 8%);
+}
+
+.all-server-list .server-chip.is-range-start,
+.all-server-list .server-chip.is-range-end {
+  box-shadow:
+    0 0 0 3px #17202a,
+    0 8px 18px rgb(17 24 39 / 14%);
+}
+
+.all-server-list .server-chip.is-range-start.is-range-end {
+  transform: translateY(-1px);
 }
 
 @media (max-width: 720px) {

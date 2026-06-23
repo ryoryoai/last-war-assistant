@@ -36,6 +36,8 @@ const maxRange = document.querySelector("#server-max-range");
 const minOutput = document.querySelector("#server-min-output");
 const maxOutput = document.querySelector("#server-max-output");
 const rangeCount = document.querySelector("#range-count");
+const selectedStart = document.querySelector("#selected-start");
+const selectedEnd = document.querySelector("#selected-end");
 
 const serverRecords = buildServerRecords();
 const minServerNumber = serverRecords[0].number;
@@ -43,6 +45,7 @@ const maxServerNumber = serverRecords[serverRecords.length - 1].number;
 const anchorSerial = serialFromDateString(rotationAnchor.date);
 const gameDay = getJstGameDay();
 const todayGroup = getGroupForSerial(gameDay.serial);
+let nextRangePick = "start";
 
 function buildServerRecords() {
   return Object.entries(serverGroups)
@@ -93,12 +96,35 @@ function getGroupForSerial(serial) {
   return groupOrder[positiveModulo(anchorIndex + offset, groupOrder.length)];
 }
 
-function createServerChip(record) {
-  const chip = document.createElement("span");
+function createServerChip(record, options = {}) {
+  const chip = document.createElement(options.interactive ? "button" : "span");
   chip.className = `server-chip group-${record.group.toLowerCase()}`;
-  chip.textContent = `#${record.number}`;
   chip.setAttribute("aria-label", `サーバー ${record.number} グループ ${record.group}`);
+
+  const number = document.createElement("span");
+  number.textContent = `#${record.number}`;
+  chip.append(number);
+
+  const badge = document.createElement("span");
+  badge.className = "chip-group";
+  badge.textContent = record.group;
+  chip.append(badge);
+
+  if (options.interactive) {
+    chip.type = "button";
+    chip.dataset.server = String(record.number);
+    chip.addEventListener("click", () => selectRangeFromCard(record.number));
+  }
+
   return chip;
+}
+
+function nearestServerNumber(value) {
+  return serverRecords.reduce((nearest, record) => {
+    const currentDistance = Math.abs(record.number - value);
+    const nearestDistance = Math.abs(nearest - value);
+    return currentDistance < nearestDistance ? record.number : nearest;
+  }, serverRecords[0].number);
 }
 
 function renderToday() {
@@ -140,13 +166,55 @@ function renderFilteredServers(changedRange = null) {
     }
   }
 
-  const visibleServers = serverRecords.filter((record) => record.number >= minValue && record.number <= maxValue);
+  minValue = nearestServerNumber(minValue);
+  maxValue = nearestServerNumber(maxValue);
 
+  if (minValue > maxValue) {
+    if (changedRange === minRange) {
+      maxValue = minValue;
+    } else {
+      minValue = maxValue;
+    }
+  }
+
+  minRange.value = String(minValue);
+  maxRange.value = String(maxValue);
   minOutput.textContent = `#${minValue}`;
   maxOutput.textContent = `#${maxValue}`;
-  rangeCount.textContent = `${visibleServers.length}件`;
+  selectedStart.textContent = `#${minValue}`;
+  selectedEnd.textContent = `#${maxValue}`;
+
+  const selectedCount = serverRecords.filter((record) => record.number >= minValue && record.number <= maxValue).length;
+  rangeCount.textContent = `${selectedCount}件 / #${minValue}-#${maxValue}`;
+
   allServerList.innerHTML = "";
-  visibleServers.forEach((record) => allServerList.append(createServerChip(record)));
+  serverRecords.forEach((record) => {
+    const chip = createServerChip(record, { interactive: true });
+    const inRange = record.number >= minValue && record.number <= maxValue;
+
+    chip.classList.toggle("is-in-range", inRange);
+    chip.classList.toggle("is-outside-range", !inRange);
+    chip.classList.toggle("is-range-start", record.number === minValue);
+    chip.classList.toggle("is-range-end", record.number === maxValue);
+    chip.setAttribute("aria-pressed", String(inRange));
+
+    allServerList.append(chip);
+  });
+}
+
+function selectRangeFromCard(serverNumber) {
+  if (nextRangePick === "start") {
+    minRange.value = String(serverNumber);
+    maxRange.value = String(serverNumber);
+    nextRangePick = "end";
+  } else {
+    const start = Number(minRange.value);
+    minRange.value = String(Math.min(start, serverNumber));
+    maxRange.value = String(Math.max(start, serverNumber));
+    nextRangePick = "start";
+  }
+
+  renderFilteredServers();
 }
 
 minRange.addEventListener("input", () => renderFilteredServers(minRange));
