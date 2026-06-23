@@ -17,8 +17,9 @@ const serverGroups = {
 };
 
 const groupOrder = ["A", "B", "C"];
+const hourInMilliseconds = 60 * 60 * 1000;
 const dayInMilliseconds = 24 * 60 * 60 * 1000;
-const resetHourJst = 11;
+const serverUtcOffsetHours = -2;
 const rotationAnchor = {
   date: "2026-06-23",
   group: "A",
@@ -52,7 +53,21 @@ const translations = {
     groupLegendAria: "Group legend",
     languageAria: "Language",
     languageAuto: "Auto",
+    calendarCurrent: "Current",
+    calendarItemAria: (date, group) => `${date}, group ${group}`,
+    calendarTitle: "This Month's Mission Calendar",
+    copyFailed: "Copy failed",
+    copyServersAria: "Copy today's server list",
+    copySuccess: (count) => `Copied ${count} servers`,
     exclusionSettingsTitle: "Exclusion settings",
+    timeDisplayAria: "Time display",
+    timeDisplayOptions: {
+      local: "Local",
+      server: "Server",
+    },
+    timeSummary: (mode, current, nextReset) => `${mode} time ${current} / Next update ${nextReset}`,
+    missionCalendarAria: "Mission calendar",
+    resetNote: "Updates at server time 00:00 (11:00 Japan time)",
     closedServerAria: (number) => `Server ${number}, closed`,
     serverAria: (number, group) => `Server ${number}, group ${group}`,
     serverRangeAria: "Server exclusion range",
@@ -71,7 +86,21 @@ const translations = {
     groupLegendAria: "グループ凡例",
     languageAria: "言語",
     languageAuto: "自動",
+    calendarCurrent: "現在",
+    calendarItemAria: (date, group) => `${date} グループ ${group}`,
+    calendarTitle: "今月の任務カレンダー",
+    copyFailed: "コピーできませんでした",
+    copyServersAria: "今日のサーバーリストをコピー",
+    copySuccess: (count) => `${count}件のサーバーをコピーしました`,
     exclusionSettingsTitle: "除外設定",
+    timeDisplayAria: "時間表示",
+    timeDisplayOptions: {
+      local: "現地",
+      server: "サーバー",
+    },
+    timeSummary: (mode, current, nextReset) => `${mode}時間 ${current} / 次回更新 ${nextReset}`,
+    missionCalendarAria: "任務カレンダー",
+    resetNote: "サーバー時間0:00更新（日本時間11:00）",
     closedServerAria: (number) => `サーバー ${number} 閉鎖`,
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
     serverRangeAria: "除外サーバー範囲設定",
@@ -90,7 +119,13 @@ const translations = {
     groupLegendAria: "그룹 범례",
     languageAria: "언어",
     languageAuto: "자동",
+    calendarCurrent: "현재",
+    calendarItemAria: (date, group) => `${date}, 그룹 ${group}`,
+    calendarTitle: "이번 달 임무 달력",
     exclusionSettingsTitle: "제외 설정",
+    localTimeSummary: (current, nextReset) => `현지 시간 ${current} / 다음 갱신 ${nextReset}`,
+    missionCalendarAria: "임무 달력",
+    resetNote: "일본 시간 11:00에 갱신",
     closedServerAria: (number) => `서버 ${number}, 폐쇄됨`,
     serverAria: (number, group) => `서버 ${number}, 그룹 ${group}`,
     serverRangeAria: "제외할 서버 범위 선택",
@@ -109,7 +144,13 @@ const translations = {
     groupLegendAria: "分组图例",
     languageAria: "语言",
     languageAuto: "自动",
+    calendarCurrent: "当前",
+    calendarItemAria: (date, group) => `${date}，分组 ${group}`,
+    calendarTitle: "本月任务日历",
     exclusionSettingsTitle: "排除设置",
+    localTimeSummary: (current, nextReset) => `当地时间 ${current} / 下次更新 ${nextReset}`,
+    missionCalendarAria: "任务日历",
+    resetNote: "日本时间 11:00 更新",
     closedServerAria: (number) => `服务器 ${number}，已关闭`,
     serverAria: (number, group) => `服务器 ${number}，分组 ${group}`,
     serverRangeAria: "排除服务器范围选择",
@@ -128,7 +169,13 @@ const translations = {
     groupLegendAria: "分組圖例",
     languageAria: "語言",
     languageAuto: "自動",
+    calendarCurrent: "目前",
+    calendarItemAria: (date, group) => `${date}，分組 ${group}`,
+    calendarTitle: "本月任務日曆",
     exclusionSettingsTitle: "排除設定",
+    localTimeSummary: (current, nextReset) => `當地時間 ${current} / 下次更新 ${nextReset}`,
+    missionCalendarAria: "任務日曆",
+    resetNote: "日本時間 11:00 更新",
     closedServerAria: (number) => `伺服器 ${number}，已關閉`,
     serverAria: (number, group) => `伺服器 ${number}，分組 ${group}`,
     serverRangeAria: "排除伺服器範圍選擇",
@@ -147,7 +194,13 @@ const translations = {
     groupLegendAria: "Leyenda de grupos",
     languageAria: "Idioma",
     languageAuto: "Automático",
+    calendarCurrent: "Actual",
+    calendarItemAria: (date, group) => `${date}, grupo ${group}`,
+    calendarTitle: "Calendario de misiones de este mes",
     exclusionSettingsTitle: "Ajustes de exclusión",
+    localTimeSummary: (current, nextReset) => `Hora local ${current} / Próxima actualización ${nextReset}`,
+    missionCalendarAria: "Calendario de misiones",
+    resetNote: "Se actualiza a las 11:00, hora de Japón",
     closedServerAria: (number) => `Servidor ${number}, cerrado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverRangeAria: "Rango de servidores excluidos",
@@ -166,7 +219,13 @@ const translations = {
     groupLegendAria: "Legenda de grupos",
     languageAria: "Idioma",
     languageAuto: "Automático",
+    calendarCurrent: "Atual",
+    calendarItemAria: (date, group) => `${date}, grupo ${group}`,
+    calendarTitle: "Calendário de missões deste mês",
     exclusionSettingsTitle: "Configurações de exclusão",
+    localTimeSummary: (current, nextReset) => `Hora local ${current} / Próxima atualização ${nextReset}`,
+    missionCalendarAria: "Calendário de missões",
+    resetNote: "Atualiza às 11:00 no horário do Japão",
     closedServerAria: (number) => `Servidor ${number}, fechado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverRangeAria: "Intervalo de servidores excluidos",
@@ -185,7 +244,13 @@ const translations = {
     groupLegendAria: "Légende des groupes",
     languageAria: "Langue",
     languageAuto: "Auto",
+    calendarCurrent: "Actuel",
+    calendarItemAria: (date, group) => `${date}, groupe ${group}`,
+    calendarTitle: "Calendrier des missions du mois",
     exclusionSettingsTitle: "Paramètres d'exclusion",
+    localTimeSummary: (current, nextReset) => `Heure locale ${current} / Prochaine mise à jour ${nextReset}`,
+    missionCalendarAria: "Calendrier des missions",
+    resetNote: "Mise à jour à 11:00, heure du Japon",
     closedServerAria: (number) => `Serveur ${number}, fermé`,
     serverAria: (number, group) => `Serveur ${number}, groupe ${group}`,
     serverRangeAria: "Plage de serveurs exclus",
@@ -204,7 +269,13 @@ const translations = {
     groupLegendAria: "Gruppenlegende",
     languageAria: "Sprache",
     languageAuto: "Automatisch",
+    calendarCurrent: "Aktuell",
+    calendarItemAria: (date, group) => `${date}, Gruppe ${group}`,
+    calendarTitle: "Missionskalender dieses Monats",
     exclusionSettingsTitle: "Ausschlusseinstellungen",
+    localTimeSummary: (current, nextReset) => `Ortszeit ${current} / Nächste Aktualisierung ${nextReset}`,
+    missionCalendarAria: "Missionskalender",
+    resetNote: "Aktualisierung um 11:00 Uhr japanischer Zeit",
     closedServerAria: (number) => `Server ${number}, geschlossen`,
     serverAria: (number, group) => `Server ${number}, Gruppe ${group}`,
     serverRangeAria: "Ausgeschlossener Serverbereich",
@@ -223,7 +294,13 @@ const translations = {
     groupLegendAria: "Legenda grup",
     languageAria: "Bahasa",
     languageAuto: "Otomatis",
+    calendarCurrent: "Saat ini",
+    calendarItemAria: (date, group) => `${date}, grup ${group}`,
+    calendarTitle: "Kalender misi bulan ini",
     exclusionSettingsTitle: "Pengaturan pengecualian",
+    localTimeSummary: (current, nextReset) => `Waktu lokal ${current} / Pembaruan berikutnya ${nextReset}`,
+    missionCalendarAria: "Kalender misi",
+    resetNote: "Diperbarui pukul 11:00 waktu Jepang",
     closedServerAria: (number) => `Server ${number}, ditutup`,
     serverAria: (number, group) => `Server ${number}, grup ${group}`,
     serverRangeAria: "Rentang server yang dikecualikan",
@@ -242,7 +319,13 @@ const translations = {
     groupLegendAria: "Chú giải nhóm",
     languageAria: "Ngôn ngữ",
     languageAuto: "Tự động",
+    calendarCurrent: "Hiện tại",
+    calendarItemAria: (date, group) => `${date}, nhóm ${group}`,
+    calendarTitle: "Lịch nhiệm vụ tháng này",
     exclusionSettingsTitle: "Cài đặt loại trừ",
+    localTimeSummary: (current, nextReset) => `Giờ địa phương ${current} / Cập nhật tiếp theo ${nextReset}`,
+    missionCalendarAria: "Lịch nhiệm vụ",
+    resetNote: "Cập nhật lúc 11:00 giờ Nhật Bản",
     closedServerAria: (number) => `Máy chủ ${number}, đã đóng`,
     serverAria: (number, group) => `Máy chủ ${number}, nhóm ${group}`,
     serverRangeAria: "Chọn phạm vi máy chủ bị loại trừ",
@@ -261,7 +344,13 @@ const translations = {
     groupLegendAria: "คำอธิบายกลุ่ม",
     languageAria: "ภาษา",
     languageAuto: "อัตโนมัติ",
+    calendarCurrent: "ปัจจุบัน",
+    calendarItemAria: (date, group) => `${date} กลุ่ม ${group}`,
+    calendarTitle: "ปฏิทินภารกิจเดือนนี้",
     exclusionSettingsTitle: "ตั้งค่าการยกเว้น",
+    localTimeSummary: (current, nextReset) => `เวลาท้องถิ่น ${current} / อัปเดตถัดไป ${nextReset}`,
+    missionCalendarAria: "ปฏิทินภารกิจ",
+    resetNote: "อัปเดตเวลา 11:00 ตามเวลาญี่ปุ่น",
     closedServerAria: (number) => `เซิร์ฟเวอร์ ${number} ปิดแล้ว`,
     serverAria: (number, group) => `เซิร์ฟเวอร์ ${number} กลุ่ม ${group}`,
     serverRangeAria: "เลือกช่วงเซิร์ฟเวอร์ที่ยกเว้น",
@@ -280,7 +369,13 @@ const translations = {
     groupLegendAria: "Обозначения групп",
     languageAria: "Язык",
     languageAuto: "Авто",
+    calendarCurrent: "Текущая",
+    calendarItemAria: (date, group) => `${date}, группа ${group}`,
+    calendarTitle: "Календарь миссий на месяц",
     exclusionSettingsTitle: "Настройки исключений",
+    localTimeSummary: (current, nextReset) => `Местное время ${current} / Следующее обновление ${nextReset}`,
+    missionCalendarAria: "Календарь миссий",
+    resetNote: "Обновление в 11:00 по японскому времени",
     closedServerAria: (number) => `Сервер ${number}, закрыт`,
     serverAria: (number, group) => `Сервер ${number}, группа ${group}`,
     serverRangeAria: "Диапазон исключенных серверов",
@@ -300,8 +395,14 @@ const todayGroupBadge = document.querySelector("#today-group-badge");
 const todayTitle = document.querySelector("#today-title");
 const todayDate = document.querySelector("#today-date");
 const todayServerList = document.querySelector("#today-server-list");
+const copyStatus = document.querySelector("#copy-status");
+const missionCalendarTitle = document.querySelector("#mission-calendar-title");
+const missionResetNote = document.querySelector("#mission-reset-note");
+const missionCalendar = document.querySelector("#mission-calendar");
 const themeToggle = document.querySelector(".theme-toggle");
 const themeButtons = document.querySelectorAll("[data-theme-option]");
+const timeToggle = document.querySelector(".time-toggle");
+const timeButtons = document.querySelectorAll("[data-time-display]");
 const languageSelect = document.querySelector("#language-select");
 const filterSection = document.querySelector(".filter-section");
 const exclusionSettingsTitle = document.querySelector("#exclusion-settings-title");
@@ -315,15 +416,19 @@ const maxServerNumber = serverRecords[serverRecords.length - 1].number;
 const allServerRecords = buildAllServerRecords();
 const serverNumberSet = new Set(allServerRecords.map((record) => record.number));
 const anchorSerial = serialFromDateString(rotationAnchor.date);
-const gameDay = getJstGameDay();
-const todayGroup = getGroupForSerial(gameDay.serial);
 const excludedRangeCookieName = "lastwar-secret-mission-excluded-range";
+let currentTime = new Date();
+let missionDay = getServerMissionDay(currentTime);
+let todayGroup = getGroupForSerial(missionDay.serial);
+let todayServerNumbers = [];
 let localePreference = storedLocalePreference();
 let locale = resolveLocale(localePreference);
 let copy = translations[locale];
+let timeDisplayMode = storedTimeDisplayPreference();
 let nextRangePick = "start";
 let excludedRangeStart = null;
 let excludedRangeEnd = null;
+let copyStatusTimer = null;
 let suppressNextClick = false;
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 const dragSelection = {
@@ -345,6 +450,12 @@ function storedLocalePreference() {
   }
 }
 
+function localized(key, ...args) {
+  const value = copy[key] ?? translations.en[key];
+
+  return typeof value === "function" ? value(...args) : value;
+}
+
 function saveLocalePreference(preference) {
   localePreference = preference === "auto" || translations[preference] ? preference : "auto";
 
@@ -358,7 +469,31 @@ function saveLocalePreference(preference) {
   copy = translations[locale];
   applyLocale();
   renderToday();
+  renderMissionCalendar();
   renderServerRange();
+}
+
+function storedTimeDisplayPreference() {
+  try {
+    const preference = localStorage.getItem("lastwar-time-display") || "local";
+    return preference === "server" ? "server" : "local";
+  } catch (_error) {
+    return "local";
+  }
+}
+
+function saveTimeDisplayPreference(preference) {
+  timeDisplayMode = preference === "server" ? "server" : "local";
+
+  try {
+    localStorage.setItem("lastwar-time-display", timeDisplayMode);
+  } catch (_error) {
+    // Ignore storage errors and still apply the current selection.
+  }
+
+  applyTimeDisplayPreference();
+  renderToday();
+  renderMissionCalendar();
 }
 
 function resolveLocale(preference = "auto") {
@@ -424,26 +559,35 @@ function serialFromDateString(dateString) {
   return Date.UTC(year, month - 1, day) / dayInMilliseconds;
 }
 
-function getJstGameDay(now = new Date()) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Tokyo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    hourCycle: "h23",
-  });
-  const parts = Object.fromEntries(formatter.formatToParts(now).map((part) => [part.type, part.value]));
-  let serial = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)) / dayInMilliseconds;
-
-  if (Number(parts.hour) < resetHourJst) {
-    serial -= 1;
-  }
+function getServerMissionDay(now = new Date()) {
+  const serverNow = toServerDate(now);
+  const serial = Date.UTC(serverNow.getUTCFullYear(), serverNow.getUTCMonth(), serverNow.getUTCDate()) / dayInMilliseconds;
 
   return {
-    date: new Date(serial * dayInMilliseconds),
+    date: serialToDate(serial),
+    nextResetDate: serialToServerResetDate(serial + 1),
     serial,
   };
+}
+
+function toServerDate(date) {
+  return new Date(date.getTime() + serverUtcOffsetHours * hourInMilliseconds);
+}
+
+function serialToDate(serial) {
+  return new Date(serial * dayInMilliseconds);
+}
+
+function serialToServerResetDate(serial) {
+  return new Date(serial * dayInMilliseconds - serverUtcOffsetHours * hourInMilliseconds);
+}
+
+function getServerMonthRange(serial) {
+  const date = serialToDate(serial);
+  const firstSerial = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1) / dayInMilliseconds;
+  const nextMonthSerial = Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1) / dayInMilliseconds;
+
+  return { firstSerial, nextMonthSerial };
 }
 
 function getGroupForSerial(serial) {
@@ -458,7 +602,13 @@ function applyLocale() {
   document.documentElement.dataset.localePreference = localePreference;
   document.title = copy.title;
   todayTitle.textContent = copy.todayTitle;
+  missionCalendarTitle.textContent = copy.calendarTitle;
+  missionResetNote.textContent = copy.resetNote;
+  missionCalendar.setAttribute("aria-label", copy.missionCalendarAria);
   themeToggle.setAttribute("aria-label", copy.themeAria);
+  timeToggle.setAttribute("aria-label", localized("timeDisplayAria"));
+  todayServerList.setAttribute("aria-label", localized("copyServersAria"));
+  todayServerList.title = localized("copyServersAria");
   languageSelect.setAttribute("aria-label", copy.languageAria);
   filterSection.setAttribute("aria-label", copy.serverRangeAria);
   exclusionSettingsTitle.textContent = copy.exclusionSettingsTitle;
@@ -471,6 +621,15 @@ function applyLocale() {
     button.setAttribute("aria-label", label);
     button.title = label;
   });
+
+  timeButtons.forEach((button) => {
+    const label = localized("timeDisplayOptions")[button.dataset.timeDisplay];
+    button.textContent = label;
+    button.setAttribute("aria-label", label);
+    button.title = label;
+  });
+
+  applyTimeDisplayPreference();
 }
 
 function renderLanguageOptions() {
@@ -486,14 +645,82 @@ function renderLanguageOptions() {
   languageSelect.value = localePreference;
 }
 
-function formatGameDate(date) {
+function formatLocalDate(date) {
+  return new Intl.DateTimeFormat(copy.dateLocale, {
+    weekday: "short",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
+function formatServerDate(date) {
+  return new Intl.DateTimeFormat(copy.dateLocale, {
+    timeZone: "UTC",
+    weekday: "short",
+    month: "long",
+    day: "numeric",
+  }).format(toServerDate(date));
+}
+
+function formatLocalDateTime(date) {
+  return new Intl.DateTimeFormat(copy.dateLocale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(date);
+}
+
+function formatServerDateTime(date) {
   return new Intl.DateTimeFormat(copy.dateLocale, {
     timeZone: "UTC",
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
     weekday: "short",
-  }).format(date);
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(toServerDate(date));
+}
+
+function formatLocalWindow(startDate, endDate) {
+  const formatter = new Intl.DateTimeFormat(copy.dateLocale, {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `${formatter.format(startDate)} - ${formatter.format(endDate)}`;
+}
+
+function formatServerWindow(startDate, endDate) {
+  const formatter = new Intl.DateTimeFormat(copy.dateLocale, {
+    timeZone: "UTC",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `${formatter.format(toServerDate(startDate))} - ${formatter.format(toServerDate(endDate))}`;
+}
+
+function formatDisplayDateTime(date) {
+  return timeDisplayMode === "server" ? formatServerDateTime(date) : formatLocalDateTime(date);
+}
+
+function formatDisplayWindow(startDate, endDate) {
+  return timeDisplayMode === "server" ? formatServerWindow(startDate, endDate) : formatLocalWindow(startDate, endDate);
+}
+
+function formatCalendarDate(serial) {
+  const startDate = serialToServerResetDate(serial);
+
+  return timeDisplayMode === "server" ? formatServerDate(startDate) : formatLocalDate(startDate);
 }
 
 function createServerChip(record, options = {}) {
@@ -521,15 +748,111 @@ function createServerChip(record, options = {}) {
 
 function renderToday() {
   const todayServers = serverGroups[todayGroup].filter((number) => !isServerExcluded(number));
+  const timeLabel = localized("timeDisplayOptions")[timeDisplayMode];
 
+  todayServerNumbers = todayServers;
   todayCard.dataset.group = todayGroup;
   todayGroupBadge.textContent = todayGroup;
-  todayDate.textContent = formatGameDate(gameDay.date);
+  todayDate.textContent = localized("timeSummary", timeLabel, formatDisplayDateTime(currentTime), formatDisplayDateTime(missionDay.nextResetDate));
   todayServerList.innerHTML = "";
 
   todayServers.forEach((number) => {
     todayServerList.append(createServerChip({ number, group: todayGroup }));
   });
+}
+
+function renderMissionCalendar() {
+  const { firstSerial, nextMonthSerial } = getServerMonthRange(missionDay.serial);
+
+  missionCalendar.innerHTML = "";
+
+  for (let serial = firstSerial; serial < nextMonthSerial; serial += 1) {
+    const group = getGroupForSerial(serial);
+    const startDate = serialToServerResetDate(serial);
+    const endDate = serialToServerResetDate(serial + 1);
+    const dateLabel = formatCalendarDate(serial);
+    const item = document.createElement("div");
+    const isCurrent = serial === missionDay.serial;
+
+    item.className = `calendar-item group-${group.toLowerCase()}`;
+    item.classList.toggle("is-current", isCurrent);
+    item.setAttribute("aria-label", copy.calendarItemAria(dateLabel, group));
+
+    const date = document.createElement("span");
+    date.className = "calendar-date";
+    date.textContent = dateLabel;
+
+    const badge = document.createElement("span");
+    badge.className = "calendar-group";
+    badge.textContent = group;
+
+    const windowLabel = document.createElement("span");
+    windowLabel.className = "calendar-window";
+    windowLabel.textContent = formatDisplayWindow(startDate, endDate);
+
+    item.append(date, badge, windowLabel);
+
+    if (isCurrent) {
+      const current = document.createElement("span");
+      current.className = "calendar-current";
+      current.textContent = copy.calendarCurrent;
+      item.append(current);
+    }
+
+    missionCalendar.append(item);
+  }
+}
+
+async function copyTodayServerList() {
+  const text = todayServerNumbers.join(",");
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else if (!copyTextFallback(text)) {
+      throw new Error("Clipboard unavailable");
+    }
+
+    showCopyStatus(localized("copySuccess", todayServerNumbers.length));
+  } catch (_error) {
+    if (copyTextFallback(text)) {
+      showCopyStatus(localized("copySuccess", todayServerNumbers.length));
+      return;
+    }
+
+    showCopyStatus(localized("copyFailed"), true);
+  }
+}
+
+function copyTextFallback(text) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "");
+  textArea.style.position = "fixed";
+  textArea.style.top = "-1000px";
+  document.body.append(textArea);
+  textArea.select();
+
+  let copied = false;
+
+  try {
+    copied = document.execCommand("copy");
+  } catch (_error) {
+    copied = false;
+  }
+
+  textArea.remove();
+  return copied;
+}
+
+function showCopyStatus(message, isError = false) {
+  window.clearTimeout(copyStatusTimer);
+  copyStatus.textContent = message;
+  copyStatus.hidden = false;
+  copyStatus.classList.toggle("is-error", isError);
+  copyStatusTimer = window.setTimeout(() => {
+    copyStatus.hidden = true;
+  }, 1800);
 }
 
 function storedThemePreference() {
@@ -562,6 +885,15 @@ function saveThemePreference(preference) {
   }
 
   applyThemePreference(preference);
+}
+
+function applyTimeDisplayPreference() {
+  document.documentElement.dataset.timeDisplayMode = timeDisplayMode;
+
+  timeButtons.forEach((button) => {
+    const selected = button.dataset.timeDisplay === timeDisplayMode;
+    button.setAttribute("aria-pressed", String(selected));
+  });
 }
 
 function getCookieValue(name) {
@@ -654,6 +986,14 @@ function updateExcludedRange(startServer, endServer) {
   saveExcludedRangePreference();
   renderToday();
   renderServerRange();
+}
+
+function refreshMissionState() {
+  currentTime = new Date();
+  missionDay = getServerMissionDay(currentTime);
+  todayGroup = getGroupForSerial(missionDay.serial);
+  renderToday();
+  renderMissionCalendar();
 }
 
 function handleServerChipClick(serverNumber, event) {
@@ -761,6 +1101,18 @@ function finishRangeDrag(event) {
 themeButtons.forEach((button) => {
   button.addEventListener("click", () => saveThemePreference(button.dataset.themeOption));
 });
+timeButtons.forEach((button) => {
+  button.addEventListener("click", () => saveTimeDisplayPreference(button.dataset.timeDisplay));
+});
+todayServerList.addEventListener("click", copyTodayServerList);
+todayServerList.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") {
+    return;
+  }
+
+  event.preventDefault();
+  copyTodayServerList();
+});
 languageSelect.addEventListener("change", () => saveLocalePreference(languageSelect.value));
 themeMedia.addEventListener("change", () => {
   if (storedThemePreference() === "system") {
@@ -770,6 +1122,9 @@ themeMedia.addEventListener("change", () => {
 
 applyLocale();
 applyThemePreference(storedThemePreference());
+applyTimeDisplayPreference();
 initializeExcludedRange();
 renderToday();
+renderMissionCalendar();
 renderServerRange();
+window.setInterval(refreshMissionState, 60 * 1000);

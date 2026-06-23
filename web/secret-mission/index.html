@@ -39,6 +39,10 @@
                 <button type="button" data-theme-option="light">☀</button>
                 <button type="button" data-theme-option="dark">☾</button>
               </div>
+              <div class="time-toggle" role="group" aria-label="時間表示">
+                <button type="button" data-time-display="local">現地</button>
+                <button type="button" data-time-display="server">サーバー</button>
+              </div>
               <select class="language-select" id="language-select" aria-label="言語"></select>
             </div>
             <span class="today-badge" id="today-group-badge">-</span>
@@ -47,7 +51,16 @@
         <div class="today-meta">
           <span id="today-date">-</span>
         </div>
-        <div class="server-chip-list today-server-list" id="today-server-list"></div>
+        <div class="server-chip-list today-server-list" id="today-server-list" role="button" tabindex="0"></div>
+        <div class="copy-status" id="copy-status" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <section class="calendar-section" aria-labelledby="mission-calendar-title">
+        <div class="section-head">
+          <h2 id="mission-calendar-title">任務カレンダー</h2>
+          <span id="mission-reset-note">日本時間11:00更新</span>
+        </div>
+        <div class="mission-calendar" id="mission-calendar"></div>
       </section>
 
       <details class="filter-section" aria-label="サーバー範囲設定">

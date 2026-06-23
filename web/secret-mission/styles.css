@@ -133,6 +133,7 @@ h2 {
 }
 
 .today-card,
+.calendar-section,
 .filter-section {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -143,6 +144,11 @@ h2 {
 
 .today-card {
   padding: 22px;
+}
+
+.calendar-section {
+  margin-top: 18px;
+  padding: 18px;
 }
 
 .today-head {
@@ -165,7 +171,8 @@ h2 {
   gap: 8px;
 }
 
-.theme-toggle {
+.theme-toggle,
+.time-toggle {
   display: inline-flex;
   min-height: 38px;
   align-items: center;
@@ -176,7 +183,8 @@ h2 {
   background: var(--surface-soft);
 }
 
-.theme-toggle button {
+.theme-toggle button,
+.time-toggle button {
   width: 32px;
   min-height: 30px;
   border: 0;
@@ -189,13 +197,22 @@ h2 {
   line-height: 1;
 }
 
-.theme-toggle button[aria-pressed="true"] {
+.time-toggle button {
+  width: auto;
+  min-width: 54px;
+  padding: 0 9px;
+  font-size: 12px;
+}
+
+.theme-toggle button[aria-pressed="true"],
+.time-toggle button[aria-pressed="true"] {
   background: var(--surface);
   color: var(--ink);
   box-shadow: 0 1px 3px rgb(var(--shadow-color) / 14%);
 }
 
-.theme-toggle button:focus-visible {
+.theme-toggle button:focus-visible,
+.time-toggle button:focus-visible {
   outline: 3px solid color-mix(in oklch, var(--focus) 28%, transparent);
 }
 
@@ -260,9 +277,84 @@ h2 {
   display: inline-flex;
   min-height: 30px;
   align-items: center;
+  max-width: 100%;
   padding: 0 10px;
   border-radius: calc(var(--radius) * 0.75);
   background: var(--surface-soft);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-head span {
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mission-calendar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.calendar-item {
+  display: grid;
+  min-height: 72px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px;
+  background: var(--surface-soft);
+}
+
+.calendar-date {
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.calendar-group {
+  grid-row: span 2;
+  align-self: center;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.calendar-window {
+  color: var(--muted-text);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.calendar-current {
+  grid-column: 1 / -1;
+  align-self: start;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.calendar-item.is-current {
+  box-shadow:
+    0 0 0 2px var(--foreground),
+    0 8px 18px rgb(var(--shadow-color) / 12%);
 }
 
 .server-chip-list {
@@ -273,6 +365,22 @@ h2 {
 
 .today-server-list {
   margin-top: 18px;
+  cursor: copy;
+}
+
+.copy-status {
+  width: fit-content;
+  margin-top: 10px;
+  border-radius: calc(var(--radius) * 0.75);
+  padding: 6px 10px;
+  background: var(--surface-soft);
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.copy-status.is-error {
+  color: var(--a-foreground);
 }
 
 .server-chip {
@@ -300,6 +408,7 @@ button.server-chip:focus-visible {
 }
 
 .server-chip.group-a,
+.calendar-item.group-a,
 .legend-item.group-a {
   border-color: var(--a-border);
   background: var(--a-bg);
@@ -307,6 +416,7 @@ button.server-chip:focus-visible {
 }
 
 .server-chip.group-b,
+.calendar-item.group-b,
 .legend-item.group-b {
   border-color: var(--b-border);
   background: var(--b-bg);
@@ -314,6 +424,7 @@ button.server-chip:focus-visible {
 }
 
 .server-chip.group-c,
+.calendar-item.group-c,
 .legend-item.group-c {
   border-color: var(--c-border);
   background: var(--c-bg);
@@ -450,13 +561,25 @@ button.server-chip:focus-visible {
     width: 100%;
   }
 
+  .section-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .theme-toggle {
     display: grid;
     width: 100%;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .theme-toggle button {
+  .time-toggle {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .theme-toggle button,
+  .time-toggle button {
     width: 100%;
   }
 
