@@ -24,13 +24,241 @@ const rotationAnchor = {
   group: "A",
 };
 
+const translations = {
+  en: {
+    dateLocale: "en-US",
+    htmlLang: "en",
+    groupLegendAria: "Group legend",
+    serverAria: (number, group) => `Server ${number}, group ${group}`,
+    serverCount: (count) => `${count} ${count === 1 ? "server" : "servers"}`,
+    serverRangeAria: "Server range selection",
+    targetGroup: (group) => `Target group ${group}`,
+    themeAria: "Display theme",
+    themeOptions: {
+      dark: "Dark",
+      light: "Light",
+      system: "System",
+    },
+    title: "Today's Star Mission Servers | Last War Assistant",
+    todayTitle: "Today's Star Mission Servers",
+  },
+  ja: {
+    dateLocale: "ja-JP",
+    htmlLang: "ja",
+    groupLegendAria: "グループ凡例",
+    serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
+    serverCount: (count) => `${count}サーバー`,
+    serverRangeAria: "サーバー範囲設定",
+    targetGroup: (group) => `対象グループ ${group}`,
+    themeAria: "表示テーマ",
+    themeOptions: {
+      dark: "ダーク",
+      light: "ライト",
+      system: "システム",
+    },
+    title: "今日の星任務サーバー | Last War Assistant",
+    todayTitle: "今日の星任務サーバー",
+  },
+  ko: {
+    dateLocale: "ko-KR",
+    htmlLang: "ko",
+    groupLegendAria: "그룹 범례",
+    serverAria: (number, group) => `서버 ${number}, 그룹 ${group}`,
+    serverCount: (count) => `${count}개 서버`,
+    serverRangeAria: "서버 범위 선택",
+    targetGroup: (group) => `대상 그룹 ${group}`,
+    themeAria: "표시 테마",
+    themeOptions: {
+      dark: "다크",
+      light: "라이트",
+      system: "시스템",
+    },
+    title: "오늘의 별 임무 서버 | Last War Assistant",
+    todayTitle: "오늘의 별 임무 서버",
+  },
+  "zh-Hans": {
+    dateLocale: "zh-CN",
+    htmlLang: "zh-Hans",
+    groupLegendAria: "分组图例",
+    serverAria: (number, group) => `服务器 ${number}，分组 ${group}`,
+    serverCount: (count) => `${count} 个服务器`,
+    serverRangeAria: "服务器范围选择",
+    targetGroup: (group) => `目标分组 ${group}`,
+    themeAria: "显示主题",
+    themeOptions: {
+      dark: "深色",
+      light: "浅色",
+      system: "系统",
+    },
+    title: "今日星级任务服务器 | Last War Assistant",
+    todayTitle: "今日星级任务服务器",
+  },
+  "zh-Hant": {
+    dateLocale: "zh-TW",
+    htmlLang: "zh-Hant",
+    groupLegendAria: "分組圖例",
+    serverAria: (number, group) => `伺服器 ${number}，分組 ${group}`,
+    serverCount: (count) => `${count} 個伺服器`,
+    serverRangeAria: "伺服器範圍選擇",
+    targetGroup: (group) => `目標分組 ${group}`,
+    themeAria: "顯示主題",
+    themeOptions: {
+      dark: "深色",
+      light: "淺色",
+      system: "系統",
+    },
+    title: "今日星級任務伺服器 | Last War Assistant",
+    todayTitle: "今日星級任務伺服器",
+  },
+  es: {
+    dateLocale: "es-ES",
+    htmlLang: "es",
+    groupLegendAria: "Leyenda de grupos",
+    serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
+    serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
+    serverRangeAria: "Selección de rango de servidores",
+    targetGroup: (group) => `Grupo objetivo ${group}`,
+    themeAria: "Tema de visualización",
+    themeOptions: {
+      dark: "Oscuro",
+      light: "Claro",
+      system: "Sistema",
+    },
+    title: "Servidores de la misión estrella de hoy | Last War Assistant",
+    todayTitle: "Servidores de la misión estrella de hoy",
+  },
+  pt: {
+    dateLocale: "pt-BR",
+    htmlLang: "pt",
+    groupLegendAria: "Legenda de grupos",
+    serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
+    serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
+    serverRangeAria: "Seleção de intervalo de servidores",
+    targetGroup: (group) => `Grupo alvo ${group}`,
+    themeAria: "Tema de exibição",
+    themeOptions: {
+      dark: "Escuro",
+      light: "Claro",
+      system: "Sistema",
+    },
+    title: "Servidores da missão estrela de hoje | Last War Assistant",
+    todayTitle: "Servidores da missão estrela de hoje",
+  },
+  fr: {
+    dateLocale: "fr-FR",
+    htmlLang: "fr",
+    groupLegendAria: "Légende des groupes",
+    serverAria: (number, group) => `Serveur ${number}, groupe ${group}`,
+    serverCount: (count) => `${count} ${count === 1 ? "serveur" : "serveurs"}`,
+    serverRangeAria: "Sélection de plage de serveurs",
+    targetGroup: (group) => `Groupe cible ${group}`,
+    themeAria: "Thème d'affichage",
+    themeOptions: {
+      dark: "Sombre",
+      light: "Clair",
+      system: "Système",
+    },
+    title: "Serveurs de mission étoile du jour | Last War Assistant",
+    todayTitle: "Serveurs de mission étoile du jour",
+  },
+  de: {
+    dateLocale: "de-DE",
+    htmlLang: "de",
+    groupLegendAria: "Gruppenlegende",
+    serverAria: (number, group) => `Server ${number}, Gruppe ${group}`,
+    serverCount: (count) => `${count} Server`,
+    serverRangeAria: "Serverbereich auswählen",
+    targetGroup: (group) => `Zielgruppe ${group}`,
+    themeAria: "Anzeigethema",
+    themeOptions: {
+      dark: "Dunkel",
+      light: "Hell",
+      system: "System",
+    },
+    title: "Heutige Sternmissionsserver | Last War Assistant",
+    todayTitle: "Heutige Sternmissionsserver",
+  },
+  id: {
+    dateLocale: "id-ID",
+    htmlLang: "id",
+    groupLegendAria: "Legenda grup",
+    serverAria: (number, group) => `Server ${number}, grup ${group}`,
+    serverCount: (count) => `${count} server`,
+    serverRangeAria: "Pilihan rentang server",
+    targetGroup: (group) => `Grup target ${group}`,
+    themeAria: "Tema tampilan",
+    themeOptions: {
+      dark: "Gelap",
+      light: "Terang",
+      system: "Sistem",
+    },
+    title: "Server misi bintang hari ini | Last War Assistant",
+    todayTitle: "Server misi bintang hari ini",
+  },
+  vi: {
+    dateLocale: "vi-VN",
+    htmlLang: "vi",
+    groupLegendAria: "Chú giải nhóm",
+    serverAria: (number, group) => `Máy chủ ${number}, nhóm ${group}`,
+    serverCount: (count) => `${count} máy chủ`,
+    serverRangeAria: "Chọn phạm vi máy chủ",
+    targetGroup: (group) => `Nhóm mục tiêu ${group}`,
+    themeAria: "Giao diện hiển thị",
+    themeOptions: {
+      dark: "Tối",
+      light: "Sáng",
+      system: "Hệ thống",
+    },
+    title: "Máy chủ nhiệm vụ sao hôm nay | Last War Assistant",
+    todayTitle: "Máy chủ nhiệm vụ sao hôm nay",
+  },
+  th: {
+    dateLocale: "th-TH-u-ca-gregory",
+    htmlLang: "th",
+    groupLegendAria: "คำอธิบายกลุ่ม",
+    serverAria: (number, group) => `เซิร์ฟเวอร์ ${number} กลุ่ม ${group}`,
+    serverCount: (count) => `${count} เซิร์ฟเวอร์`,
+    serverRangeAria: "เลือกช่วงเซิร์ฟเวอร์",
+    targetGroup: (group) => `กลุ่มเป้าหมาย ${group}`,
+    themeAria: "ธีมการแสดงผล",
+    themeOptions: {
+      dark: "มืด",
+      light: "สว่าง",
+      system: "ระบบ",
+    },
+    title: "เซิร์ฟเวอร์ภารกิจดาววันนี้ | Last War Assistant",
+    todayTitle: "เซิร์ฟเวอร์ภารกิจดาววันนี้",
+  },
+  ru: {
+    dateLocale: "ru-RU",
+    htmlLang: "ru",
+    groupLegendAria: "Обозначения групп",
+    serverAria: (number, group) => `Сервер ${number}, группа ${group}`,
+    serverCount: (count) => `${count} ${russianServerWord(count)}`,
+    serverRangeAria: "Выбор диапазона серверов",
+    targetGroup: (group) => `Целевая группа ${group}`,
+    themeAria: "Тема отображения",
+    themeOptions: {
+      dark: "Темная",
+      light: "Светлая",
+      system: "Система",
+    },
+    title: "Серверы сегодняшней звездной миссии | Last War Assistant",
+    todayTitle: "Серверы звездной миссии сегодня",
+  },
+};
+
 const todayCard = document.querySelector("#today-card");
 const todayGroupBadge = document.querySelector("#today-group-badge");
+const todayTitle = document.querySelector("#today-title");
 const todayDate = document.querySelector("#today-date");
 const todayCycle = document.querySelector("#today-cycle");
 const todayCount = document.querySelector("#today-count");
 const todayServerList = document.querySelector("#today-server-list");
+const themeToggle = document.querySelector(".theme-toggle");
 const themeButtons = document.querySelectorAll("[data-theme-option]");
+const filterSection = document.querySelector(".filter-section");
+const groupLegend = document.querySelector(".legend");
 const allServerList = document.querySelector("#all-server-list");
 
 const serverRecords = buildServerRecords();
@@ -41,6 +269,8 @@ const anchorSerial = serialFromDateString(rotationAnchor.date);
 const gameDay = getJstGameDay();
 const todayGroup = getGroupForSerial(gameDay.serial);
 const rangeCookieName = "lastwar-secret-mission-range";
+const locale = resolveLocale();
+const copy = translations[locale];
 let nextRangePick = "start";
 let selectedRangeStart = minServerNumber;
 let selectedRangeEnd = maxServerNumber;
@@ -55,6 +285,50 @@ const dragSelection = {
   pointerId: null,
   startServer: null,
 };
+
+function russianServerWord(count) {
+  const lastTwoDigits = count % 100;
+  const lastDigit = count % 10;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return "серверов";
+  }
+
+  if (lastDigit === 1) {
+    return "сервер";
+  }
+
+  return lastDigit >= 2 && lastDigit <= 4 ? "сервера" : "серверов";
+}
+
+function resolveLocale() {
+  const languages = [
+    ...(navigator.languages || []),
+    navigator.language,
+    navigator.userLanguage,
+  ].filter(Boolean);
+
+  for (const language of languages) {
+    const localeCode = supportedLocaleFor(language);
+
+    if (localeCode) {
+      return localeCode;
+    }
+  }
+
+  return "en";
+}
+
+function supportedLocaleFor(language) {
+  const lowerLanguage = language.toLowerCase();
+
+  if (lowerLanguage.startsWith("zh")) {
+    return lowerLanguage.includes("hant") || /-(tw|hk|mo)\b/.test(lowerLanguage) ? "zh-Hant" : "zh-Hans";
+  }
+
+  const baseLanguage = lowerLanguage.split("-")[0];
+  return translations[baseLanguage] ? baseLanguage : null;
+}
 
 function buildServerRecords() {
   return Object.entries(serverGroups)
@@ -87,16 +361,10 @@ function getJstGameDay(now = new Date()) {
     serial -= 1;
   }
 
-  const gameDate = new Date(serial * dayInMilliseconds);
-  const label = new Intl.DateTimeFormat("ja-JP", {
-    timeZone: "UTC",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  }).format(gameDate);
-
-  return { label, serial };
+  return {
+    date: new Date(serial * dayInMilliseconds),
+    serial,
+  };
 }
 
 function getGroupForSerial(serial) {
@@ -105,10 +373,34 @@ function getGroupForSerial(serial) {
   return groupOrder[positiveModulo(anchorIndex + offset, groupOrder.length)];
 }
 
+function applyLocale() {
+  document.documentElement.lang = copy.htmlLang;
+  document.documentElement.dataset.locale = locale;
+  document.title = copy.title;
+  todayTitle.textContent = copy.todayTitle;
+  themeToggle.setAttribute("aria-label", copy.themeAria);
+  filterSection.setAttribute("aria-label", copy.serverRangeAria);
+  groupLegend.setAttribute("aria-label", copy.groupLegendAria);
+
+  themeButtons.forEach((button) => {
+    button.textContent = copy.themeOptions[button.dataset.themeOption];
+  });
+}
+
+function formatGameDate(date) {
+  return new Intl.DateTimeFormat(copy.dateLocale, {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  }).format(date);
+}
+
 function createServerChip(record, options = {}) {
   const chip = document.createElement(options.interactive ? "button" : "span");
   chip.className = `server-chip group-${record.group.toLowerCase()}`;
-  chip.setAttribute("aria-label", `サーバー ${record.number} グループ ${record.group}`);
+  chip.setAttribute("aria-label", copy.serverAria(record.number, record.group));
 
   const number = document.createElement("span");
   number.textContent = String(record.number);
@@ -130,9 +422,9 @@ function renderToday() {
 
   todayCard.dataset.group = todayGroup;
   todayGroupBadge.textContent = todayGroup;
-  todayDate.textContent = gameDay.label;
-  todayCycle.textContent = `対象グループ ${todayGroup}`;
-  todayCount.textContent = `${todayServers.length}サーバー`;
+  todayDate.textContent = formatGameDate(gameDay.date);
+  todayCycle.textContent = copy.targetGroup(todayGroup);
+  todayCount.textContent = copy.serverCount(todayServers.length);
   todayServerList.innerHTML = "";
 
   todayServers.forEach((number) => {
@@ -360,6 +652,7 @@ themeMedia.addEventListener("change", () => {
   }
 });
 
+applyLocale();
 applyThemePreference(storedThemePreference());
 initializeRangeSelection();
 renderToday();
