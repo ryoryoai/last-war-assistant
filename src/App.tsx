@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
-  Clock3,
   Home,
   Languages,
   Monitor,
@@ -30,7 +29,6 @@ import {
   type Locale as DateFnsLocale,
 } from "date-fns/locale";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,7 +62,6 @@ import {
   serialToLocalCalendarDate,
   serverGroupByNumber,
   serverGroups,
-  toServerDate,
   type MissionGroup,
   type ServerRecord,
 } from "@/lib/mission";
@@ -77,7 +74,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-04";
+const appVersion = "2026-06-24-05";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -105,15 +102,9 @@ type BeforeInstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-type TimeDisplayMode = "local" | "server";
-
 function readStoredLocalePreference(): LocalePreference {
   const preference = localStorage.getItem("lastwar-locale") as LocalePreference | null;
   return preference === "auto" || (preference && translations[preference]) ? preference : "auto";
-}
-
-function readStoredTimeDisplayPreference(): TimeDisplayMode {
-  return localStorage.getItem("lastwar-time-display") === "server" ? "server" : "local";
 }
 
 function getCookieValue(name: string) {
@@ -202,8 +193,6 @@ function AppShell() {
   const browserLanguages = useBrowserLanguages();
   const [now, setNow] = useState(() => new Date());
   const [localePreference, setLocalePreference] = useState(readStoredLocalePreference);
-  const [timeDisplayMode, setTimeDisplayMode] =
-    useState<TimeDisplayMode>(readStoredTimeDisplayPreference);
   const [excludedServers, setExcludedServers] = useState(readExcludedServers);
   const [isExclusionOpen, setIsExclusionOpen] = useState(false);
   const [deferredInstallPrompt, setDeferredInstallPrompt] =
@@ -227,38 +216,16 @@ function AppShell() {
     [excludedServerSet, todayGroup],
   );
 
-  const formatLocalDateTime = useCallback(
-    (date: Date) =>
+  const missionDateLabel = useMemo(
+    () =>
       new Intl.DateTimeFormat(copy.dateLocale, {
         day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        month: "short",
-        timeZoneName: "short",
-        weekday: "short",
-        year: "numeric",
-      }).format(date),
-    [copy.dateLocale],
-  );
-
-  const formatServerDateTime = useCallback(
-    (date: Date) =>
-      new Intl.DateTimeFormat(copy.dateLocale, {
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        month: "short",
+        month: "long",
         timeZone: "UTC",
         weekday: "short",
         year: "numeric",
-      }).format(toServerDate(date)),
-    [copy.dateLocale],
-  );
-
-  const formatDisplayDateTime = useCallback(
-    (date: Date) =>
-      timeDisplayMode === "server" ? formatServerDateTime(date) : formatLocalDateTime(date),
-    [formatLocalDateTime, formatServerDateTime, timeDisplayMode],
+      }).format(missionDay.date),
+    [copy.dateLocale, missionDay.date],
   );
 
   const showUpdateDialog = useCallback((worker: ServiceWorker | null) => {
@@ -301,10 +268,6 @@ function AppShell() {
   useEffect(() => {
     localStorage.setItem("lastwar-locale", localePreference);
   }, [localePreference]);
-
-  useEffect(() => {
-    localStorage.setItem("lastwar-time-display", timeDisplayMode);
-  }, [timeDisplayMode]);
 
   useEffect(() => {
     saveExcludedServers(excludedServers);
@@ -364,13 +327,6 @@ function AppShell() {
     };
   }, [checkForAppUpdate, showUpdateDialog]);
 
-  const currentTimeLabel = copy.timeDisplayOptions[timeDisplayMode];
-  const todaySummary = copy.timeSummary(
-    currentTimeLabel,
-    formatDisplayDateTime(now),
-    formatDisplayDateTime(missionDay.nextResetDate),
-  );
-
   const copyTodayServerList = async () => {
     const text = todayServers.join(",");
 
@@ -428,33 +384,17 @@ function AppShell() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-semibold tracking-normal text-muted-foreground uppercase">
-                Last War
+                {copy.missionLabel}
               </p>
-              <CardTitle className="mt-1 text-3xl leading-tight font-semibold sm:text-4xl">
-                {copy.todayTitle}
+              <CardTitle className="mt-1 text-4xl leading-tight font-semibold tabular-nums sm:text-5xl">
+                {missionDateLabel}
               </CardTitle>
             </div>
-            <div className="flex items-center gap-2">
-              <TimeDisplayToggle
-                copy={copy}
-                mode={timeDisplayMode}
-                onModeChange={setTimeDisplayMode}
-              />
-              <div className="flex size-16 shrink-0 items-center justify-center rounded-lg border bg-background/70 text-4xl font-semibold">
-                {todayGroup}
-              </div>
+            <div className="flex size-16 shrink-0 items-center justify-center rounded-lg border bg-background/70 text-4xl font-semibold">
+              {todayGroup}
             </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <Badge
-              variant="secondary"
-              className="grid w-fit max-w-full grid-cols-[auto_minmax(0,1fr)] items-start gap-1.5 whitespace-normal rounded-lg px-2.5 py-1 text-sm"
-            >
-              <Clock3 className="mt-0.5 size-4" />
-              <span className="min-w-0 break-words">{todaySummary}</span>
-            </Badge>
-            <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>
-          </div>
+          <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>
         </CardHeader>
         <CardContent>
           <button
@@ -613,39 +553,6 @@ function AppShell() {
         </DialogContent>
       </Dialog>
     </main>
-  );
-}
-
-function TimeDisplayToggle({
-  copy,
-  mode,
-  onModeChange,
-}: {
-  copy: (typeof translations)[LocaleCode];
-  mode: TimeDisplayMode;
-  onModeChange: (mode: TimeDisplayMode) => void;
-}) {
-  return (
-    <div
-      className="grid h-9 grid-cols-2 rounded-lg border bg-background p-1"
-      aria-label={copy.timeDisplayAria}
-      role="group"
-    >
-      {(["local", "server"] as TimeDisplayMode[]).map((option) => (
-        <Button
-          key={option}
-          aria-pressed={mode === option}
-          className="h-7 px-2 text-xs data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
-          data-active={mode === option}
-          size="sm"
-          type="button"
-          variant="ghost"
-          onClick={() => onModeChange(option)}
-        >
-          {copy.timeDisplayOptions[option]}
-        </Button>
-      ))}
-    </div>
   );
 }
 

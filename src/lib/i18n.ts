@@ -32,17 +32,14 @@ type Translation = {
   installHelp: string;
   languageAria: string;
   languageAuto: string;
+  missionLabel: string;
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
   serverAria: (number: number, group: string) => string;
   settingsTitle: string;
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
-  timeDisplayAria: string;
-  timeDisplayOptions: Record<"local" | "server", string>;
-  timeSummary: (mode: string, current: string, nextReset: string) => string;
   title: string;
-  todayTitle: string;
   updateAvailable: string;
   updateButton: string;
 };
@@ -81,6 +78,7 @@ const en: Translation = {
   installHelp: "Use your browser menu to add this page to Home.",
   languageAria: "Language",
   languageAuto: "Auto",
+  missionLabel: "Star Mission Servers",
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
   serverAria: (number, group) => `Server ${number}, group ${group}`,
@@ -91,14 +89,7 @@ const en: Translation = {
     light: "Light",
     system: "System",
   },
-  timeDisplayAria: "Time display",
-  timeDisplayOptions: {
-    local: "Local",
-    server: "Server",
-  },
-  timeSummary: (mode, current, nextReset) => `${mode} time ${current} / Next update ${nextReset}`,
   title: "Today's Star Mission Servers | Last War Assistant",
-  todayTitle: "Today's Star Mission Servers",
   updateAvailable: "A new version is available.",
   updateButton: "Update",
 };
@@ -120,6 +111,7 @@ export const translations: Record<LocaleCode, Translation> = {
     installHelp: "ブラウザメニューからホームに追加できます",
     languageAria: "言語",
     languageAuto: "自動",
+    missionLabel: "星任務サーバー",
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
     settingsTitle: "設定",
     themeAria: "表示テーマ",
@@ -128,14 +120,7 @@ export const translations: Record<LocaleCode, Translation> = {
       light: "ライト",
       system: "システム",
     },
-    timeDisplayAria: "時間表示",
-    timeDisplayOptions: {
-      local: "現地",
-      server: "サーバー",
-    },
-    timeSummary: (mode, current, nextReset) => `${mode}時間 ${current} / 次回更新 ${nextReset}`,
     title: "今日の星任務サーバー | Last War Assistant",
-    todayTitle: "今日の星任務サーバー",
     updateAvailable: "新しいバージョンがあります",
     updateButton: "更新",
   },
@@ -149,7 +134,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "홈에 추가",
     languageAuto: "자동",
     settingsTitle: "설정",
-    todayTitle: "오늘의 별 임무 서버",
     title: "오늘의 별 임무 서버 | Last War Assistant",
   },
   "zh-Hans": {
@@ -162,7 +146,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "添加到主屏幕",
     languageAuto: "自动",
     settingsTitle: "设置",
-    todayTitle: "今日星级任务服务器",
     title: "今日星级任务服务器 | Last War Assistant",
   },
   "zh-Hant": {
@@ -175,7 +158,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "加入主畫面",
     languageAuto: "自動",
     settingsTitle: "設定",
-    todayTitle: "今日星級任務伺服器",
     title: "今日星級任務伺服器 | Last War Assistant",
   },
   es: {
@@ -188,7 +170,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "Añadir a inicio",
     languageAuto: "Automático",
     settingsTitle: "Ajustes",
-    todayTitle: "Servidores de la misión estrella de hoy",
     title: "Servidores de la misión estrella de hoy | Last War Assistant",
   },
   pt: {
@@ -201,7 +182,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "Adicionar à tela inicial",
     languageAuto: "Automático",
     settingsTitle: "Configurações",
-    todayTitle: "Servidores da missão estrela de hoje",
     title: "Servidores da missão estrela de hoje | Last War Assistant",
   },
   fr: {
@@ -214,7 +194,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "Ajouter à l'accueil",
     languageAuto: "Auto",
     settingsTitle: "Réglages",
-    todayTitle: "Serveurs de mission étoile du jour",
     title: "Serveurs de mission étoile du jour | Last War Assistant",
   },
   de: {
@@ -227,7 +206,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "Zum Startbildschirm",
     languageAuto: "Automatisch",
     settingsTitle: "Einstellungen",
-    todayTitle: "Heutige Sternmissionsserver",
     title: "Heutige Sternmissionsserver | Last War Assistant",
   },
   id: {
@@ -240,7 +218,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "Tambahkan ke Home",
     languageAuto: "Otomatis",
     settingsTitle: "Pengaturan",
-    todayTitle: "Server misi bintang hari ini",
     title: "Server misi bintang hari ini | Last War Assistant",
   },
   vi: {
@@ -253,7 +230,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "Thêm vào màn hình chính",
     languageAuto: "Tự động",
     settingsTitle: "Cài đặt",
-    todayTitle: "Máy chủ nhiệm vụ sao hôm nay",
     title: "Máy chủ nhiệm vụ sao hôm nay | Last War Assistant",
   },
   th: {
@@ -266,7 +242,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "เพิ่มไปยังหน้าจอหลัก",
     languageAuto: "อัตโนมัติ",
     settingsTitle: "การตั้งค่า",
-    todayTitle: "เซิร์ฟเวอร์ภารกิจดาววันนี้",
     title: "เซิร์ฟเวอร์ภารกิจดาววันนี้ | Last War Assistant",
   },
   ru: {
@@ -279,7 +254,6 @@ export const translations: Record<LocaleCode, Translation> = {
     installButton: "Добавить на экран",
     languageAuto: "Авто",
     settingsTitle: "Настройки",
-    todayTitle: "Серверы звездной миссии сегодня",
     title: "Серверы звездной миссии сегодня | Last War Assistant",
   },
 };
