@@ -36,7 +36,6 @@ type Translation = {
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
   serverAria: (number: number, group: string) => string;
-  settingsTitle: string;
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
   title: string;
@@ -82,7 +81,6 @@ const en: Translation = {
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
   serverAria: (number, group) => `Server ${number}, group ${group}`,
-  settingsTitle: "Settings",
   themeAria: "Display theme",
   themeOptions: {
     dark: "Dark",
@@ -113,7 +111,6 @@ export const translations: Record<LocaleCode, Translation> = {
     languageAuto: "自動",
     missionLabel: "星任務サーバー",
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
-    settingsTitle: "設定",
     themeAria: "表示テーマ",
     themeOptions: {
       dark: "ダーク",
@@ -133,7 +130,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "ko",
     installButton: "홈에 추가",
     languageAuto: "자동",
-    settingsTitle: "설정",
     title: "오늘의 별 임무 서버 | Last War Assistant",
   },
   "zh-Hans": {
@@ -145,7 +141,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "zh-Hans",
     installButton: "添加到主屏幕",
     languageAuto: "自动",
-    settingsTitle: "设置",
     title: "今日星级任务服务器 | Last War Assistant",
   },
   "zh-Hant": {
@@ -157,7 +152,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "zh-Hant",
     installButton: "加入主畫面",
     languageAuto: "自動",
-    settingsTitle: "設定",
     title: "今日星級任務伺服器 | Last War Assistant",
   },
   es: {
@@ -169,7 +163,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "es",
     installButton: "Añadir a inicio",
     languageAuto: "Automático",
-    settingsTitle: "Ajustes",
     title: "Servidores de la misión estrella de hoy | Last War Assistant",
   },
   pt: {
@@ -181,7 +174,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "pt",
     installButton: "Adicionar à tela inicial",
     languageAuto: "Automático",
-    settingsTitle: "Configurações",
     title: "Servidores da missão estrela de hoje | Last War Assistant",
   },
   fr: {
@@ -193,7 +185,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "fr",
     installButton: "Ajouter à l'accueil",
     languageAuto: "Auto",
-    settingsTitle: "Réglages",
     title: "Serveurs de mission étoile du jour | Last War Assistant",
   },
   de: {
@@ -205,7 +196,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "de",
     installButton: "Zum Startbildschirm",
     languageAuto: "Automatisch",
-    settingsTitle: "Einstellungen",
     title: "Heutige Sternmissionsserver | Last War Assistant",
   },
   id: {
@@ -217,7 +207,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "id",
     installButton: "Tambahkan ke Home",
     languageAuto: "Otomatis",
-    settingsTitle: "Pengaturan",
     title: "Server misi bintang hari ini | Last War Assistant",
   },
   vi: {
@@ -229,7 +218,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "vi",
     installButton: "Thêm vào màn hình chính",
     languageAuto: "Tự động",
-    settingsTitle: "Cài đặt",
     title: "Máy chủ nhiệm vụ sao hôm nay | Last War Assistant",
   },
   th: {
@@ -241,7 +229,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "th",
     installButton: "เพิ่มไปยังหน้าจอหลัก",
     languageAuto: "อัตโนมัติ",
-    settingsTitle: "การตั้งค่า",
     title: "เซิร์ฟเวอร์ภารกิจดาววันนี้ | Last War Assistant",
   },
   ru: {
@@ -253,7 +240,6 @@ export const translations: Record<LocaleCode, Translation> = {
     htmlLang: "ru",
     installButton: "Добавить на экран",
     languageAuto: "Авто",
-    settingsTitle: "Настройки",
     title: "Серверы звездной миссии сегодня | Last War Assistant",
   },
 };

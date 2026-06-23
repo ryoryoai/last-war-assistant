@@ -74,7 +74,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-07";
+const appVersion = "2026-06-24-08";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -504,39 +504,34 @@ function AppShell() {
         </Collapsible>
       </Card>
 
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-xl">{copy.settingsTitle}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <ThemeModeToggle copy={copy} />
-          <div className="flex items-center gap-2 rounded-lg border bg-background px-2">
-            <Languages className="size-4 text-muted-foreground" />
-            <Select
-              value={localePreference}
-              onValueChange={(value) => setLocalePreference(value as LocalePreference)}
+      <footer className="flex flex-wrap items-center gap-2 px-1 pb-2">
+        <ThemeModeToggle copy={copy} />
+        <div className="flex items-center gap-2 rounded-lg border bg-background px-2">
+          <Languages className="size-4 text-muted-foreground" />
+          <Select
+            value={localePreference}
+            onValueChange={(value) => setLocalePreference(value as LocalePreference)}
+          >
+            <SelectTrigger
+              className="h-8 border-0 bg-transparent px-0 shadow-none"
+              aria-label={copy.languageAria}
             >
-              <SelectTrigger
-                className="h-8 border-0 bg-transparent px-0 shadow-none"
-                aria-label={copy.languageAria}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="start">
-                {languageOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.value === "auto" ? copy.languageAuto : option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Button variant="outline" onClick={handleInstall}>
-            <Home className="size-4" />
-            {copy.installButton}
-          </Button>
-        </CardContent>
-      </Card>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="start">
+              {languageOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.value === "auto" ? copy.languageAuto : option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button variant="outline" onClick={handleInstall}>
+          <Home className="size-4" />
+          {copy.installButton}
+        </Button>
+      </footer>
 
       <Dialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen}>
         <DialogContent showCloseButton={false}>
