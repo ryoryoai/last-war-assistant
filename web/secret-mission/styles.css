@@ -320,6 +320,12 @@ button.server-chip:focus-visible {
   color: var(--c-foreground);
 }
 
+.server-chip.group-closed {
+  border-color: var(--line);
+  background: var(--surface-soft);
+  color: var(--muted-text);
+}
+
 .filter-section {
   margin-top: 18px;
   padding: 18px;
@@ -358,12 +364,10 @@ button.server-chip:focus-visible {
   cursor: grabbing;
 }
 
-.all-server-list .server-chip.is-outside-range {
-  opacity: 0.34;
-}
-
-.all-server-list .server-chip.is-in-range {
-  box-shadow: 0 6px 14px rgb(var(--shadow-color) / 12%);
+.all-server-list .server-chip.is-closed,
+.all-server-list .server-chip.is-excluded {
+  opacity: 0.42;
+  box-shadow: none;
 }
 
 .all-server-list .server-chip.is-range-start,

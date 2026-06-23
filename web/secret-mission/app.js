@@ -52,9 +52,10 @@ const translations = {
     groupLegendAria: "Group legend",
     languageAria: "Language",
     languageAuto: "Auto",
+    closedServerAria: (number) => `Server ${number}, closed`,
     serverAria: (number, group) => `Server ${number}, group ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "server" : "servers"}`,
-    serverRangeAria: "Server range selection",
+    serverRangeAria: "Server exclusion range",
     targetGroup: (group) => `Target group ${group}`,
     themeAria: "Display theme",
     themeOptions: {
@@ -71,9 +72,10 @@ const translations = {
     groupLegendAria: "グループ凡例",
     languageAria: "言語",
     languageAuto: "自動",
+    closedServerAria: (number) => `サーバー ${number} 閉鎖`,
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
     serverCount: (count) => `${count}サーバー`,
-    serverRangeAria: "サーバー範囲設定",
+    serverRangeAria: "除外サーバー範囲設定",
     targetGroup: (group) => `対象グループ ${group}`,
     themeAria: "表示テーマ",
     themeOptions: {
@@ -90,9 +92,10 @@ const translations = {
     groupLegendAria: "그룹 범례",
     languageAria: "언어",
     languageAuto: "자동",
+    closedServerAria: (number) => `서버 ${number}, 폐쇄됨`,
     serverAria: (number, group) => `서버 ${number}, 그룹 ${group}`,
     serverCount: (count) => `${count}개 서버`,
-    serverRangeAria: "서버 범위 선택",
+    serverRangeAria: "제외할 서버 범위 선택",
     targetGroup: (group) => `대상 그룹 ${group}`,
     themeAria: "표시 테마",
     themeOptions: {
@@ -109,9 +112,10 @@ const translations = {
     groupLegendAria: "分组图例",
     languageAria: "语言",
     languageAuto: "自动",
+    closedServerAria: (number) => `服务器 ${number}，已关闭`,
     serverAria: (number, group) => `服务器 ${number}，分组 ${group}`,
     serverCount: (count) => `${count} 个服务器`,
-    serverRangeAria: "服务器范围选择",
+    serverRangeAria: "排除服务器范围选择",
     targetGroup: (group) => `目标分组 ${group}`,
     themeAria: "显示主题",
     themeOptions: {
@@ -128,9 +132,10 @@ const translations = {
     groupLegendAria: "分組圖例",
     languageAria: "語言",
     languageAuto: "自動",
+    closedServerAria: (number) => `伺服器 ${number}，已關閉`,
     serverAria: (number, group) => `伺服器 ${number}，分組 ${group}`,
     serverCount: (count) => `${count} 個伺服器`,
-    serverRangeAria: "伺服器範圍選擇",
+    serverRangeAria: "排除伺服器範圍選擇",
     targetGroup: (group) => `目標分組 ${group}`,
     themeAria: "顯示主題",
     themeOptions: {
@@ -147,9 +152,10 @@ const translations = {
     groupLegendAria: "Leyenda de grupos",
     languageAria: "Idioma",
     languageAuto: "Automático",
+    closedServerAria: (number) => `Servidor ${number}, cerrado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
-    serverRangeAria: "Selección de rango de servidores",
+    serverRangeAria: "Rango de servidores excluidos",
     targetGroup: (group) => `Grupo objetivo ${group}`,
     themeAria: "Tema de visualización",
     themeOptions: {
@@ -166,9 +172,10 @@ const translations = {
     groupLegendAria: "Legenda de grupos",
     languageAria: "Idioma",
     languageAuto: "Automático",
+    closedServerAria: (number) => `Servidor ${number}, fechado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
-    serverRangeAria: "Seleção de intervalo de servidores",
+    serverRangeAria: "Intervalo de servidores excluidos",
     targetGroup: (group) => `Grupo alvo ${group}`,
     themeAria: "Tema de exibição",
     themeOptions: {
@@ -185,9 +192,10 @@ const translations = {
     groupLegendAria: "Légende des groupes",
     languageAria: "Langue",
     languageAuto: "Auto",
+    closedServerAria: (number) => `Serveur ${number}, fermé`,
     serverAria: (number, group) => `Serveur ${number}, groupe ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "serveur" : "serveurs"}`,
-    serverRangeAria: "Sélection de plage de serveurs",
+    serverRangeAria: "Plage de serveurs exclus",
     targetGroup: (group) => `Groupe cible ${group}`,
     themeAria: "Thème d'affichage",
     themeOptions: {
@@ -204,9 +212,10 @@ const translations = {
     groupLegendAria: "Gruppenlegende",
     languageAria: "Sprache",
     languageAuto: "Automatisch",
+    closedServerAria: (number) => `Server ${number}, geschlossen`,
     serverAria: (number, group) => `Server ${number}, Gruppe ${group}`,
     serverCount: (count) => `${count} Server`,
-    serverRangeAria: "Serverbereich auswählen",
+    serverRangeAria: "Ausgeschlossener Serverbereich",
     targetGroup: (group) => `Zielgruppe ${group}`,
     themeAria: "Anzeigethema",
     themeOptions: {
@@ -223,9 +232,10 @@ const translations = {
     groupLegendAria: "Legenda grup",
     languageAria: "Bahasa",
     languageAuto: "Otomatis",
+    closedServerAria: (number) => `Server ${number}, ditutup`,
     serverAria: (number, group) => `Server ${number}, grup ${group}`,
     serverCount: (count) => `${count} server`,
-    serverRangeAria: "Pilihan rentang server",
+    serverRangeAria: "Rentang server yang dikecualikan",
     targetGroup: (group) => `Grup target ${group}`,
     themeAria: "Tema tampilan",
     themeOptions: {
@@ -242,9 +252,10 @@ const translations = {
     groupLegendAria: "Chú giải nhóm",
     languageAria: "Ngôn ngữ",
     languageAuto: "Tự động",
+    closedServerAria: (number) => `Máy chủ ${number}, đã đóng`,
     serverAria: (number, group) => `Máy chủ ${number}, nhóm ${group}`,
     serverCount: (count) => `${count} máy chủ`,
-    serverRangeAria: "Chọn phạm vi máy chủ",
+    serverRangeAria: "Chọn phạm vi máy chủ bị loại trừ",
     targetGroup: (group) => `Nhóm mục tiêu ${group}`,
     themeAria: "Giao diện hiển thị",
     themeOptions: {
@@ -261,9 +272,10 @@ const translations = {
     groupLegendAria: "คำอธิบายกลุ่ม",
     languageAria: "ภาษา",
     languageAuto: "อัตโนมัติ",
+    closedServerAria: (number) => `เซิร์ฟเวอร์ ${number} ปิดแล้ว`,
     serverAria: (number, group) => `เซิร์ฟเวอร์ ${number} กลุ่ม ${group}`,
     serverCount: (count) => `${count} เซิร์ฟเวอร์`,
-    serverRangeAria: "เลือกช่วงเซิร์ฟเวอร์",
+    serverRangeAria: "เลือกช่วงเซิร์ฟเวอร์ที่ยกเว้น",
     targetGroup: (group) => `กลุ่มเป้าหมาย ${group}`,
     themeAria: "ธีมการแสดงผล",
     themeOptions: {
@@ -280,9 +292,10 @@ const translations = {
     groupLegendAria: "Обозначения групп",
     languageAria: "Язык",
     languageAuto: "Авто",
+    closedServerAria: (number) => `Сервер ${number}, закрыт`,
     serverAria: (number, group) => `Сервер ${number}, группа ${group}`,
     serverCount: (count) => `${count} ${russianServerWord(count)}`,
-    serverRangeAria: "Выбор диапазона серверов",
+    serverRangeAria: "Диапазон исключенных серверов",
     targetGroup: (group) => `Целевая группа ${group}`,
     themeAria: "Тема отображения",
     themeOptions: {
@@ -310,19 +323,21 @@ const groupLegend = document.querySelector(".legend");
 const allServerList = document.querySelector("#all-server-list");
 
 const serverRecords = buildServerRecords();
-const serverNumberSet = new Set(serverRecords.map((record) => record.number));
+const serverGroupByNumber = new Map(serverRecords.map((record) => [record.number, record.group]));
 const minServerNumber = serverRecords[0].number;
 const maxServerNumber = serverRecords[serverRecords.length - 1].number;
+const allServerRecords = buildAllServerRecords();
+const serverNumberSet = new Set(allServerRecords.map((record) => record.number));
 const anchorSerial = serialFromDateString(rotationAnchor.date);
 const gameDay = getJstGameDay();
 const todayGroup = getGroupForSerial(gameDay.serial);
-const rangeCookieName = "lastwar-secret-mission-range";
+const excludedRangeCookieName = "lastwar-secret-mission-excluded-range";
 let localePreference = storedLocalePreference();
 let locale = resolveLocale(localePreference);
 let copy = translations[locale];
 let nextRangePick = "start";
-let selectedRangeStart = minServerNumber;
-let selectedRangeEnd = maxServerNumber;
+let excludedRangeStart = null;
+let excludedRangeEnd = null;
 let suppressNextClick = false;
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 const dragSelection = {
@@ -414,6 +429,21 @@ function buildServerRecords() {
     .sort((a, b) => a.number - b.number);
 }
 
+function buildAllServerRecords() {
+  const records = [];
+
+  for (let number = minServerNumber; number <= maxServerNumber; number += 1) {
+    const group = serverGroupByNumber.get(number) || null;
+    records.push({
+      closed: group === null,
+      group,
+      number,
+    });
+  }
+
+  return records;
+}
+
 function positiveModulo(value, divisor) {
   return ((value % divisor) + divisor) % divisor;
 }
@@ -496,8 +526,12 @@ function formatGameDate(date) {
 
 function createServerChip(record, options = {}) {
   const chip = document.createElement(options.interactive ? "button" : "span");
-  chip.className = `server-chip group-${record.group.toLowerCase()}`;
-  chip.setAttribute("aria-label", copy.serverAria(record.number, record.group));
+  const groupClass = record.closed ? "group-closed" : `group-${record.group.toLowerCase()}`;
+  chip.className = `server-chip ${groupClass}`;
+  chip.setAttribute(
+    "aria-label",
+    record.closed ? copy.closedServerAria(record.number) : copy.serverAria(record.number, record.group),
+  );
 
   const number = document.createElement("span");
   number.textContent = String(record.number);
@@ -514,8 +548,7 @@ function createServerChip(record, options = {}) {
 }
 
 function renderToday() {
-  const { minValue, maxValue } = currentRangeBounds();
-  const todayServers = serverGroups[todayGroup].filter((number) => number >= minValue && number <= maxValue);
+  const todayServers = serverGroups[todayGroup].filter((number) => !isServerExcluded(number));
 
   todayCard.dataset.group = todayGroup;
   todayGroupBadge.textContent = todayGroup;
@@ -568,17 +601,21 @@ function getCookieValue(name) {
     ?.slice(name.length + 1);
 }
 
-function saveRangePreference() {
-  const value = encodeURIComponent(`${selectedRangeStart}-${selectedRangeEnd}`);
+function saveExcludedRangePreference() {
+  if (excludedRangeStart === null || excludedRangeEnd === null) {
+    document.cookie = `${excludedRangeCookieName}=; path=/; max-age=0; SameSite=Lax`;
+    return;
+  }
+
+  const value = encodeURIComponent(`${excludedRangeStart}-${excludedRangeEnd}`);
   const oneYear = 60 * 60 * 24 * 365;
-  document.cookie = `${rangeCookieName}=${value}; path=/; max-age=${oneYear}; SameSite=Lax`;
+  document.cookie = `${excludedRangeCookieName}=${value}; path=/; max-age=${oneYear}; SameSite=Lax`;
 }
 
-function initializeRangeSelection() {
-  const savedRange = getCookieValue(rangeCookieName);
+function initializeExcludedRange() {
+  const savedRange = getCookieValue(excludedRangeCookieName);
 
   if (!savedRange) {
-    saveRangePreference();
     return;
   }
 
@@ -595,45 +632,56 @@ function initializeRangeSelection() {
   const isValidRange = serverNumberSet.has(start) && serverNumberSet.has(end);
 
   if (!isValidRange) {
-    selectedRangeStart = minServerNumber;
-    selectedRangeEnd = maxServerNumber;
-    saveRangePreference();
+    excludedRangeStart = null;
+    excludedRangeEnd = null;
+    saveExcludedRangePreference();
     return;
   }
 
-  selectedRangeStart = start;
-  selectedRangeEnd = end;
+  excludedRangeStart = start;
+  excludedRangeEnd = end;
 }
 
-function currentRangeBounds() {
+function currentExcludedRangeBounds() {
+  if (excludedRangeStart === null || excludedRangeEnd === null) {
+    return { minValue: null, maxValue: null };
+  }
+
   return {
-    minValue: Math.min(selectedRangeStart, selectedRangeEnd),
-    maxValue: Math.max(selectedRangeStart, selectedRangeEnd),
+    minValue: Math.min(excludedRangeStart, excludedRangeEnd),
+    maxValue: Math.max(excludedRangeStart, excludedRangeEnd),
   };
 }
 
+function isServerExcluded(number) {
+  const { minValue, maxValue } = currentExcludedRangeBounds();
+
+  return minValue !== null && number >= minValue && number <= maxValue;
+}
+
 function renderServerRange() {
-  const { minValue, maxValue } = currentRangeBounds();
+  const { minValue, maxValue } = currentExcludedRangeBounds();
+  const hasExcludedRange = minValue !== null && maxValue !== null;
 
   allServerList.innerHTML = "";
-  serverRecords.forEach((record) => {
+  allServerRecords.forEach((record) => {
     const chip = createServerChip(record, { interactive: true });
-    const inRange = record.number >= minValue && record.number <= maxValue;
+    const excluded = isServerExcluded(record.number);
 
-    chip.classList.toggle("is-in-range", inRange);
-    chip.classList.toggle("is-outside-range", !inRange);
-    chip.classList.toggle("is-range-start", record.number === minValue);
-    chip.classList.toggle("is-range-end", record.number === maxValue);
-    chip.setAttribute("aria-pressed", String(inRange));
+    chip.classList.toggle("is-closed", record.closed);
+    chip.classList.toggle("is-excluded", excluded && !record.closed);
+    chip.classList.toggle("is-range-start", hasExcludedRange && record.number === minValue);
+    chip.classList.toggle("is-range-end", hasExcludedRange && record.number === maxValue);
+    chip.setAttribute("aria-pressed", String(excluded));
 
     allServerList.append(chip);
   });
 }
 
-function updateSelectedRange(startServer, endServer) {
-  selectedRangeStart = startServer;
-  selectedRangeEnd = endServer;
-  saveRangePreference();
+function updateExcludedRange(startServer, endServer) {
+  excludedRangeStart = startServer;
+  excludedRangeEnd = endServer;
+  saveExcludedRangePreference();
   renderToday();
   renderServerRange();
 }
@@ -650,15 +698,15 @@ function handleServerChipClick(serverNumber, event) {
 
 function selectRangeFromCard(serverNumber) {
   if (nextRangePick === "start") {
-    selectedRangeStart = serverNumber;
-    selectedRangeEnd = serverNumber;
+    excludedRangeStart = serverNumber;
+    excludedRangeEnd = serverNumber;
     nextRangePick = "end";
   } else {
-    selectedRangeEnd = serverNumber;
+    excludedRangeEnd = serverNumber;
     nextRangePick = "start";
   }
 
-  updateSelectedRange(selectedRangeStart, selectedRangeEnd);
+  updateExcludedRange(excludedRangeStart, excludedRangeEnd);
 }
 
 function findDraggedServerNumber(event) {
@@ -710,7 +758,7 @@ function updateRangeDrag(event) {
 
   if (nextServer !== null && nextServer !== dragSelection.currentServer) {
     dragSelection.currentServer = nextServer;
-    updateSelectedRange(dragSelection.startServer, nextServer);
+    updateExcludedRange(dragSelection.startServer, nextServer);
   }
 }
 
@@ -722,7 +770,7 @@ function finishRangeDrag(event) {
   if (dragSelection.moved) {
     suppressNextClick = true;
     nextRangePick = "start";
-    updateSelectedRange(dragSelection.startServer, dragSelection.currentServer);
+    updateExcludedRange(dragSelection.startServer, dragSelection.currentServer);
     window.setTimeout(() => {
       suppressNextClick = false;
     }, 0);
@@ -752,6 +800,6 @@ themeMedia.addEventListener("change", () => {
 
 applyLocale();
 applyThemePreference(storedThemePreference());
-initializeRangeSelection();
+initializeExcludedRange();
 renderToday();
 renderServerRange();
