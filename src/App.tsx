@@ -76,7 +76,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-15";
+const appVersion = "2026-06-24-16";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
@@ -486,10 +486,15 @@ function AppShell() {
                 <span>{copy.serverDateLabel(serverDateValue)}</span>
               </div>
             </div>
-            <div className="flex min-w-24 shrink-0 flex-col items-center justify-center rounded-lg border bg-background/70 px-3 py-2">
+            <button
+              type="button"
+              className="flex min-w-24 shrink-0 cursor-copy flex-col items-center justify-center rounded-lg border bg-background/70 px-3 py-2 transition hover:bg-background/90 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+              aria-label={`${copy.currentTargetLabel} ${todayGroup}. ${copy.copyServersAria}`}
+              onClick={copyTodayServerList}
+            >
               <span className="text-xs font-semibold text-muted-foreground">{copy.currentTargetLabel}</span>
               <span className="text-4xl leading-none font-semibold">{todayGroup}</span>
-            </div>
+            </button>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-medium text-muted-foreground">{copy.copyHint}</p>
