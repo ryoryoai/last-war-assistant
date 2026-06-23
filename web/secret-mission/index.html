@@ -22,11 +22,38 @@
         </div>
       </header>
 
+      <section class="today-section" aria-labelledby="today-title">
+        <article class="today-card" id="today-card">
+          <div class="today-head">
+            <div>
+              <p class="eyebrow">Today</p>
+              <h2 id="today-title">今日の星任務</h2>
+            </div>
+            <span class="today-badge" id="today-group-badge">-</span>
+          </div>
+          <div class="today-meta">
+            <span id="today-date">-</span>
+            <span>JST 11:00 更新</span>
+          </div>
+          <div
+            class="segment-control"
+            id="today-group-control"
+            aria-label="今日のグループ"
+          >
+            <button type="button" data-group="A">A</button>
+            <button type="button" data-group="B">B</button>
+            <button type="button" data-group="C">C</button>
+          </div>
+          <div class="server-chip-list" id="today-server-list"></div>
+        </article>
+      </section>
+
       <section class="lookup-grid" aria-label="サーバー判定">
         <form class="lookup-panel" id="lookup-form">
           <label for="server-input">サーバー番号</label>
           <div class="input-row">
             <input
+              type="text"
               id="server-input"
               name="server"
               inputmode="numeric"
@@ -48,6 +75,37 @@
             alt="極秘任務サーバーの A、B、C 対応表"
           />
         </aside>
+      </section>
+
+      <section class="filter-section" aria-labelledby="all-server-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">All Servers</p>
+            <h2 id="all-server-title">全サーバーリスト</h2>
+          </div>
+          <span class="range-count" id="range-count">-</span>
+        </div>
+
+        <div class="range-panel">
+          <label class="range-field" for="server-min-range">
+            <span>最小</span>
+            <input id="server-min-range" type="range" />
+            <output id="server-min-output" for="server-min-range">-</output>
+          </label>
+          <label class="range-field" for="server-max-range">
+            <span>最大</span>
+            <input id="server-max-range" type="range" />
+            <output id="server-max-output" for="server-max-range">-</output>
+          </label>
+        </div>
+
+        <div class="legend" aria-label="グループ凡例">
+          <span class="legend-item group-a">A</span>
+          <span class="legend-item group-b">B</span>
+          <span class="legend-item group-c">C</span>
+        </div>
+
+        <div class="server-chip-list all-server-list" id="all-server-list"></div>
       </section>
 
       <section class="table-section" aria-labelledby="table-title">
