@@ -44,7 +44,17 @@ const rangeCookieName = "lastwar-secret-mission-range";
 let nextRangePick = "start";
 let selectedRangeStart = minServerNumber;
 let selectedRangeEnd = maxServerNumber;
+let suppressNextClick = false;
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+const dragSelection = {
+  active: false,
+  currentServer: null,
+  moved: false,
+  originX: 0,
+  originY: 0,
+  pointerId: null,
+  startServer: null,
+};
 
 function buildServerRecords() {
   return Object.entries(serverGroups)
@@ -107,7 +117,8 @@ function createServerChip(record, options = {}) {
   if (options.interactive) {
     chip.type = "button";
     chip.dataset.server = String(record.number);
-    chip.addEventListener("click", () => selectRangeFromCard(record.number));
+    chip.addEventListener("pointerdown", (event) => startRangeDrag(record.number, event));
+    chip.addEventListener("click", (event) => handleServerChipClick(record.number, event));
   }
 
   return chip;
@@ -230,6 +241,24 @@ function renderServerRange() {
   });
 }
 
+function updateSelectedRange(startServer, endServer) {
+  selectedRangeStart = startServer;
+  selectedRangeEnd = endServer;
+  saveRangePreference();
+  renderToday();
+  renderServerRange();
+}
+
+function handleServerChipClick(serverNumber, event) {
+  if (suppressNextClick) {
+    event.preventDefault();
+    suppressNextClick = false;
+    return;
+  }
+
+  selectRangeFromCard(serverNumber);
+}
+
 function selectRangeFromCard(serverNumber) {
   if (nextRangePick === "start") {
     selectedRangeStart = serverNumber;
@@ -240,9 +269,86 @@ function selectRangeFromCard(serverNumber) {
     nextRangePick = "start";
   }
 
-  saveRangePreference();
-  renderToday();
-  renderServerRange();
+  updateSelectedRange(selectedRangeStart, selectedRangeEnd);
+}
+
+function findDraggedServerNumber(event) {
+  const target = document.elementFromPoint(event.clientX, event.clientY);
+  const chip = target?.closest?.("#all-server-list [data-server]");
+  const serverNumber = Number(chip?.dataset.server);
+
+  return serverNumberSet.has(serverNumber) ? serverNumber : null;
+}
+
+function startRangeDrag(serverNumber, event) {
+  if (event.button !== 0) {
+    return;
+  }
+
+  dragSelection.active = true;
+  dragSelection.currentServer = serverNumber;
+  dragSelection.moved = false;
+  dragSelection.originX = event.clientX;
+  dragSelection.originY = event.clientY;
+  dragSelection.pointerId = event.pointerId;
+  dragSelection.startServer = serverNumber;
+  allServerList.classList.add("is-dragging");
+
+  document.addEventListener("pointermove", updateRangeDrag);
+  document.addEventListener("pointerup", finishRangeDrag);
+  document.addEventListener("pointercancel", finishRangeDrag);
+}
+
+function updateRangeDrag(event) {
+  if (!dragSelection.active || event.pointerId !== dragSelection.pointerId) {
+    return;
+  }
+
+  const nextServer = findDraggedServerNumber(event);
+  const dragDistance = Math.hypot(event.clientX - dragSelection.originX, event.clientY - dragSelection.originY);
+  const hasDragIntent = nextServer !== null && (nextServer !== dragSelection.startServer || dragDistance > 6);
+
+  if (!dragSelection.moved && !hasDragIntent) {
+    return;
+  }
+
+  if (!dragSelection.moved) {
+    dragSelection.moved = true;
+    suppressNextClick = true;
+  }
+
+  event.preventDefault();
+
+  if (nextServer !== null && nextServer !== dragSelection.currentServer) {
+    dragSelection.currentServer = nextServer;
+    updateSelectedRange(dragSelection.startServer, nextServer);
+  }
+}
+
+function finishRangeDrag(event) {
+  if (!dragSelection.active || event.pointerId !== dragSelection.pointerId) {
+    return;
+  }
+
+  if (dragSelection.moved) {
+    suppressNextClick = true;
+    nextRangePick = "start";
+    updateSelectedRange(dragSelection.startServer, dragSelection.currentServer);
+    window.setTimeout(() => {
+      suppressNextClick = false;
+    }, 0);
+  }
+
+  dragSelection.active = false;
+  dragSelection.currentServer = null;
+  dragSelection.moved = false;
+  dragSelection.pointerId = null;
+  dragSelection.startServer = null;
+  allServerList.classList.remove("is-dragging");
+
+  document.removeEventListener("pointermove", updateRangeDrag);
+  document.removeEventListener("pointerup", finishRangeDrag);
+  document.removeEventListener("pointercancel", finishRangeDrag);
 }
 
 themeButtons.forEach((button) => {

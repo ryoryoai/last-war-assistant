@@ -320,10 +320,17 @@ button.server-chip:focus-visible {
 }
 
 .all-server-list .server-chip {
+  touch-action: none;
+  user-select: none;
   transition:
     opacity 120ms ease,
     transform 120ms ease,
     box-shadow 120ms ease;
+}
+
+.all-server-list.is-dragging,
+.all-server-list.is-dragging .server-chip {
+  cursor: grabbing;
 }
 
 .all-server-list .server-chip.is-outside-range {
