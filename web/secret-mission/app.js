@@ -52,6 +52,7 @@ const translations = {
     groupLegendAria: "Group legend",
     languageAria: "Language",
     languageAuto: "Auto",
+    exclusionSettingsTitle: "Exclusion settings",
     closedServerAria: (number) => `Server ${number}, closed`,
     serverAria: (number, group) => `Server ${number}, group ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "server" : "servers"}`,
@@ -72,6 +73,7 @@ const translations = {
     groupLegendAria: "グループ凡例",
     languageAria: "言語",
     languageAuto: "自動",
+    exclusionSettingsTitle: "除外設定",
     closedServerAria: (number) => `サーバー ${number} 閉鎖`,
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
     serverCount: (count) => `${count}サーバー`,
@@ -92,6 +94,7 @@ const translations = {
     groupLegendAria: "그룹 범례",
     languageAria: "언어",
     languageAuto: "자동",
+    exclusionSettingsTitle: "제외 설정",
     closedServerAria: (number) => `서버 ${number}, 폐쇄됨`,
     serverAria: (number, group) => `서버 ${number}, 그룹 ${group}`,
     serverCount: (count) => `${count}개 서버`,
@@ -112,6 +115,7 @@ const translations = {
     groupLegendAria: "分组图例",
     languageAria: "语言",
     languageAuto: "自动",
+    exclusionSettingsTitle: "排除设置",
     closedServerAria: (number) => `服务器 ${number}，已关闭`,
     serverAria: (number, group) => `服务器 ${number}，分组 ${group}`,
     serverCount: (count) => `${count} 个服务器`,
@@ -132,6 +136,7 @@ const translations = {
     groupLegendAria: "分組圖例",
     languageAria: "語言",
     languageAuto: "自動",
+    exclusionSettingsTitle: "排除設定",
     closedServerAria: (number) => `伺服器 ${number}，已關閉`,
     serverAria: (number, group) => `伺服器 ${number}，分組 ${group}`,
     serverCount: (count) => `${count} 個伺服器`,
@@ -152,6 +157,7 @@ const translations = {
     groupLegendAria: "Leyenda de grupos",
     languageAria: "Idioma",
     languageAuto: "Automático",
+    exclusionSettingsTitle: "Ajustes de exclusión",
     closedServerAria: (number) => `Servidor ${number}, cerrado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
@@ -172,6 +178,7 @@ const translations = {
     groupLegendAria: "Legenda de grupos",
     languageAria: "Idioma",
     languageAuto: "Automático",
+    exclusionSettingsTitle: "Configurações de exclusão",
     closedServerAria: (number) => `Servidor ${number}, fechado`,
     serverAria: (number, group) => `Servidor ${number}, grupo ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "servidor" : "servidores"}`,
@@ -192,6 +199,7 @@ const translations = {
     groupLegendAria: "Légende des groupes",
     languageAria: "Langue",
     languageAuto: "Auto",
+    exclusionSettingsTitle: "Paramètres d'exclusion",
     closedServerAria: (number) => `Serveur ${number}, fermé`,
     serverAria: (number, group) => `Serveur ${number}, groupe ${group}`,
     serverCount: (count) => `${count} ${count === 1 ? "serveur" : "serveurs"}`,
@@ -212,6 +220,7 @@ const translations = {
     groupLegendAria: "Gruppenlegende",
     languageAria: "Sprache",
     languageAuto: "Automatisch",
+    exclusionSettingsTitle: "Ausschlusseinstellungen",
     closedServerAria: (number) => `Server ${number}, geschlossen`,
     serverAria: (number, group) => `Server ${number}, Gruppe ${group}`,
     serverCount: (count) => `${count} Server`,
@@ -232,6 +241,7 @@ const translations = {
     groupLegendAria: "Legenda grup",
     languageAria: "Bahasa",
     languageAuto: "Otomatis",
+    exclusionSettingsTitle: "Pengaturan pengecualian",
     closedServerAria: (number) => `Server ${number}, ditutup`,
     serverAria: (number, group) => `Server ${number}, grup ${group}`,
     serverCount: (count) => `${count} server`,
@@ -252,6 +262,7 @@ const translations = {
     groupLegendAria: "Chú giải nhóm",
     languageAria: "Ngôn ngữ",
     languageAuto: "Tự động",
+    exclusionSettingsTitle: "Cài đặt loại trừ",
     closedServerAria: (number) => `Máy chủ ${number}, đã đóng`,
     serverAria: (number, group) => `Máy chủ ${number}, nhóm ${group}`,
     serverCount: (count) => `${count} máy chủ`,
@@ -272,6 +283,7 @@ const translations = {
     groupLegendAria: "คำอธิบายกลุ่ม",
     languageAria: "ภาษา",
     languageAuto: "อัตโนมัติ",
+    exclusionSettingsTitle: "ตั้งค่าการยกเว้น",
     closedServerAria: (number) => `เซิร์ฟเวอร์ ${number} ปิดแล้ว`,
     serverAria: (number, group) => `เซิร์ฟเวอร์ ${number} กลุ่ม ${group}`,
     serverCount: (count) => `${count} เซิร์ฟเวอร์`,
@@ -292,6 +304,7 @@ const translations = {
     groupLegendAria: "Обозначения групп",
     languageAria: "Язык",
     languageAuto: "Авто",
+    exclusionSettingsTitle: "Настройки исключений",
     closedServerAria: (number) => `Сервер ${number}, закрыт`,
     serverAria: (number, group) => `Сервер ${number}, группа ${group}`,
     serverCount: (count) => `${count} ${russianServerWord(count)}`,
@@ -319,6 +332,7 @@ const themeToggle = document.querySelector(".theme-toggle");
 const themeButtons = document.querySelectorAll("[data-theme-option]");
 const languageSelect = document.querySelector("#language-select");
 const filterSection = document.querySelector(".filter-section");
+const exclusionSettingsTitle = document.querySelector("#exclusion-settings-title");
 const groupLegend = document.querySelector(".legend");
 const allServerList = document.querySelector("#all-server-list");
 
@@ -490,6 +504,7 @@ function applyLocale() {
   themeToggle.setAttribute("aria-label", copy.themeAria);
   languageSelect.setAttribute("aria-label", copy.languageAria);
   filterSection.setAttribute("aria-label", copy.serverRangeAria);
+  exclusionSettingsTitle.textContent = copy.exclusionSettingsTitle;
   groupLegend.setAttribute("aria-label", copy.groupLegendAria);
   renderLanguageOptions();
 

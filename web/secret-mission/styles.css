@@ -328,6 +328,52 @@ button.server-chip:focus-visible {
 
 .filter-section {
   margin-top: 18px;
+  overflow: hidden;
+  padding: 0;
+}
+
+.filter-toggle {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 18px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 900;
+  list-style: none;
+}
+
+.filter-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.filter-toggle:focus-visible {
+  outline: 3px solid color-mix(in oklch, var(--focus) 28%, transparent);
+  outline-offset: -3px;
+}
+
+.filter-toggle-icon {
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  color: var(--muted-text);
+  transform: rotate(45deg);
+  transition: transform 120ms ease;
+}
+
+.filter-section[open] .filter-toggle {
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-section[open] .filter-toggle-icon {
+  transform: rotate(225deg);
+}
+
+.filter-body {
   padding: 18px;
 }
 
