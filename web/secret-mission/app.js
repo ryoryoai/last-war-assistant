@@ -34,12 +34,16 @@ const themeButtons = document.querySelectorAll("[data-theme-option]");
 const allServerList = document.querySelector("#all-server-list");
 
 const serverRecords = buildServerRecords();
+const serverNumberSet = new Set(serverRecords.map((record) => record.number));
+const minServerNumber = serverRecords[0].number;
+const maxServerNumber = serverRecords[serverRecords.length - 1].number;
 const anchorSerial = serialFromDateString(rotationAnchor.date);
 const gameDay = getJstGameDay();
 const todayGroup = getGroupForSerial(gameDay.serial);
+const rangeCookieName = "lastwar-secret-mission-range";
 let nextRangePick = "start";
-let selectedRangeStart = null;
-let selectedRangeEnd = null;
+let selectedRangeStart = minServerNumber;
+let selectedRangeEnd = maxServerNumber;
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
 function buildServerRecords() {
@@ -110,14 +114,17 @@ function createServerChip(record, options = {}) {
 }
 
 function renderToday() {
+  const { minValue, maxValue } = currentRangeBounds();
+  const todayServers = serverGroups[todayGroup].filter((number) => number >= minValue && number <= maxValue);
+
   todayCard.dataset.group = todayGroup;
   todayGroupBadge.textContent = todayGroup;
   todayDate.textContent = gameDay.label;
   todayCycle.textContent = `対象グループ ${todayGroup}`;
-  todayCount.textContent = `${serverGroups[todayGroup].length}サーバー`;
+  todayCount.textContent = `${todayServers.length}サーバー`;
   todayServerList.innerHTML = "";
 
-  serverGroups[todayGroup].forEach((number) => {
+  todayServers.forEach((number) => {
     todayServerList.append(createServerChip({ number, group: todayGroup }));
   });
 }
@@ -154,15 +161,51 @@ function saveThemePreference(preference) {
   applyThemePreference(preference);
 }
 
+function getCookieValue(name) {
+  return (document.cookie || "")
+    .split("; ")
+    .find((cookie) => cookie.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
+}
+
+function saveRangePreference() {
+  const value = encodeURIComponent(`${selectedRangeStart}-${selectedRangeEnd}`);
+  const oneYear = 60 * 60 * 24 * 365;
+  document.cookie = `${rangeCookieName}=${value}; path=/; max-age=${oneYear}; SameSite=Lax`;
+}
+
+function initializeRangeSelection() {
+  const savedRange = getCookieValue(rangeCookieName);
+
+  if (!savedRange) {
+    saveRangePreference();
+    return;
+  }
+
+  let start;
+  let end;
+
+  try {
+    [start, end] = decodeURIComponent(savedRange).split("-").map(Number);
+  } catch (_error) {
+    start = Number.NaN;
+    end = Number.NaN;
+  }
+
+  const isValidRange = serverNumberSet.has(start) && serverNumberSet.has(end);
+
+  if (!isValidRange) {
+    selectedRangeStart = minServerNumber;
+    selectedRangeEnd = maxServerNumber;
+    saveRangePreference();
+    return;
+  }
+
+  selectedRangeStart = start;
+  selectedRangeEnd = end;
+}
+
 function currentRangeBounds() {
-  if (selectedRangeStart === null) {
-    return { minValue: null, maxValue: null };
-  }
-
-  if (selectedRangeEnd === null) {
-    return { minValue: selectedRangeStart, maxValue: selectedRangeStart };
-  }
-
   return {
     minValue: Math.min(selectedRangeStart, selectedRangeEnd),
     maxValue: Math.max(selectedRangeStart, selectedRangeEnd),
@@ -171,17 +214,16 @@ function currentRangeBounds() {
 
 function renderServerRange() {
   const { minValue, maxValue } = currentRangeBounds();
-  const hasSelection = minValue !== null && maxValue !== null;
 
   allServerList.innerHTML = "";
   serverRecords.forEach((record) => {
     const chip = createServerChip(record, { interactive: true });
-    const inRange = hasSelection && record.number >= minValue && record.number <= maxValue;
+    const inRange = record.number >= minValue && record.number <= maxValue;
 
     chip.classList.toggle("is-in-range", inRange);
-    chip.classList.toggle("is-outside-range", hasSelection && !inRange);
-    chip.classList.toggle("is-range-start", hasSelection && record.number === minValue);
-    chip.classList.toggle("is-range-end", hasSelection && record.number === maxValue);
+    chip.classList.toggle("is-outside-range", !inRange);
+    chip.classList.toggle("is-range-start", record.number === minValue);
+    chip.classList.toggle("is-range-end", record.number === maxValue);
     chip.setAttribute("aria-pressed", String(inRange));
 
     allServerList.append(chip);
@@ -191,13 +233,15 @@ function renderServerRange() {
 function selectRangeFromCard(serverNumber) {
   if (nextRangePick === "start") {
     selectedRangeStart = serverNumber;
-    selectedRangeEnd = null;
+    selectedRangeEnd = serverNumber;
     nextRangePick = "end";
   } else {
     selectedRangeEnd = serverNumber;
     nextRangePick = "start";
   }
 
+  saveRangePreference();
+  renderToday();
   renderServerRange();
 }
 
@@ -211,5 +255,6 @@ themeMedia.addEventListener("change", () => {
 });
 
 applyThemePreference(storedThemePreference());
+initializeRangeSelection();
 renderToday();
 renderServerRange();
