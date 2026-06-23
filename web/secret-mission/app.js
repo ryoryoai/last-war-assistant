@@ -104,7 +104,7 @@ function createServerChip(record, options = {}) {
   chip.setAttribute("aria-label", `サーバー ${record.number} グループ ${record.group}`);
 
   const number = document.createElement("span");
-  number.textContent = `#${record.number}`;
+  number.textContent = String(record.number);
   chip.append(number);
 
   if (options.interactive) {
@@ -208,13 +208,13 @@ function renderFilteredServers(changedRange = null) {
 
   minRange.value = String(minValue);
   maxRange.value = String(maxValue);
-  minOutput.textContent = `#${minValue}`;
-  maxOutput.textContent = `#${maxValue}`;
-  selectedStart.textContent = `#${minValue}`;
-  selectedEnd.textContent = `#${maxValue}`;
+  minOutput.textContent = String(minValue);
+  maxOutput.textContent = String(maxValue);
+  selectedStart.textContent = String(minValue);
+  selectedEnd.textContent = String(maxValue);
 
   const selectedCount = serverRecords.filter((record) => record.number >= minValue && record.number <= maxValue).length;
-  rangeCount.textContent = `${selectedCount}件 / #${minValue}-#${maxValue}`;
+  rangeCount.textContent = `${selectedCount}件 / ${minValue}-${maxValue}`;
 
   allServerList.innerHTML = "";
   serverRecords.forEach((record) => {
