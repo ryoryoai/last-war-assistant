@@ -20,7 +20,7 @@ const groupOrder = ["A", "B", "C"];
 const hourInMilliseconds = 60 * 60 * 1000;
 const dayInMilliseconds = 24 * 60 * 60 * 1000;
 const serverUtcOffsetHours = -2;
-const appVersion = "2026-06-24-02";
+const appVersion = "2026-06-24-03";
 const rotationAnchor = {
   date: "2026-06-23",
   group: "A",
@@ -56,6 +56,8 @@ const translations = {
     languageAuto: "Auto",
     calendarCurrent: "Current",
     calendarItemAria: (date, group) => `${date}, group ${group}`,
+    calendarNextMonth: "Next month",
+    calendarPreviousMonth: "Previous month",
     calendarTitle: "This Month's Mission Calendar",
     copyFailed: "Copy failed",
     copyHint: "Tap the list to copy",
@@ -97,6 +99,8 @@ const translations = {
     languageAuto: "自動",
     calendarCurrent: "現在",
     calendarItemAria: (date, group) => `${date} グループ ${group}`,
+    calendarNextMonth: "翌月",
+    calendarPreviousMonth: "前月",
     calendarTitle: "今月の任務カレンダー",
     copyFailed: "コピーできませんでした",
     copyHint: "リストをタップでコピー",
@@ -415,7 +419,9 @@ const copyHint = document.querySelector("#copy-hint");
 const todayServerList = document.querySelector("#today-server-list");
 const copyStatus = document.querySelector("#copy-status");
 const missionCalendarTitle = document.querySelector("#mission-calendar-title");
-const missionResetNote = document.querySelector("#mission-reset-note");
+const calendarPrevMonthButton = document.querySelector("#calendar-prev-month");
+const calendarNextMonthButton = document.querySelector("#calendar-next-month");
+const calendarMonthLabel = document.querySelector("#calendar-month-label");
 const missionCalendar = document.querySelector("#mission-calendar");
 const themeToggle = document.querySelector(".theme-toggle");
 const themeButtons = document.querySelectorAll("[data-theme-option]");
@@ -443,6 +449,7 @@ const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 let currentTime = new Date();
 let missionDay = getServerMissionDay(currentTime);
 let todayGroup = getGroupForSerial(missionDay.serial);
+let displayedCalendarMonthSerial = getServerMonthRange(missionDay.serial).firstSerial;
 let todayServerNumbers = [];
 let localePreference = storedLocalePreference();
 let locale = resolveLocale(localePreference);
@@ -603,6 +610,12 @@ function getServerMonthRange(serial) {
   return { firstSerial, nextMonthSerial };
 }
 
+function addMonthsToServerMonth(firstSerial, monthOffset) {
+  const date = serialToDate(firstSerial);
+
+  return Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + monthOffset, 1) / dayInMilliseconds;
+}
+
 function getGroupForSerial(serial) {
   const anchorIndex = groupOrder.indexOf(rotationAnchor.group);
   const offset = positiveModulo(serial - anchorSerial, groupOrder.length);
@@ -617,8 +630,9 @@ function applyLocale() {
   todayTitle.textContent = copy.todayTitle;
   copyHint.textContent = localized("copyHint");
   missionCalendarTitle.textContent = copy.calendarTitle;
-  missionResetNote.textContent = copy.resetNote;
   missionCalendar.setAttribute("aria-label", copy.missionCalendarAria);
+  calendarPrevMonthButton.setAttribute("aria-label", localized("calendarPreviousMonth"));
+  calendarNextMonthButton.setAttribute("aria-label", localized("calendarNextMonth"));
   themeToggle.setAttribute("aria-label", copy.themeAria);
   timeToggle.setAttribute("aria-label", localized("timeDisplayAria"));
   todayServerList.setAttribute("aria-label", localized("copyServersAria"));
@@ -666,14 +680,6 @@ function renderLanguageOptions() {
   languageSelect.value = localePreference;
 }
 
-function formatLocalDate(date) {
-  return new Intl.DateTimeFormat(copy.dateLocale, {
-    weekday: "short",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-}
-
 function formatServerDate(date) {
   return new Intl.DateTimeFormat(copy.dateLocale, {
     timeZone: "UTC",
@@ -707,41 +713,33 @@ function formatServerDateTime(date) {
   }).format(toServerDate(date));
 }
 
-function formatLocalWindow(startDate, endDate) {
-  const formatter = new Intl.DateTimeFormat(copy.dateLocale, {
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return `${formatter.format(startDate)} - ${formatter.format(endDate)}`;
-}
-
-function formatServerWindow(startDate, endDate) {
-  const formatter = new Intl.DateTimeFormat(copy.dateLocale, {
-    timeZone: "UTC",
-    month: "numeric",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return `${formatter.format(toServerDate(startDate))} - ${formatter.format(toServerDate(endDate))}`;
-}
-
 function formatDisplayDateTime(date) {
   return timeDisplayMode === "server" ? formatServerDateTime(date) : formatLocalDateTime(date);
-}
-
-function formatDisplayWindow(startDate, endDate) {
-  return timeDisplayMode === "server" ? formatServerWindow(startDate, endDate) : formatLocalWindow(startDate, endDate);
 }
 
 function formatCalendarDate(serial) {
   const startDate = serialToServerResetDate(serial);
 
-  return timeDisplayMode === "server" ? formatServerDate(startDate) : formatLocalDate(startDate);
+  return formatServerDate(startDate);
+}
+
+function formatCalendarMonth(firstSerial) {
+  return new Intl.DateTimeFormat(copy.dateLocale, {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "long",
+  }).format(serialToDate(firstSerial));
+}
+
+function weekdayLabels() {
+  const baseSunday = Date.UTC(2026, 5, 7);
+
+  return Array.from({ length: 7 }, (_, index) =>
+    new Intl.DateTimeFormat(copy.dateLocale, {
+      timeZone: "UTC",
+      weekday: "short",
+    }).format(new Date(baseSunday + index * dayInMilliseconds)),
+  );
 }
 
 function createServerChip(record, options = {}) {
@@ -782,42 +780,46 @@ function renderToday() {
 }
 
 function renderMissionCalendar() {
-  const { firstSerial, nextMonthSerial } = getServerMonthRange(missionDay.serial);
+  const { nextMonthSerial } = getServerMonthRange(displayedCalendarMonthSerial);
+  const firstDayOfWeek = serialToDate(displayedCalendarMonthSerial).getUTCDay();
 
+  calendarMonthLabel.textContent = formatCalendarMonth(displayedCalendarMonthSerial);
   missionCalendar.innerHTML = "";
 
-  for (let serial = firstSerial; serial < nextMonthSerial; serial += 1) {
+  weekdayLabels().forEach((label) => {
+    const weekday = document.createElement("div");
+    weekday.className = "calendar-weekday";
+    weekday.textContent = label;
+    missionCalendar.append(weekday);
+  });
+
+  for (let index = 0; index < firstDayOfWeek; index += 1) {
+    const blank = document.createElement("div");
+    blank.className = "calendar-day is-blank";
+    blank.setAttribute("aria-hidden", "true");
+    missionCalendar.append(blank);
+  }
+
+  for (let serial = displayedCalendarMonthSerial; serial < nextMonthSerial; serial += 1) {
     const group = getGroupForSerial(serial);
-    const startDate = serialToServerResetDate(serial);
-    const endDate = serialToServerResetDate(serial + 1);
     const dateLabel = formatCalendarDate(serial);
+    const dateNumber = serialToDate(serial).getUTCDate();
     const item = document.createElement("div");
     const isCurrent = serial === missionDay.serial;
 
-    item.className = `calendar-item group-${group.toLowerCase()}`;
+    item.className = `calendar-day group-${group.toLowerCase()}`;
     item.classList.toggle("is-current", isCurrent);
     item.setAttribute("aria-label", copy.calendarItemAria(dateLabel, group));
 
     const date = document.createElement("span");
     date.className = "calendar-date";
-    date.textContent = dateLabel;
+    date.textContent = String(dateNumber);
 
     const badge = document.createElement("span");
     badge.className = "calendar-group";
     badge.textContent = group;
 
-    const windowLabel = document.createElement("span");
-    windowLabel.className = "calendar-window";
-    windowLabel.textContent = formatDisplayWindow(startDate, endDate);
-
-    item.append(date, badge, windowLabel);
-
-    if (isCurrent) {
-      const current = document.createElement("span");
-      current.className = "calendar-current";
-      current.textContent = copy.calendarCurrent;
-      item.append(current);
-    }
+    item.append(date, badge);
 
     missionCalendar.append(item);
   }
@@ -1066,6 +1068,11 @@ function refreshMissionState() {
   renderMissionCalendar();
 }
 
+function moveCalendarMonth(monthOffset) {
+  displayedCalendarMonthSerial = addMonthsToServerMonth(displayedCalendarMonthSerial, monthOffset);
+  renderMissionCalendar();
+}
+
 function toggleServerExclusion(serverNumber) {
   if (!serverGroupByNumber.has(serverNumber)) {
     return;
@@ -1096,6 +1103,8 @@ timeButtons.forEach((button) => {
   button.addEventListener("click", () => saveTimeDisplayPreference(button.dataset.timeDisplay));
 });
 resetExclusionsButton.addEventListener("click", resetExclusionsToDefault);
+calendarPrevMonthButton.addEventListener("click", () => moveCalendarMonth(-1));
+calendarNextMonthButton.addEventListener("click", () => moveCalendarMonth(1));
 installButton.addEventListener("click", handleInstallButtonClick);
 updateButton.addEventListener("click", () => {
   if (waitingServiceWorker) {

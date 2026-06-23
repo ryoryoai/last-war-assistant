@@ -59,7 +59,11 @@
       <section class="calendar-section" aria-labelledby="mission-calendar-title">
         <div class="section-head">
           <h2 id="mission-calendar-title">任務カレンダー</h2>
-          <span id="mission-reset-note">日本時間11:00更新</span>
+          <div class="calendar-nav" aria-label="月移動">
+            <button type="button" id="calendar-prev-month">‹</button>
+            <span id="calendar-month-label">-</span>
+            <button type="button" id="calendar-next-month">›</button>
+          </div>
         </div>
         <div class="mission-calendar" id="mission-calendar"></div>
       </section>
