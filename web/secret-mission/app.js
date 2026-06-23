@@ -1,28 +1,18 @@
 const serverGroups = {
   A: [
-    [69, 75, 81, 82, 88, 89, 90],
-    [98, 99, 100, 110, 111, 112, 113],
-    [122, 123, 124, 125, 134, 135, 145],
-    [146, 147, 155, 156, 157, 158, 169],
-    [170, 171, 172, 182, 183, 184, 185],
-    [186, 187, 196, null, null, null, null],
+    69, 75, 81, 82, 88, 89, 90, 98, 99, 100, 110, 111, 112, 113, 122, 123, 124, 125, 134,
+    135, 145, 146, 147, 155, 156, 157, 158, 169, 170, 171, 172, 182, 183, 184, 185, 186,
+    187, 196,
   ],
   B: [
-    [70, 71, 78, 83, 84, 85, 91],
-    [92, 93, 101, 102, 103, 104, 105],
-    [114, 115, 116, 117, 118, 126, 127],
-    [128, 129, 136, 137, 140, 141, 148],
-    [149, 151, 152, 160, 161, 162, 163],
-    [164, 165, 173, 174, 175, 176, 178],
-    [188, 189, 190, null, null, null, null],
+    70, 71, 78, 83, 84, 85, 91, 92, 93, 101, 102, 103, 104, 105, 114, 115, 116, 117, 118,
+    126, 127, 128, 129, 136, 137, 140, 141, 148, 149, 151, 152, 160, 161, 162, 163, 164,
+    165, 173, 174, 175, 176, 178, 188, 189, 190,
   ],
   C: [
-    [72, 73, 74, 79, 80, 86, 87],
-    [94, 95, 96, 97, 106, 107, 108],
-    [109, 119, 120, 121, 130, 131, 132],
-    [138, 142, 143, 144, 150, 153, 154],
-    [166, 167, 168, 179, 180, 181, 191],
-    [192, 193, 194, null, null, null, null],
+    72, 73, 74, 79, 80, 86, 87, 94, 95, 96, 97, 106, 107, 108, 109, 119, 120, 121, 130,
+    131, 132, 138, 142, 143, 144, 150, 153, 154, 166, 167, 168, 179, 180, 181, 191, 192,
+    193, 194,
   ],
 };
 
@@ -34,59 +24,29 @@ const rotationAnchor = {
   group: "A",
 };
 
-const form = document.querySelector("#lookup-form");
-const input = document.querySelector("#server-input");
-const result = document.querySelector("#lookup-result");
 const todayCard = document.querySelector("#today-card");
 const todayGroupBadge = document.querySelector("#today-group-badge");
 const todayDate = document.querySelector("#today-date");
+const todayCycle = document.querySelector("#today-cycle");
 const todayServerList = document.querySelector("#today-server-list");
-const todayGroupControl = document.querySelector("#today-group-control");
 const allServerList = document.querySelector("#all-server-list");
 const minRange = document.querySelector("#server-min-range");
 const maxRange = document.querySelector("#server-max-range");
 const minOutput = document.querySelector("#server-min-output");
 const maxOutput = document.querySelector("#server-max-output");
 const rangeCount = document.querySelector("#range-count");
-const groupsRoot = document.querySelector("#server-groups");
-const clearButton = document.querySelector("#clear-button");
 
 const serverRecords = buildServerRecords();
 const minServerNumber = serverRecords[0].number;
 const maxServerNumber = serverRecords[serverRecords.length - 1].number;
-const gameDay = getJstGameDay();
 const anchorSerial = serialFromDateString(rotationAnchor.date);
-
-let activeServer = null;
-let activeTodayGroup = getGroupForSerial(gameDay.serial);
-
-function findServer(serverNumber) {
-  return Object.entries(serverGroups).flatMap(([group, rows]) =>
-    rows.flatMap((row, rowIndex) =>
-      row
-        .map((value, columnIndex) => ({ group, rowIndex, columnIndex, value }))
-        .filter((entry) => entry.value === serverNumber),
-    ),
-  );
-}
+const gameDay = getJstGameDay();
+const todayGroup = getGroupForSerial(gameDay.serial);
 
 function buildServerRecords() {
-  const recordsByNumber = new Map();
-
-  Object.entries(serverGroups).forEach(([group, rows]) => {
-    rows.flat().forEach((value) => {
-      if (value === null) return;
-
-      if (!recordsByNumber.has(value)) {
-        recordsByNumber.set(value, { number: value, groups: [] });
-      }
-
-      const record = recordsByNumber.get(value);
-      if (!record.groups.includes(group)) record.groups.push(group);
-    });
-  });
-
-  return [...recordsByNumber.values()].sort((a, b) => a.number - b.number);
+  return Object.entries(serverGroups)
+    .flatMap(([group, servers]) => servers.map((number) => ({ number, group })))
+    .sort((a, b) => a.number - b.number);
 }
 
 function positiveModulo(value, divisor) {
@@ -118,8 +78,8 @@ function getJstGameDay(now = new Date()) {
   const label = new Intl.DateTimeFormat("ja-JP", {
     timeZone: "UTC",
     year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
+    month: "long",
+    day: "numeric",
     weekday: "short",
   }).format(gameDate);
 
@@ -132,55 +92,23 @@ function getGroupForSerial(serial) {
   return groupOrder[positiveModulo(anchorIndex + offset, groupOrder.length)];
 }
 
-function getGroupServers(group) {
-  return serverGroups[group].flat().filter((value) => value !== null);
-}
-
-function getServerRecord(serverNumber) {
-  return serverRecords.find((record) => record.number === serverNumber);
-}
-
 function createServerChip(record) {
-  const button = document.createElement("button");
-  const group = record.groups[0];
-  const groupClass = `group-${group.toLowerCase()}`;
-  button.className = `server-chip ${groupClass}`;
-  button.type = "button";
-  button.dataset.server = String(record.number);
-  button.dataset.group = group;
-  button.setAttribute("aria-label", `サーバー ${record.number} グループ ${group}`);
-
-  const number = document.createElement("span");
-  number.textContent = `#${record.number}`;
-  button.append(number);
-
-  const badge = document.createElement("span");
-  badge.className = "chip-group";
-  badge.textContent = group;
-  button.append(badge);
-
-  button.addEventListener("click", () => {
-    input.value = String(record.number);
-    lookupServer(input.value);
-    input.focus();
-  });
-
-  return button;
+  const chip = document.createElement("span");
+  chip.className = `server-chip group-${record.group.toLowerCase()}`;
+  chip.textContent = `#${record.number}`;
+  chip.setAttribute("aria-label", `サーバー ${record.number} グループ ${record.group}`);
+  return chip;
 }
 
 function renderToday() {
-  todayCard.dataset.group = activeTodayGroup;
-  todayGroupBadge.textContent = activeTodayGroup;
-  todayDate.textContent = `${gameDay.label} / グループ ${activeTodayGroup}`;
+  todayCard.dataset.group = todayGroup;
+  todayGroupBadge.textContent = todayGroup;
+  todayDate.textContent = gameDay.label;
+  todayCycle.textContent = `グループ ${todayGroup}`;
   todayServerList.innerHTML = "";
 
-  todayGroupControl.querySelectorAll("button").forEach((button) => {
-    const isActive = button.dataset.group === activeTodayGroup;
-    button.setAttribute("aria-pressed", String(isActive));
-  });
-
-  getGroupServers(activeTodayGroup).forEach((serverNumber) => {
-    todayServerList.append(createServerChip(getServerRecord(serverNumber)));
+  serverGroups[todayGroup].forEach((number) => {
+    todayServerList.append(createServerChip({ number, group: todayGroup }));
   });
 }
 
@@ -210,122 +138,17 @@ function renderFilteredServers(changedRange = null) {
     }
   }
 
+  const visibleServers = serverRecords.filter((record) => record.number >= minValue && record.number <= maxValue);
+
   minOutput.textContent = `#${minValue}`;
   maxOutput.textContent = `#${maxValue}`;
-
-  const visibleServers = serverRecords.filter((record) => record.number >= minValue && record.number <= maxValue);
-  rangeCount.textContent = `${visibleServers.length}件 / #${minValue}-#${maxValue}`;
+  rangeCount.textContent = `${visibleServers.length}件`;
   allServerList.innerHTML = "";
   visibleServers.forEach((record) => allServerList.append(createServerChip(record)));
 }
-
-function renderGroups() {
-  groupsRoot.innerHTML = "";
-
-  Object.entries(serverGroups).forEach(([group, rows]) => {
-    const section = document.createElement("article");
-    section.className = "server-group";
-    section.dataset.group = group;
-
-    const title = document.createElement("div");
-    title.className = "group-title";
-    title.textContent = group;
-    section.append(title);
-
-    const grid = document.createElement("div");
-    grid.className = "server-grid";
-
-    rows.flat().forEach((value) => {
-      const cell = document.createElement("span");
-      cell.className = "server-cell";
-
-      if (value === null) {
-        cell.classList.add("empty");
-        cell.setAttribute("aria-hidden", "true");
-      } else {
-        cell.classList.add(`group-${group.toLowerCase()}`);
-        cell.textContent = String(value);
-        cell.dataset.server = String(value);
-        if (value === activeServer) cell.classList.add("match");
-      }
-
-      grid.append(cell);
-    });
-
-    section.append(grid);
-    groupsRoot.append(section);
-  });
-}
-
-function setResultEmpty() {
-  result.dataset.state = "";
-  result.innerHTML = `
-    <span class="result-label">未入力</span>
-    <strong>番号を入力</strong>
-  `;
-}
-
-function lookupServer(rawValue) {
-  const normalizedValue = rawValue.replace(/[^\d]/g, "");
-
-  if (!normalizedValue) {
-    activeServer = null;
-    setResultEmpty();
-    renderGroups();
-    return;
-  }
-
-  const serverNumber = Number(normalizedValue);
-  const matches = findServer(serverNumber);
-  activeServer = serverNumber;
-
-  if (matches.length === 0) {
-    result.dataset.state = "missing";
-    result.innerHTML = `
-      <span class="result-label">#${serverNumber}</span>
-      <strong>未登録</strong>
-    `;
-    renderGroups();
-    return;
-  }
-
-  const group = matches[0].group;
-  result.dataset.state = "found";
-  result.innerHTML = `
-    <span class="result-label">#${serverNumber}</span>
-    <strong>${group}</strong>
-  `;
-  renderGroups();
-}
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  lookupServer(input.value);
-});
-
-input.addEventListener("input", () => {
-  lookupServer(input.value);
-});
-
-clearButton.addEventListener("click", () => {
-  input.value = "";
-  input.focus();
-  activeServer = null;
-  setResultEmpty();
-  renderGroups();
-});
-
-todayGroupControl.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-group]");
-  if (!button) return;
-
-  activeTodayGroup = button.dataset.group;
-  renderToday();
-});
 
 minRange.addEventListener("input", () => renderFilteredServers(minRange));
 maxRange.addEventListener("input", () => renderFilteredServers(maxRange));
 
 renderToday();
 initializeRangeControls();
-renderGroups();

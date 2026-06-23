@@ -3,86 +3,34 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>極秘任務サーバー判定 | Last War Assistant</title>
+    <title>今日の極秘任務サーバー | Last War Assistant</title>
     <link rel="stylesheet" href="./styles.css" />
     <script src="./app.js" defer></script>
   </head>
   <body>
     <main class="shell">
-      <header class="topbar">
-        <div>
-          <a class="back-link" href="../index.html">← 作戦管理</a>
-          <p class="eyebrow">Secret Mission</p>
-          <h1>極秘任務サーバー判定</h1>
+      <a class="back-link" href="../index.html">← 作戦管理</a>
+
+      <section class="today-card" id="today-card" aria-labelledby="today-title">
+        <div class="today-head">
+          <div>
+            <p class="eyebrow">Secret Mission</p>
+            <h1 id="today-title">今日の極秘任務サーバー</h1>
+          </div>
+          <span class="today-badge" id="today-group-badge">-</span>
         </div>
-        <div class="summary-strip" aria-label="登録サーバー数">
-          <span><b>A</b> 38</span>
-          <span><b>B</b> 45</span>
-          <span><b>C</b> 38</span>
+        <div class="today-meta">
+          <span id="today-date">-</span>
+          <span id="today-cycle">-</span>
         </div>
-      </header>
-
-      <section class="today-section" aria-labelledby="today-title">
-        <article class="today-card" id="today-card">
-          <div class="today-head">
-            <div>
-              <p class="eyebrow">Today</p>
-              <h2 id="today-title">今日の星任務</h2>
-            </div>
-            <span class="today-badge" id="today-group-badge">-</span>
-          </div>
-          <div class="today-meta">
-            <span id="today-date">-</span>
-            <span>JST 11:00 更新</span>
-          </div>
-          <div
-            class="segment-control"
-            id="today-group-control"
-            aria-label="今日のグループ"
-          >
-            <button type="button" data-group="A">A</button>
-            <button type="button" data-group="B">B</button>
-            <button type="button" data-group="C">C</button>
-          </div>
-          <div class="server-chip-list" id="today-server-list"></div>
-        </article>
-      </section>
-
-      <section class="lookup-grid" aria-label="サーバー判定">
-        <form class="lookup-panel" id="lookup-form">
-          <label for="server-input">サーバー番号</label>
-          <div class="input-row">
-            <input
-              type="text"
-              id="server-input"
-              name="server"
-              inputmode="numeric"
-              autocomplete="off"
-              placeholder="例: 156"
-              aria-describedby="lookup-result"
-            />
-            <button type="submit">判定</button>
-          </div>
-          <output class="result" id="lookup-result" for="server-input">
-            <span class="result-label">未入力</span>
-            <strong>番号を入力</strong>
-          </output>
-        </form>
-
-        <aside class="source-panel">
-          <img
-            src="../assets/secret-mission-server-map.jpg"
-            alt="極秘任務サーバーの A、B、C 対応表"
-          />
-          <p class="source-note">表の重複は補正済み: A 85→88 / A 102→98 / A 148→156</p>
-        </aside>
+        <div class="server-chip-list today-server-list" id="today-server-list"></div>
       </section>
 
       <section class="filter-section" aria-labelledby="all-server-title">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">All Servers</p>
-            <h2 id="all-server-title">全サーバーリスト</h2>
+            <p class="eyebrow">Filter</p>
+            <h2 id="all-server-title">全サーバー確認</h2>
           </div>
           <span class="range-count" id="range-count">-</span>
         </div>
@@ -107,17 +55,6 @@
         </div>
 
         <div class="server-chip-list all-server-list" id="all-server-list"></div>
-      </section>
-
-      <section class="table-section" aria-labelledby="table-title">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Server Map</p>
-            <h2 id="table-title">A / B / C 対応表</h2>
-          </div>
-          <button class="clear-button" id="clear-button" type="button">解除</button>
-        </div>
-        <div class="server-groups" id="server-groups"></div>
       </section>
     </main>
   </body>
