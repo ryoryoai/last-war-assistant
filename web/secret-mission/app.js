@@ -32,21 +32,14 @@ const todayCount = document.querySelector("#today-count");
 const todayServerList = document.querySelector("#today-server-list");
 const themeButtons = document.querySelectorAll("[data-theme-option]");
 const allServerList = document.querySelector("#all-server-list");
-const minRange = document.querySelector("#server-min-range");
-const maxRange = document.querySelector("#server-max-range");
-const minOutput = document.querySelector("#server-min-output");
-const maxOutput = document.querySelector("#server-max-output");
-const rangeCount = document.querySelector("#range-count");
-const selectedStart = document.querySelector("#selected-start");
-const selectedEnd = document.querySelector("#selected-end");
 
 const serverRecords = buildServerRecords();
-const minServerNumber = serverRecords[0].number;
-const maxServerNumber = serverRecords[serverRecords.length - 1].number;
 const anchorSerial = serialFromDateString(rotationAnchor.date);
 const gameDay = getJstGameDay();
 const todayGroup = getGroupForSerial(gameDay.serial);
 let nextRangePick = "start";
+let selectedRangeStart = null;
+let selectedRangeEnd = null;
 const themeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
 function buildServerRecords() {
@@ -116,14 +109,6 @@ function createServerChip(record, options = {}) {
   return chip;
 }
 
-function nearestServerNumber(value) {
-  return serverRecords.reduce((nearest, record) => {
-    const currentDistance = Math.abs(record.number - value);
-    const nearestDistance = Math.abs(nearest - value);
-    return currentDistance < nearestDistance ? record.number : nearest;
-  }, serverRecords[0].number);
-}
-
 function renderToday() {
   todayCard.dataset.group = todayGroup;
   todayGroupBadge.textContent = todayGroup;
@@ -169,62 +154,34 @@ function saveThemePreference(preference) {
   applyThemePreference(preference);
 }
 
-function initializeRangeControls() {
-  [minRange, maxRange].forEach((range) => {
-    range.min = String(minServerNumber);
-    range.max = String(maxServerNumber);
-    range.step = "1";
-  });
+function currentRangeBounds() {
+  if (selectedRangeStart === null) {
+    return { minValue: null, maxValue: null };
+  }
 
-  minRange.value = String(minServerNumber);
-  maxRange.value = String(maxServerNumber);
-  renderFilteredServers();
+  if (selectedRangeEnd === null) {
+    return { minValue: selectedRangeStart, maxValue: selectedRangeStart };
+  }
+
+  return {
+    minValue: Math.min(selectedRangeStart, selectedRangeEnd),
+    maxValue: Math.max(selectedRangeStart, selectedRangeEnd),
+  };
 }
 
-function renderFilteredServers(changedRange = null) {
-  let minValue = Number(minRange.value);
-  let maxValue = Number(maxRange.value);
-
-  if (minValue > maxValue) {
-    if (changedRange === minRange) {
-      maxValue = minValue;
-      maxRange.value = String(maxValue);
-    } else {
-      minValue = maxValue;
-      minRange.value = String(minValue);
-    }
-  }
-
-  minValue = nearestServerNumber(minValue);
-  maxValue = nearestServerNumber(maxValue);
-
-  if (minValue > maxValue) {
-    if (changedRange === minRange) {
-      maxValue = minValue;
-    } else {
-      minValue = maxValue;
-    }
-  }
-
-  minRange.value = String(minValue);
-  maxRange.value = String(maxValue);
-  minOutput.textContent = String(minValue);
-  maxOutput.textContent = String(maxValue);
-  selectedStart.textContent = String(minValue);
-  selectedEnd.textContent = String(maxValue);
-
-  const selectedCount = serverRecords.filter((record) => record.number >= minValue && record.number <= maxValue).length;
-  rangeCount.textContent = `${selectedCount}件 / ${minValue}-${maxValue}`;
+function renderServerRange() {
+  const { minValue, maxValue } = currentRangeBounds();
+  const hasSelection = minValue !== null && maxValue !== null;
 
   allServerList.innerHTML = "";
   serverRecords.forEach((record) => {
     const chip = createServerChip(record, { interactive: true });
-    const inRange = record.number >= minValue && record.number <= maxValue;
+    const inRange = hasSelection && record.number >= minValue && record.number <= maxValue;
 
     chip.classList.toggle("is-in-range", inRange);
-    chip.classList.toggle("is-outside-range", !inRange);
-    chip.classList.toggle("is-range-start", record.number === minValue);
-    chip.classList.toggle("is-range-end", record.number === maxValue);
+    chip.classList.toggle("is-outside-range", hasSelection && !inRange);
+    chip.classList.toggle("is-range-start", hasSelection && record.number === minValue);
+    chip.classList.toggle("is-range-end", hasSelection && record.number === maxValue);
     chip.setAttribute("aria-pressed", String(inRange));
 
     allServerList.append(chip);
@@ -233,21 +190,17 @@ function renderFilteredServers(changedRange = null) {
 
 function selectRangeFromCard(serverNumber) {
   if (nextRangePick === "start") {
-    minRange.value = String(serverNumber);
-    maxRange.value = String(serverNumber);
+    selectedRangeStart = serverNumber;
+    selectedRangeEnd = null;
     nextRangePick = "end";
   } else {
-    const start = Number(minRange.value);
-    minRange.value = String(Math.min(start, serverNumber));
-    maxRange.value = String(Math.max(start, serverNumber));
+    selectedRangeEnd = serverNumber;
     nextRangePick = "start";
   }
 
-  renderFilteredServers();
+  renderServerRange();
 }
 
-minRange.addEventListener("input", () => renderFilteredServers(minRange));
-maxRange.addEventListener("input", () => renderFilteredServers(maxRange));
 themeButtons.forEach((button) => {
   button.addEventListener("click", () => saveThemePreference(button.dataset.themeOption));
 });
@@ -259,4 +212,4 @@ themeMedia.addEventListener("change", () => {
 
 applyThemePreference(storedThemePreference());
 renderToday();
-initializeRangeControls();
+renderServerRange();

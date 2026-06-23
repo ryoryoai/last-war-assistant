@@ -300,89 +300,6 @@ button.server-chip:focus-visible {
   padding: 18px;
 }
 
-.section-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.range-count {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0 12px;
-  background: var(--surface-soft);
-  color: var(--muted-text);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.selected-range {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.selected-range span {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0 12px;
-  background: var(--surface-soft);
-  color: var(--muted-text);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.selected-range b {
-  color: var(--ink);
-}
-
-.range-panel {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(220px, 1fr));
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-.range-field {
-  display: grid;
-  grid-template-columns: 46px 1fr 54px;
-  gap: 10px;
-  align-items: center;
-  min-height: 50px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.range-field span,
-.range-field output {
-  color: var(--muted-text);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.range-field output {
-  justify-self: end;
-  color: var(--ink);
-}
-
-input[type="range"] {
-  width: 100%;
-  min-height: 32px;
-  accent-color: var(--focus);
-}
-
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -433,8 +350,7 @@ input[type="range"] {
     width: min(100% - 24px, 1180px);
   }
 
-  .today-head,
-  .section-heading {
+  .today-head {
     align-items: stretch;
     flex-direction: column;
   }
@@ -453,19 +369,10 @@ input[type="range"] {
     width: 100%;
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
-  .range-panel {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 520px) {
   .server-chip-list {
     grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
-  }
-
-  .range-field {
-    grid-template-columns: 40px 1fr 48px;
-    padding: 0 8px;
   }
 }
