@@ -104,7 +104,7 @@ export const translations: Record<LocaleCode, Translation> = {
     copyHint: "リストをタップでコピー",
     copyServersAria: "今日のサーバーリストをコピー",
     dateLocale: "ja-JP",
-    exclusionSettingsTitle: "除外設定",
+    exclusionSettingsTitle: "除外サーバー設定",
     groupLegendAria: "グループ凡例",
     htmlLang: "ja",
     installButton: "ホームに追加",
