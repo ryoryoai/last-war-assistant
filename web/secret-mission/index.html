@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>極秘任務サーバー判定 | Last War Assistant</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <a class="back-link" href="../index.html">← 作戦管理</a>
+          <p class="eyebrow">Secret Mission</p>
+          <h1>極秘任務サーバー判定</h1>
+        </div>
+        <div class="summary-strip" aria-label="登録サーバー数">
+          <span><b>A</b> 38</span>
+          <span><b>B</b> 45</span>
+          <span><b>C</b> 38</span>
+        </div>
+      </header>
+
+      <section class="lookup-grid" aria-label="サーバー判定">
+        <form class="lookup-panel" id="lookup-form">
+          <label for="server-input">サーバー番号</label>
+          <div class="input-row">
+            <input
+              id="server-input"
+              name="server"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="例: 148"
+              aria-describedby="lookup-result"
+            />
+            <button type="submit">判定</button>
+          </div>
+          <output class="result" id="lookup-result" for="server-input">
+            <span class="result-label">未入力</span>
+            <strong>番号を入力</strong>
+          </output>
+        </form>
+
+        <aside class="source-panel">
+          <img
+            src="../assets/secret-mission-server-map.jpg"
+            alt="極秘任務サーバーの A、B、C 対応表"
+          />
+        </aside>
+      </section>
+
+      <section class="table-section" aria-labelledby="table-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Server Map</p>
+            <h2 id="table-title">A / B / C 対応表</h2>
+          </div>
+          <button class="clear-button" id="clear-button" type="button">解除</button>
+        </div>
+        <div class="server-groups" id="server-groups"></div>
+      </section>
+    </main>
+  </body>
+</html>

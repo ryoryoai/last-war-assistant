@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.lastwar_agent/
+runs/
+.env
+.env.*
+*.log
+.DS_Store
+node_modules/
+.wrangler/
+memory/*.json
+!memory/.gitkeep

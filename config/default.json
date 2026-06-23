@@ -1,0 +1,144 @@
+{
+  "app": {
+    "process_names": ["iPhone Mirroring", "iPhoneミラーリング"],
+    "bundle_id": "com.apple.ScreenContinuity",
+    "content_insets": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0
+    }
+  },
+  "runtime": {
+    "log_dir": "runs",
+    "state_path": ".lastwar_agent/state.json",
+    "default_dry_run": true,
+    "max_actions_per_run": 5,
+    "action_delay_seconds": 1.2,
+    "screenshot_prefix": "lastwar"
+  },
+  "backends": {
+    "default": "macos_mirroring",
+    "appium_ios": {
+      "server_url": "http://127.0.0.1:4723",
+      "timeout_seconds": 20,
+      "udid_env": "LASTWAR_IOS_UDID",
+      "bundle_id_env": "LASTWAR_IOS_BUNDLE_ID",
+      "bootstrap_bundle_id": "com.apple.Preferences",
+      "capabilities": {
+        "platformName": "iOS",
+        "appium:automationName": "XCUITest",
+        "appium:noReset": true,
+        "appium:newCommandTimeout": 300
+      }
+    }
+  },
+  "scheduler": {
+    "timezone": "Asia/Tokyo",
+    "resource_sweep_minutes": 30,
+    "arms_race_hours": [0, 4, 8, 12, 16, 20],
+    "arms_race_start_offset_minutes": 2,
+    "arms_race_precheck_minutes_before_end": 10
+  },
+  "routes": {
+    "arms_race_schedule": {
+      "description": "Open Last War arms race schedule through イベント -> 日程. Coordinates must be calibrated against the current device resolution before execution.",
+      "calibrated": false,
+      "steps": [
+        {
+          "kind": "tap",
+          "id": "open_event",
+          "label": "open event",
+          "x_norm": 0.92,
+          "y_norm": 0.36,
+          "risk": "low",
+          "reason": "Navigate to the event panel without claiming rewards."
+        },
+        {
+          "kind": "wait",
+          "id": "wait_event_panel",
+          "label": "wait for event panel",
+          "seconds": 1.5,
+          "risk": "low"
+        },
+        {
+          "kind": "tap",
+          "id": "open_schedule",
+          "label": "open schedule",
+          "x_norm": 0.50,
+          "y_norm": 0.18,
+          "risk": "low",
+          "reason": "Navigate to 日程 after the event panel opens."
+        },
+        {
+          "kind": "wait",
+          "id": "wait_schedule",
+          "label": "wait for schedule",
+          "seconds": 1.5,
+          "risk": "low"
+        }
+      ]
+    }
+  },
+  "safety": {
+    "blocked_keywords": [
+      "購入",
+      "課金",
+      "ダイヤ",
+      "有料",
+      "支払",
+      "決済",
+      "確認",
+      "加速",
+      "使用しますか",
+      "交換",
+      "解散",
+      "脱退"
+    ],
+    "allowed_action_kinds": ["click_norm", "wait", "hotkey"],
+    "allowed_risk": ["low"]
+  },
+  "vision": {
+    "enabled": false,
+    "model_env": "LASTWAR_VISION_MODEL",
+    "max_actions": 5
+  },
+  "skills": {
+    "detect_dangerous_dialog": {
+      "enabled": true,
+      "priority": 100
+    },
+    "return_to_home": {
+      "enabled": true,
+      "priority": 80
+    },
+    "collect_base_resources": {
+      "enabled": true,
+      "priority": 60,
+      "cooldown_seconds": 1200,
+      "strategy": "static_safe_candidates",
+      "tap_points": [
+        {"label": "upper left base bubble", "x_norm": 0.27, "y_norm": 0.23},
+        {"label": "upper middle base bubble", "x_norm": 0.49, "y_norm": 0.25},
+        {"label": "middle left base bubble", "x_norm": 0.26, "y_norm": 0.43},
+        {"label": "middle base bubble", "x_norm": 0.40, "y_norm": 0.49},
+        {"label": "middle right base bubble", "x_norm": 0.66, "y_norm": 0.58},
+        {"label": "lower middle base bubble", "x_norm": 0.39, "y_norm": 0.66}
+      ]
+    },
+    "open_arms_race": {
+      "enabled": true,
+      "priority": 40,
+      "cooldown_seconds": 900,
+      "tap_point": {"label": "arms race side icon candidate", "x_norm": 0.92, "y_norm": 0.36}
+    },
+    "read_arms_race_phase": {
+      "enabled": true,
+      "priority": 30
+    },
+    "save_screenshot_log": {
+      "enabled": true,
+      "priority": 10
+    }
+  }
+}
