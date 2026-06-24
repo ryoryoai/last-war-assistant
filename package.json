@@ -7,7 +7,8 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "deploy": "npm run build && wrangler pages deploy web --project-name last-war-assistant"
+    "deploy": "npm run build && wrangler pages deploy web --project-name last-war-assistant --branch main",
+    "release:cloudflare": "npm run deploy && curl -fsS \"https://last-war-assistant.pages.dev/secret-mission/version.json?release=$(date +%s)\""
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
