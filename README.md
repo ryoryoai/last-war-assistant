@@ -34,6 +34,18 @@ wrangler login
 wrangler pages deploy web --project-name last-war-assistant
 ```
 
+### Google Analytics
+
+GA4を有効にする場合は、ビルド時に測定IDを設定します。
+
+```bash
+export VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+npm run build
+wrangler pages deploy web --project-name last-war-assistant
+```
+
+`VITE_GA_MEASUREMENT_ID` が未設定、または `G-` で始まるGA4測定IDではない場合、Google Analyticsタグは読み込まれません。
+
 ## 最初の確認
 
 ```bash

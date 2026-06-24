@@ -1,6 +1,7 @@
 {
   "name": "Last War Assistant",
   "short_name": "Last War",
+  "description": "Last Warの星任務サーバーを今日/次のグループで確認できる非公式ファンツールです。",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
