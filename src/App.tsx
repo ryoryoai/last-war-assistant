@@ -82,7 +82,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-24";
+const appVersion = "2026-06-24-25";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
@@ -304,6 +304,7 @@ function AppShell() {
     () => getGroupForSerial(selectedMissionSerial + 1),
     [selectedMissionSerial],
   );
+  const isCurrentMissionDaySelected = selectedMissionSerial === missionDay.serial;
   const [calendarMonth, setCalendarMonth] = useState(() =>
     serialToLocalCalendarDate(getServerMonthRange(missionDay.serial).firstSerial),
   );
@@ -331,14 +332,14 @@ function AppShell() {
     {
       copyAria: copy.copyServersAria,
       group: todayGroup,
-      label: copy.currentTargetLabel,
+      label: isCurrentMissionDaySelected ? copy.currentTargetLabel : copy.selectedMissionLabel,
       servers: todayServers,
       value: "today",
     },
     {
       copyAria: copy.copyNextServersAria(nextGroup),
       group: nextGroup,
-      label: copy.nextGroupLabel,
+      label: isCurrentMissionDaySelected ? copy.nextGroupLabel : copy.followingGroupLabel,
       servers: nextServers,
       value: "next",
     },
@@ -610,6 +611,8 @@ function AppShell() {
               </CardTitle>
               <div className="flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
                 <span>{copy.serverDateLabel(serverDateValue)}</span>
+                <span aria-hidden="true">·</span>
+                <span>{copy.selectedMissionSummary(todayGroup, nextGroup)}</span>
               </div>
             </CardHeader>
           </Card>

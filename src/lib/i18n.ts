@@ -65,9 +65,12 @@ type Translation = {
   privacyLinkLabel: string;
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
+  selectedMissionLabel: string;
+  selectedMissionSummary: (group: string, nextGroup: string) => string;
   serverDateLabel: (date: string) => string;
   serverListTabsAria: string;
   serverAria: (number: number, group: string) => string;
+  followingGroupLabel: string;
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
   title: string;
@@ -170,9 +173,12 @@ const en: Translation = {
   privacyLinkLabel: "Privacy",
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
+  selectedMissionLabel: "Selected day mission",
+  selectedMissionSummary: (group, nextGroup) => `Mission: ${group} / Next: ${nextGroup}`,
   serverDateLabel: (date) => `Server day: ${date}`,
   serverListTabsAria: "Server list group",
   serverAria: (number, group) => `Server ${number}, group ${group}`,
+  followingGroupLabel: "Next day group",
   themeAria: "Display theme",
   themeOptions: {
     dark: "Dark",
@@ -260,9 +266,12 @@ export const translations: Record<LocaleCode, Translation> = {
       "Cloudflare Pages で配信しているため、Cloudflare 側でアクセスログ等が処理される可能性があります。",
     ],
     privacyLinkLabel: "プライバシー",
+    selectedMissionLabel: "選択日の任務",
+    selectedMissionSummary: (group, nextGroup) => `任務：${group} / 次：${nextGroup}`,
     serverDateLabel: (date) => `サーバー日：${date}`,
     serverListTabsAria: "サーバーリスト切替",
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
+    followingGroupLabel: "翌日のグループ",
     themeAria: "表示テーマ",
     themeOptions: {
       dark: "ダーク",
