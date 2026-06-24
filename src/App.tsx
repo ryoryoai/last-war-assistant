@@ -82,7 +82,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-23";
+const appVersion = "2026-06-24-24";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
