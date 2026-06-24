@@ -2,15 +2,20 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
+  AtSign,
   CalendarDays,
   Check,
   ChevronDown,
+  Code,
+  ExternalLink,
   Home,
   Languages,
   Monitor,
   Moon,
   RotateCcw,
   Sun,
+  User,
 } from "lucide-react";
 import {
   de,
@@ -76,8 +81,16 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-19";
+const appVersion = "2026-06-24-21";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
+const appBasePath = "/secret-mission/";
+const authorPagePath = "/secret-mission/author/";
+const authorUrl = "https://github.com/ryoryoai";
+const githubUrl = "https://github.com/ryoryoai/last-war-assistant";
+const xProfileUrl = "https://x.com/ryoryoai";
+const cloudflarePrivacyUrl = "https://www.cloudflare.com/privacypolicy/";
+const footerLinkClassName =
+  "text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
   en: enUS,
@@ -117,6 +130,8 @@ type NavigatorWithStandalone = Navigator & {
   standalone?: boolean;
 };
 type ServerListMode = "today" | "next";
+type LegalDialog = "notice" | "privacy";
+type AppPage = "author" | "home";
 
 function detectInstallGuidePlatform(): InstallGuidePlatform {
   const userAgent = navigator.userAgent || "";
@@ -219,6 +234,14 @@ function formatCountdown(milliseconds: number) {
   return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":");
 }
 
+function normalizePathname(pathname: string) {
+  return pathname.endsWith("/") ? pathname : `${pathname}/`;
+}
+
+function readCurrentPage(): AppPage {
+  return normalizePathname(window.location.pathname) === authorPagePath ? "author" : "home";
+}
+
 function useBrowserLanguages() {
   const [languages, setLanguages] = useState(() => [
     ...(navigator.languages || []),
@@ -252,6 +275,8 @@ function AppShell() {
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [waitingServiceWorker, setWaitingServiceWorker] = useState<ServiceWorker | null>(null);
   const [activeServerList, setActiveServerList] = useState<ServerListMode>("today");
+  const [legalDialog, setLegalDialog] = useState<LegalDialog | null>(null);
+  const [currentPage, setCurrentPage] = useState<AppPage>(readCurrentPage);
 
   const missionDay = useMemo(() => getServerMissionDay(now), [now]);
   const todayGroup = useMemo(() => getGroupForSerial(missionDay.serial), [missionDay.serial]);
@@ -318,7 +343,7 @@ function AppShell() {
 
   const checkForAppUpdate = useCallback(async () => {
     try {
-      const response = await fetch(`./version.json?time=${Date.now()}`, {
+      const response = await fetch(`${appBasePath}version.json?time=${Date.now()}`, {
         cache: "no-store",
       });
 
@@ -336,12 +361,30 @@ function AppShell() {
     }
   }, [showUpdateDialog]);
 
+  const navigateToPage = useCallback((page: AppPage) => {
+    const nextPath = page === "author" ? authorPagePath : appBasePath;
+
+    if (normalizePathname(window.location.pathname) !== nextPath) {
+      window.history.pushState(null, "", nextPath);
+    }
+
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   useEffect(() => {
     document.documentElement.lang = copy.htmlLang;
     document.documentElement.dataset.locale = locale;
     document.documentElement.dataset.localePreference = localePreference;
-    document.title = copy.title;
-  }, [copy.htmlLang, copy.title, locale, localePreference]);
+    document.title = currentPage === "author" ? copy.authorPageDocumentTitle : copy.title;
+  }, [copy.authorPageDocumentTitle, copy.htmlLang, copy.title, currentPage, locale, localePreference]);
+
+  useEffect(() => {
+    const handlePopState = () => setCurrentPage(readCurrentPage());
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -403,7 +446,7 @@ function AppShell() {
     }, 60 * 60 * 1000);
     const handleControllerChange = () => window.location.reload();
 
-    navigator.serviceWorker.register("./sw.js").then((nextRegistration) => {
+    navigator.serviceWorker.register(`${appBasePath}sw.js`).then((nextRegistration) => {
       registration = nextRegistration;
 
       if (nextRegistration.waiting) {
@@ -504,190 +547,305 @@ function AppShell() {
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:py-6">
-      <Card className="shadow-sm">
-        <CardHeader className="gap-3">
-          <CardTitle className="text-3xl leading-tight font-semibold tabular-nums sm:text-5xl">
-            {copy.countdownTitle(countdownLabel)}
-          </CardTitle>
-          <div className="flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
-            <span>{copy.serverDateLabel(serverDateValue)}</span>
-          </div>
-        </CardHeader>
-      </Card>
+      {currentPage === "author" ? (
+        <AuthorPage copy={copy} onBackHome={() => navigateToPage("home")} />
+      ) : (
+        <>
+          <Card className="shadow-sm">
+            <CardHeader className="gap-3">
+              <CardTitle className="text-3xl leading-tight font-semibold tabular-nums sm:text-5xl">
+                {copy.countdownTitle(countdownLabel)}
+              </CardTitle>
+              <div className="flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
+                <span>{copy.serverDateLabel(serverDateValue)}</span>
+              </div>
+            </CardHeader>
+          </Card>
 
-      <Card className="shadow-sm">
-        <CardContent>
-          <Tabs
-            value={activeServerList}
-            onValueChange={handleServerListChange}
-            className="w-full"
-          >
-            <TabsList className="grid grid-cols-2" aria-label={copy.serverListTabsAria}>
-              {serverListTabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className={cn(
-                    "min-h-16 flex-col rounded-b-none border-b px-3 data-active:-mb-px data-active:border-b-transparent data-active:shadow-sm",
-                    groupTabClassName[tab.group],
-                  )}
-                >
-                  <span className="text-xs font-semibold opacity-80">{tab.label}</span>
-                  <span className="text-4xl leading-none font-semibold">{tab.group}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {serverListTabs.map((tab) => (
-              <TabsContent
-                key={tab.value}
-                value={tab.value}
-                className={cn(
-                  "-mt-px border p-3 sm:p-4",
-                  tab.value === "today" ? "rounded-r-xl rounded-b-xl" : "rounded-b-xl rounded-l-xl",
-                  groupSurfaceClassName[tab.group],
-                )}
+          <Card className="shadow-sm">
+            <CardContent>
+              <Tabs
+                value={activeServerList}
+                onValueChange={handleServerListChange}
+                className="w-full"
               >
-                <p className="mb-3 text-sm font-medium opacity-75">{copy.copyHint}</p>
-                <button
-                  type="button"
-                  className="grid w-full grid-cols-[repeat(5,minmax(0,1fr))] gap-2 text-left sm:grid-cols-[repeat(10,minmax(0,1fr))] md:grid-cols-[repeat(14,minmax(0,1fr))] lg:grid-cols-[repeat(18,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))]"
-                  aria-label={tab.copyAria}
-                  onClick={() => copyServerList(tab.servers)}
-                >
-                  {tab.servers.map((number) => (
-                    <ServerChip
-                      key={number}
-                      record={{ closed: false, group: tab.group, number }}
-                      className="cursor-copy"
-                    />
+                <TabsList className="grid grid-cols-2" aria-label={copy.serverListTabsAria}>
+                  {serverListTabs.map((tab) => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className={cn(
+                        "min-h-16 flex-col rounded-b-none border-b px-3 data-active:-mb-px data-active:border-b-transparent data-active:shadow-sm",
+                        groupTabClassName[tab.group],
+                      )}
+                    >
+                      <span className="text-xs font-semibold opacity-80">{tab.label}</span>
+                      <span className="text-4xl leading-none font-semibold">{tab.group}</span>
+                    </TabsTrigger>
                   ))}
-                </button>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="size-5 text-muted-foreground" />
-            <CardTitle className="text-xl">{copy.calendarTitle}</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Calendar
-            mode="single"
-            month={calendarMonth}
-            onMonthChange={(month) =>
-              setCalendarMonth(new Date(month.getFullYear(), month.getMonth(), 1))
-            }
-            locale={dateFnsLocales[locale]}
-            showOutsideDays={false}
-            className="w-full p-0 [--cell-size:3rem] sm:[--cell-size:3.75rem]"
-            classNames={{
-              caption_label: "text-sm font-semibold",
-              day: "p-0",
-              month: "w-full gap-3",
-              month_grid: "w-full",
-              months: "w-full",
-              nav: "absolute inset-x-0 top-0 flex items-center justify-between",
-              root: "w-full",
-              week: "mt-1 grid w-full grid-cols-7 gap-1",
-              weekday: "flex h-7 items-center justify-center text-xs font-medium text-muted-foreground",
-              weekdays: "grid grid-cols-7 gap-1",
-            }}
-            components={{
-              DayButton: (props) => (
-                <MissionCalendarDayButton todaySerial={missionDay.serial} {...props} />
-              ),
-            }}
-            aria-label={copy.calendarTitle}
-            buttonVariant="outline"
-          />
-        </CardContent>
-      </Card>
-
-      <Card className="shadow-sm">
-        <Collapsible open={isExclusionOpen} onOpenChange={setIsExclusionOpen}>
-          <CollapsibleTrigger
-            render={
-              <button className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left text-lg font-semibold" />
-            }
-          >
-            <span>{copy.exclusionSettingsTitle}</span>
-            <ChevronDown
-              className={cn(
-                "size-5 text-muted-foreground transition-transform",
-                isExclusionOpen && "rotate-180",
-              )}
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="space-y-4 border-t pt-4">
-              <div className="flex flex-wrap items-center gap-2" aria-label={copy.groupLegendAria}>
-                {(["A", "B", "C"] as MissionGroup[]).map((group) => (
-                  <span
-                    key={group}
+                </TabsList>
+                {serverListTabs.map((tab) => (
+                  <TabsContent
+                    key={tab.value}
+                    value={tab.value}
                     className={cn(
-                      "inline-flex h-8 min-w-11 items-center justify-center rounded-full border px-3 text-sm font-semibold",
-                      groupClassName[group],
+                      "-mt-px border p-3 sm:p-4",
+                      tab.value === "today"
+                        ? "rounded-r-xl rounded-b-xl"
+                        : "rounded-b-xl rounded-l-xl",
+                      groupSurfaceClassName[tab.group],
                     )}
                   >
-                    {group}
-                  </span>
+                    <p className="mb-3 text-sm font-medium opacity-75">{copy.copyHint}</p>
+                    <button
+                      type="button"
+                      className="grid w-full grid-cols-[repeat(5,minmax(0,1fr))] gap-2 text-left sm:grid-cols-[repeat(10,minmax(0,1fr))] md:grid-cols-[repeat(14,minmax(0,1fr))] lg:grid-cols-[repeat(18,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))]"
+                      aria-label={tab.copyAria}
+                      onClick={() => copyServerList(tab.servers)}
+                    >
+                      {tab.servers.map((number) => (
+                        <ServerChip
+                          key={number}
+                          record={{ closed: false, group: tab.group, number }}
+                          className="cursor-copy"
+                        />
+                      ))}
+                    </button>
+                  </TabsContent>
                 ))}
-                <Button variant="outline" size="sm" onClick={() => setExcludedServers([])}>
-                  <RotateCcw className="size-4" />
-                  {copy.resetExclusionsLabel}
-                </Button>
-              </div>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-10 xl:grid-cols-12">
-                {allServerRecords.map((record) => (
-                  <ServerExclusionButton
-                    key={record.number}
-                    copy={copy}
-                    excluded={excludedServerSet.has(record.number)}
-                    onToggle={toggleServerExclusion}
-                    record={record}
-                  />
-                ))}
-              </div>
+              </Tabs>
             </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+          </Card>
 
-      <footer className="flex flex-wrap items-center gap-2 px-1 pb-2">
-        <ThemeModeToggle copy={copy} />
-        <div className="flex items-center gap-2 rounded-lg border bg-background px-2">
-          <Languages className="size-4 text-muted-foreground" />
-          <Select
-            value={localePreference}
-            onValueChange={(value) => setLocalePreference(value as LocalePreference)}
-          >
-            <SelectTrigger
-              className="h-8 border-0 bg-transparent px-0 shadow-none"
-              aria-label={copy.languageAria}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <CalendarDays className="size-5 text-muted-foreground" />
+                <CardTitle className="text-xl">{copy.calendarTitle}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Calendar
+                mode="single"
+                month={calendarMonth}
+                onMonthChange={(month) =>
+                  setCalendarMonth(new Date(month.getFullYear(), month.getMonth(), 1))
+                }
+                locale={dateFnsLocales[locale]}
+                showOutsideDays={false}
+                className="w-full p-0 [--cell-size:3rem] sm:[--cell-size:3.75rem]"
+                classNames={{
+                  caption_label: "text-sm font-semibold",
+                  day: "p-0",
+                  month: "w-full gap-3",
+                  month_grid: "w-full",
+                  months: "w-full",
+                  nav: "absolute inset-x-0 top-0 flex items-center justify-between",
+                  root: "w-full",
+                  week: "mt-1 grid w-full grid-cols-7 gap-1",
+                  weekday:
+                    "flex h-7 items-center justify-center text-xs font-medium text-muted-foreground",
+                  weekdays: "grid grid-cols-7 gap-1",
+                }}
+                components={{
+                  DayButton: (props) => (
+                    <MissionCalendarDayButton todaySerial={missionDay.serial} {...props} />
+                  ),
+                }}
+                aria-label={copy.calendarTitle}
+                buttonVariant="outline"
+              />
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm">
+            <Collapsible open={isExclusionOpen} onOpenChange={setIsExclusionOpen}>
+              <CollapsibleTrigger
+                render={
+                  <button className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left text-lg font-semibold" />
+                }
+              >
+                <span>{copy.exclusionSettingsTitle}</span>
+                <ChevronDown
+                  className={cn(
+                    "size-5 text-muted-foreground transition-transform",
+                    isExclusionOpen && "rotate-180",
+                  )}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="space-y-4 border-t pt-4">
+                  <div
+                    className="flex flex-wrap items-center gap-2"
+                    aria-label={copy.groupLegendAria}
+                  >
+                    {(["A", "B", "C"] as MissionGroup[]).map((group) => (
+                      <span
+                        key={group}
+                        className={cn(
+                          "inline-flex h-8 min-w-11 items-center justify-center rounded-full border px-3 text-sm font-semibold",
+                          groupClassName[group],
+                        )}
+                      >
+                        {group}
+                      </span>
+                    ))}
+                    <Button variant="outline" size="sm" onClick={() => setExcludedServers([])}>
+                      <RotateCcw className="size-4" />
+                      {copy.resetExclusionsLabel}
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-10 xl:grid-cols-12">
+                    {allServerRecords.map((record) => (
+                      <ServerExclusionButton
+                        key={record.number}
+                        copy={copy}
+                        excluded={excludedServerSet.has(record.number)}
+                        onToggle={toggleServerExclusion}
+                        record={record}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+        </>
+      )}
+
+      <footer className="flex flex-wrap items-center justify-between gap-3 px-1 pb-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <ThemeModeToggle copy={copy} />
+          <div className="flex items-center gap-2 rounded-lg border bg-background px-2">
+            <Languages className="size-4 text-muted-foreground" />
+            <Select
+              value={localePreference}
+              onValueChange={(value) => setLocalePreference(value as LocalePreference)}
             >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent align="start">
-              {languageOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.value === "auto" ? copy.languageAuto : option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <SelectTrigger
+                className="h-8 border-0 bg-transparent px-0 shadow-none"
+                aria-label={copy.languageAria}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent align="start">
+                {languageOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.value === "auto" ? copy.languageAuto : option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {!isInstalledApp && (
+            <Button variant="outline" onClick={handleInstall}>
+              <Home className="size-4" />
+              {copy.installButton}
+            </Button>
+          )}
         </div>
-        {!isInstalledApp && (
-          <Button variant="outline" onClick={handleInstall}>
-            <Home className="size-4" />
-            {copy.installButton}
-          </Button>
-        )}
+        <nav
+          aria-label={copy.footerLinksAria}
+          className="flex flex-wrap items-center gap-x-2 gap-y-1"
+        >
+          <span className="text-xs font-medium text-muted-foreground">
+            {copy.unofficialFanSiteLabel}
+          </span>
+          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+            ·
+          </span>
+          <button
+            type="button"
+            className={footerLinkClassName}
+            onClick={() => setLegalDialog("notice")}
+          >
+            {copy.noticeLinkLabel}
+          </button>
+          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+            ·
+          </span>
+          <button
+            type="button"
+            className={footerLinkClassName}
+            onClick={() => setLegalDialog("privacy")}
+          >
+            {copy.privacyLinkLabel}
+          </button>
+          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+            ·
+          </span>
+          <a className={footerLinkClassName} href={githubUrl} rel="noreferrer" target="_blank">
+            {copy.githubLinkLabel}
+          </a>
+          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+            ·
+          </span>
+          <a
+            className={footerLinkClassName}
+            href={authorPagePath}
+            onClick={(event) => {
+              event.preventDefault();
+              navigateToPage("author");
+            }}
+          >
+            {copy.authorLinkLabel}
+          </a>
+        </nav>
       </footer>
+
+      <Dialog
+        open={legalDialog === "notice"}
+        onOpenChange={(open) => {
+          if (!open) {
+            setLegalDialog(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{copy.noticeDialogTitle}</DialogTitle>
+            <DialogDescription>{copy.noticeDialogDescription}</DialogDescription>
+          </DialogHeader>
+          <ul className="grid gap-2 text-sm text-muted-foreground">
+            {copy.noticeItems.map((item) => (
+              <li key={item} className="rounded-lg border bg-muted/40 p-3 leading-6">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={legalDialog === "privacy"}
+        onOpenChange={(open) => {
+          if (!open) {
+            setLegalDialog(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{copy.privacyDialogTitle}</DialogTitle>
+            <DialogDescription>{copy.privacyDialogDescription}</DialogDescription>
+          </DialogHeader>
+          <ul className="grid gap-2 text-sm text-muted-foreground">
+            {copy.privacyItems.map((item) => (
+              <li key={item} className="rounded-lg border bg-muted/40 p-3 leading-6">
+                {item}
+              </li>
+            ))}
+          </ul>
+          <a
+            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+            href={cloudflarePrivacyUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {copy.privacyCloudflareLinkLabel}
+          </a>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={installDialogOpen} onOpenChange={setInstallDialogOpen}>
         <DialogContent>
@@ -726,6 +884,92 @@ function AppShell() {
         </DialogContent>
       </Dialog>
     </main>
+  );
+}
+
+function AuthorPage({
+  copy,
+  onBackHome,
+}: {
+  copy: (typeof translations)[LocaleCode];
+  onBackHome: () => void;
+}) {
+  return (
+    <section className="grid gap-4">
+      <Card className="shadow-sm">
+        <CardHeader className="gap-4">
+          <Button variant="outline" size="sm" className="self-start" onClick={onBackHome}>
+            <ArrowLeft className="size-4" />
+            {copy.authorPageBackLabel}
+          </Button>
+          <div className="grid gap-2">
+            <CardTitle className="text-3xl leading-tight font-semibold sm:text-5xl">
+              {copy.authorPageTitle}
+            </CardTitle>
+            <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+              {copy.authorPageIntro}
+            </p>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl">{copy.authorPageGreetingTitle}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
+            {copy.authorPageGreeting}
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl">{copy.authorPageLinksTitle}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <a
+              className="flex min-h-13 items-center justify-between gap-3 rounded-lg border bg-background p-3 text-sm font-medium transition-colors hover:bg-muted"
+              href={xProfileUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <AtSign className="size-4 shrink-0" />
+                <span className="truncate">{copy.authorPageXProfileLabel}</span>
+              </span>
+              <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
+            </a>
+            <a
+              className="flex min-h-13 items-center justify-between gap-3 rounded-lg border bg-background p-3 text-sm font-medium transition-colors hover:bg-muted"
+              href={authorUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <User className="size-4 shrink-0" />
+                <span className="truncate">{copy.authorPageGitHubProfileLabel}</span>
+              </span>
+              <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
+            </a>
+            <a
+              className="flex min-h-13 items-center justify-between gap-3 rounded-lg border bg-background p-3 text-sm font-medium transition-colors hover:bg-muted"
+              href={githubUrl}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <span className="flex min-w-0 items-center gap-2">
+                <Code className="size-4 shrink-0" />
+                <span className="truncate">{copy.authorPageRepositoryLabel}</span>
+              </span>
+              <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+    </section>
   );
 }
 

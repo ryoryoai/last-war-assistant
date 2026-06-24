@@ -17,6 +17,16 @@ export type LocalePreference = LocaleCode | "auto";
 export type InstallGuidePlatform = "android" | "desktop" | "ios";
 
 type Translation = {
+  authorPageBackLabel: string;
+  authorPageDocumentTitle: string;
+  authorPageGitHubProfileLabel: string;
+  authorPageGreeting: string;
+  authorPageGreetingTitle: string;
+  authorPageIntro: string;
+  authorPageLinksTitle: string;
+  authorPageRepositoryLabel: string;
+  authorPageTitle: string;
+  authorPageXProfileLabel: string;
   calendarNextMonth: string;
   calendarPreviousMonth: string;
   calendarTitle: string;
@@ -31,6 +41,8 @@ type Translation = {
   currentTargetLabel: string;
   dateLocale: string;
   exclusionSettingsTitle: string;
+  footerLinksAria: string;
+  githubLinkLabel: string;
   groupLegendAria: string;
   htmlLang: string;
   installAlreadyAdded: string;
@@ -42,6 +54,15 @@ type Translation = {
   languageAria: string;
   languageAuto: string;
   nextGroupLabel: string;
+  noticeDialogDescription: string;
+  noticeDialogTitle: string;
+  noticeItems: string[];
+  noticeLinkLabel: string;
+  privacyCloudflareLinkLabel: string;
+  privacyDialogDescription: string;
+  privacyDialogTitle: string;
+  privacyItems: string[];
+  privacyLinkLabel: string;
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
   serverDateLabel: (date: string) => string;
@@ -50,6 +71,8 @@ type Translation = {
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
   title: string;
+  unofficialFanSiteLabel: string;
+  authorLinkLabel: string;
   updateAvailable: string;
   updateButton: string;
 };
@@ -72,6 +95,17 @@ export const languageOptions: Array<{ label: string | null; value: LocalePrefere
 ];
 
 const en: Translation = {
+  authorPageBackLabel: "Back to missions",
+  authorPageDocumentTitle: "Author | Last War Assistant",
+  authorPageGitHubProfileLabel: "GitHub profile",
+  authorPageGreeting:
+    "Thank you for using this tool. I hope it makes checking star missions a little easier. If you notice anything, please reach out on X or GitHub.",
+  authorPageGreetingTitle: "Final note",
+  authorPageIntro: "This unofficial fan tool is maintained personally by ryoryoai.",
+  authorPageLinksTitle: "Profiles",
+  authorPageRepositoryLabel: "GitHub repository",
+  authorPageTitle: "Author",
+  authorPageXProfileLabel: "X profile",
   calendarNextMonth: "Next month",
   calendarPreviousMonth: "Previous month",
   calendarTitle: "Mission Calendar",
@@ -86,6 +120,8 @@ const en: Translation = {
   currentTargetLabel: "Today's group",
   dateLocale: "en-US",
   exclusionSettingsTitle: "Exclusion settings",
+  footerLinksAria: "Site information",
+  githubLinkLabel: "GitHub",
   groupLegendAria: "Group legend",
   htmlLang: "en",
   installAlreadyAdded: "Already added to Home.",
@@ -115,6 +151,23 @@ const en: Translation = {
   languageAria: "Language",
   languageAuto: "Auto",
   nextGroupLabel: "Next group",
+  noticeDialogDescription: "Please check these notes when using this fan tool.",
+  noticeDialogTitle: "Notice",
+  noticeItems: [
+    "This site is an unofficial fan tool. It is not affiliated with, approved by, endorsed by, or sponsored by the developer or operator of Last War. Game names, trademarks, and related rights belong to their respective owners.",
+    "Star mission groups and server information may differ from the game if the game rules or data change.",
+    "The accuracy of the posted information is not guaranteed. Please prioritize the in-game display.",
+  ],
+  noticeLinkLabel: "Notice",
+  privacyCloudflareLinkLabel: "Cloudflare Privacy Policy",
+  privacyDialogDescription: "This site stores only the settings needed for the tool.",
+  privacyDialogTitle: "Privacy",
+  privacyItems: [
+    "Excluded servers are saved in a cookie. Theme and language settings are saved in localStorage.",
+    "This site does not collect personal information such as names or email addresses through forms, and does not use advertising cookies.",
+    "Because this site is served on Cloudflare Pages, Cloudflare may process access logs and related data.",
+  ],
+  privacyLinkLabel: "Privacy",
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
   serverDateLabel: (date) => `Server day: ${date}`,
@@ -127,6 +180,8 @@ const en: Translation = {
     system: "System",
   },
   title: "Today's Star Mission Servers | Last War Assistant",
+  unofficialFanSiteLabel: "Unofficial fan site",
+  authorLinkLabel: "Author",
   updateAvailable: "A new version is available.",
   updateButton: "Update",
 };
@@ -135,6 +190,17 @@ export const translations: Record<LocaleCode, Translation> = {
   en,
   ja: {
     ...en,
+    authorPageBackLabel: "星任務に戻る",
+    authorPageDocumentTitle: "作者 | Last War Assistant",
+    authorPageGitHubProfileLabel: "GitHubプロフィール",
+    authorPageGreeting:
+      "使ってくれてありがとうございます。星任務の確認が少しでも楽になればうれしいです。気づいたことがあれば X か GitHub から送ってください。",
+    authorPageGreetingTitle: "最後に",
+    authorPageIntro: "このサイトは ryoryoai が個人で作っている非公式ファンツールです。",
+    authorPageLinksTitle: "プロフィール",
+    authorPageRepositoryLabel: "GitHubリポジトリ",
+    authorPageTitle: "作者",
+    authorPageXProfileLabel: "Xプロフィール",
     calendarTitle: "任務カレンダー",
     closeButton: "OK",
     closedServerAria: (number) => `サーバー ${number} 閉鎖`,
@@ -146,6 +212,8 @@ export const translations: Record<LocaleCode, Translation> = {
     currentTargetLabel: "今日のグループ",
     dateLocale: "ja-JP",
     exclusionSettingsTitle: "除外サーバー設定",
+    footerLinksAria: "サイト情報",
+    githubLinkLabel: "GitHub",
     groupLegendAria: "グループ凡例",
     htmlLang: "ja",
     installAlreadyAdded: "すでにホームに追加されています",
@@ -175,6 +243,23 @@ export const translations: Record<LocaleCode, Translation> = {
     languageAria: "言語",
     languageAuto: "自動",
     nextGroupLabel: "次のグループ",
+    noticeDialogDescription: "このファンツールの利用に関する注意事項です。",
+    noticeDialogTitle: "注意事項",
+    noticeItems: [
+      "このサイトは非公式ファンツールです。Last War の開発・運営会社とは関係なく、承認・提携・後援を受けていません。ゲーム名・商標等は各権利者に帰属します。",
+      "星任務グループやサーバー情報は、ゲーム側の仕様変更等により実際の表示と異なる場合があります。",
+      "掲載情報の正確性は保証しません。ゲーム内表示を優先してください。",
+    ],
+    noticeLinkLabel: "注意事項",
+    privacyCloudflareLinkLabel: "Cloudflare Privacy Policy",
+    privacyDialogDescription: "このサイトで保存する設定情報について。",
+    privacyDialogTitle: "プライバシー",
+    privacyItems: [
+      "除外サーバーは Cookie、テーマと言語設定は localStorage に保存します。これらは表示と機能に必要な設定保存です。",
+      "このサイトは、入力フォーム等で氏名・メールアドレスなどの個人情報を収集しません。広告目的の Cookie は使用しません。",
+      "Cloudflare Pages で配信しているため、Cloudflare 側でアクセスログ等が処理される可能性があります。",
+    ],
+    privacyLinkLabel: "プライバシー",
     serverDateLabel: (date) => `サーバー日：${date}`,
     serverListTabsAria: "サーバーリスト切替",
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
@@ -185,6 +270,8 @@ export const translations: Record<LocaleCode, Translation> = {
       system: "システム",
     },
     title: "今日の星任務サーバー | Last War Assistant",
+    unofficialFanSiteLabel: "非公式ファンサイト",
+    authorLinkLabel: "作者",
     updateAvailable: "新しいバージョンがあります",
     updateButton: "更新",
   },
