@@ -81,7 +81,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-21";
+const appVersion = "2026-06-24-22";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
@@ -91,6 +91,8 @@ const xProfileUrl = "https://x.com/ryoryoai";
 const cloudflarePrivacyUrl = "https://www.cloudflare.com/privacypolicy/";
 const footerLinkClassName =
   "text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
+const footerShellClassName =
+  "fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-2 shadow-[0_-8px_24px_rgb(0_0_0/0.08)] backdrop-blur supports-backdrop-filter:backdrop-blur sm:px-6";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
   en: enUS,
@@ -546,7 +548,7 @@ function AppShell() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:py-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pt-4 pb-32 sm:px-6 sm:pb-24 lg:pt-6">
       {currentPage === "author" ? (
         <AuthorPage copy={copy} onBackHome={() => navigateToPage("home")} />
       ) : (
@@ -713,84 +715,86 @@ function AppShell() {
         </>
       )}
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 px-1 pb-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <ThemeModeToggle copy={copy} />
-          <div className="flex items-center gap-2 rounded-lg border bg-background px-2">
-            <Languages className="size-4 text-muted-foreground" />
-            <Select
-              value={localePreference}
-              onValueChange={(value) => setLocalePreference(value as LocalePreference)}
-            >
-              <SelectTrigger
-                className="h-8 border-0 bg-transparent px-0 shadow-none"
-                aria-label={copy.languageAria}
+      <footer className={footerShellClassName}>
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <ThemeModeToggle copy={copy} />
+            <div className="flex items-center gap-2 rounded-lg border bg-background px-2">
+              <Languages className="size-4 text-muted-foreground" />
+              <Select
+                value={localePreference}
+                onValueChange={(value) => setLocalePreference(value as LocalePreference)}
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent align="start">
-                {languageOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.value === "auto" ? copy.languageAuto : option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <SelectTrigger
+                  className="h-8 border-0 bg-transparent px-0 shadow-none"
+                  aria-label={copy.languageAria}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent align="start">
+                  {languageOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.value === "auto" ? copy.languageAuto : option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {!isInstalledApp && (
+              <Button variant="outline" onClick={handleInstall}>
+                <Home className="size-4" />
+                {copy.installButton}
+              </Button>
+            )}
           </div>
-          {!isInstalledApp && (
-            <Button variant="outline" onClick={handleInstall}>
-              <Home className="size-4" />
-              {copy.installButton}
-            </Button>
-          )}
+          <nav
+            aria-label={copy.footerLinksAria}
+            className="flex flex-wrap items-center gap-x-2 gap-y-1"
+          >
+            <span className="text-xs font-medium text-muted-foreground">
+              {copy.unofficialFanSiteLabel}
+            </span>
+            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+              ·
+            </span>
+            <button
+              type="button"
+              className={footerLinkClassName}
+              onClick={() => setLegalDialog("notice")}
+            >
+              {copy.noticeLinkLabel}
+            </button>
+            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+              ·
+            </span>
+            <button
+              type="button"
+              className={footerLinkClassName}
+              onClick={() => setLegalDialog("privacy")}
+            >
+              {copy.privacyLinkLabel}
+            </button>
+            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+              ·
+            </span>
+            <a className={footerLinkClassName} href={githubUrl} rel="noreferrer" target="_blank">
+              {copy.githubLinkLabel}
+            </a>
+            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
+              ·
+            </span>
+            <a
+              className={footerLinkClassName}
+              href={authorPagePath}
+              onClick={(event) => {
+                event.preventDefault();
+                navigateToPage("author");
+              }}
+            >
+              {copy.authorLinkLabel}
+            </a>
+          </nav>
         </div>
-        <nav
-          aria-label={copy.footerLinksAria}
-          className="flex flex-wrap items-center gap-x-2 gap-y-1"
-        >
-          <span className="text-xs font-medium text-muted-foreground">
-            {copy.unofficialFanSiteLabel}
-          </span>
-          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-            ·
-          </span>
-          <button
-            type="button"
-            className={footerLinkClassName}
-            onClick={() => setLegalDialog("notice")}
-          >
-            {copy.noticeLinkLabel}
-          </button>
-          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-            ·
-          </span>
-          <button
-            type="button"
-            className={footerLinkClassName}
-            onClick={() => setLegalDialog("privacy")}
-          >
-            {copy.privacyLinkLabel}
-          </button>
-          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-            ·
-          </span>
-          <a className={footerLinkClassName} href={githubUrl} rel="noreferrer" target="_blank">
-            {copy.githubLinkLabel}
-          </a>
-          <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-            ·
-          </span>
-          <a
-            className={footerLinkClassName}
-            href={authorPagePath}
-            onClick={(event) => {
-              event.preventDefault();
-              navigateToPage("author");
-            }}
-          >
-            {copy.authorLinkLabel}
-          </a>
-        </nav>
       </footer>
 
       <Dialog
