@@ -34,6 +34,12 @@ GitHub ActionsからCloudflare Pagesへデプロイする場合は、GitHubの `
 
 `CLOUDFLARE_API_TOKEN` には対象のPagesプロジェクトをデプロイできる権限を付けます。
 
+通常のTerminalで次を実行すると、GitHub CLIの再認証、Secrets登録、デプロイworkflow実行までまとめて進められます。
+
+```bash
+bash scripts/setup_cloudflare_github_actions.sh
+```
+
 Wranglerで直接デプロイする場合:
 
 ```bash
