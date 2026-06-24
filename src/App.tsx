@@ -66,6 +66,7 @@ import {
   getServerMonthRange,
   localCalendarDateToSerial,
   serialToLocalCalendarDate,
+  serialToDate,
   serverGroupByNumber,
   serverGroups,
   type MissionGroup,
@@ -81,7 +82,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-24-22";
+const appVersion = "2026-06-24-23";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
@@ -281,8 +282,28 @@ function AppShell() {
   const [currentPage, setCurrentPage] = useState<AppPage>(readCurrentPage);
 
   const missionDay = useMemo(() => getServerMissionDay(now), [now]);
-  const todayGroup = useMemo(() => getGroupForSerial(missionDay.serial), [missionDay.serial]);
-  const nextGroup = useMemo(() => getGroupForSerial(missionDay.serial + 1), [missionDay.serial]);
+  const [selectedMissionSerial, setSelectedMissionSerial] = useState(missionDay.serial);
+  const [hasManualCalendarSelection, setHasManualCalendarSelection] = useState(false);
+  const selectedCalendarDate = useMemo(
+    () => serialToLocalCalendarDate(selectedMissionSerial),
+    [selectedMissionSerial],
+  );
+  const currentCalendarDate = useMemo(
+    () => serialToLocalCalendarDate(missionDay.serial),
+    [missionDay.serial],
+  );
+  const selectedMissionDate = useMemo(
+    () => serialToDate(selectedMissionSerial),
+    [selectedMissionSerial],
+  );
+  const todayGroup = useMemo(
+    () => getGroupForSerial(selectedMissionSerial),
+    [selectedMissionSerial],
+  );
+  const nextGroup = useMemo(
+    () => getGroupForSerial(selectedMissionSerial + 1),
+    [selectedMissionSerial],
+  );
   const [calendarMonth, setCalendarMonth] = useState(() =>
     serialToLocalCalendarDate(getServerMonthRange(missionDay.serial).firstSerial),
   );
@@ -334,8 +355,18 @@ function AppShell() {
         month: "2-digit",
         timeZone: "UTC",
         year: "numeric",
-      }).format(missionDay.date),
-    [copy.dateLocale, missionDay.date],
+      }).format(selectedMissionDate),
+    [copy.dateLocale, selectedMissionDate],
+  );
+  const renderCalendarDayButton = useCallback(
+    (props: React.ComponentProps<typeof CalendarDayButton>) => (
+      <MissionCalendarDayButton todaySerial={missionDay.serial} {...props} />
+    ),
+    [missionDay.serial],
+  );
+  const calendarComponents = useMemo(
+    () => ({ DayButton: renderCalendarDayButton }),
+    [renderCalendarDayButton],
   );
 
   const showUpdateDialog = useCallback((worker: ServiceWorker | null) => {
@@ -392,6 +423,12 @@ function AppShell() {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!hasManualCalendarSelection) {
+      setSelectedMissionSerial(missionDay.serial);
+    }
+  }, [hasManualCalendarSelection, missionDay.serial]);
 
   useEffect(() => {
     localStorage.setItem("lastwar-locale", localePreference);
@@ -504,6 +541,19 @@ function AppShell() {
     if (value === "today" || value === "next") {
       setActiveServerList(value);
     }
+  };
+
+  const handleCalendarSelect = (date: Date | undefined) => {
+    if (!date) {
+      return;
+    }
+
+    const nextSerial = localCalendarDateToSerial(date);
+
+    setSelectedMissionSerial(nextSerial);
+    setHasManualCalendarSelection(nextSerial !== missionDay.serial);
+    setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+    setActiveServerList("today");
   };
 
   const handleInstall = async () => {
@@ -633,6 +683,9 @@ function AppShell() {
                 onMonthChange={(month) =>
                   setCalendarMonth(new Date(month.getFullYear(), month.getMonth(), 1))
                 }
+                selected={selectedCalendarDate}
+                today={currentCalendarDate}
+                onSelect={handleCalendarSelect}
                 locale={dateFnsLocales[locale]}
                 showOutsideDays={false}
                 className="w-full p-0 [--cell-size:3rem] sm:[--cell-size:3.75rem]"
@@ -649,11 +702,7 @@ function AppShell() {
                     "flex h-7 items-center justify-center text-xs font-medium text-muted-foreground",
                   weekdays: "grid grid-cols-7 gap-1",
                 }}
-                components={{
-                  DayButton: (props) => (
-                    <MissionCalendarDayButton todaySerial={missionDay.serial} {...props} />
-                  ),
-                }}
+                components={calendarComponents}
                 aria-label={copy.calendarTitle}
                 buttonVariant="outline"
               />
@@ -1093,7 +1142,8 @@ function MissionCalendarDayButton({
         "h-13 min-h-13 min-w-0 rounded-lg border p-0 text-center font-semibold shadow-none sm:h-15 sm:min-h-15 [&>span]:opacity-100",
         groupClassName[group],
         isToday && "ring-2 ring-foreground ring-offset-2 ring-offset-background",
-        modifiers.focused && "ring-2 ring-ring",
+        modifiers.selected && "ring-3 ring-primary ring-offset-2 ring-offset-background",
+        modifiers.focused && !modifiers.selected && "ring-2 ring-ring",
         className,
       )}
       day={day}
