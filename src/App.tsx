@@ -7,9 +7,11 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
-  Code,
   ExternalLink,
+  GitBranch,
+  GripHorizontal,
   Home,
+  Info,
   Languages,
   Monitor,
   Moon,
@@ -82,11 +84,12 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-25-02";
+const appVersion = "2026-06-25-03";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
-const footerAutoHideDelayMs = 1600;
+const footerAutoHideDelayMs = 3200;
+const footerSwipeThreshold = 36;
 const authorUrl = "https://github.com/ryoryoai";
 const githubUrl = "https://github.com/ryoryoai/last-war-assistant";
 const xProfileUrl = "https://x.com/ryoryoai";
@@ -134,7 +137,7 @@ type NavigatorWithStandalone = Navigator & {
   standalone?: boolean;
 };
 type ServerListMode = "today" | "next";
-type LegalDialog = "notice" | "privacy";
+type LegalDialog = "notice";
 type AppPage = "author" | "home";
 
 function detectInstallGuidePlatform(): InstallGuidePlatform {
@@ -284,6 +287,8 @@ function AppShell() {
   const [isFooterVisible, setIsFooterVisible] = useState(false);
   const [isFooterInteracting, setIsFooterInteracting] = useState(false);
   const footerHideTimerRef = useRef<number | null>(null);
+  const footerSwipeStartYRef = useRef<number | null>(null);
+  const footerSwipePointerIdRef = useRef<number | null>(null);
 
   const missionDay = useMemo(() => getServerMissionDay(now), [now]);
   const [selectedMissionSerial, setSelectedMissionSerial] = useState(missionDay.serial);
@@ -402,6 +407,61 @@ function AppShell() {
     scheduleFooterHide();
   }, [clearFooterHideTimer, isFooterInteracting, scheduleFooterHide]);
 
+  const startFooterSwipe = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (event.pointerType === "mouse" && event.button !== 0) {
+        return;
+      }
+
+      footerSwipeStartYRef.current = event.clientY;
+      footerSwipePointerIdRef.current = event.pointerId;
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+      clearFooterHideTimer();
+    },
+    [clearFooterHideTimer],
+  );
+
+  const updateFooterSwipe = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (
+        footerSwipePointerIdRef.current !== event.pointerId ||
+        footerSwipeStartYRef.current === null
+      ) {
+        return;
+      }
+
+      const swipeDistance = footerSwipeStartYRef.current - event.clientY;
+
+      if (!isFooterVisible && swipeDistance > footerSwipeThreshold) {
+        revealFooter();
+        footerSwipeStartYRef.current = event.clientY;
+      }
+
+      if (isFooterVisible && swipeDistance < -footerSwipeThreshold) {
+        setIsFooterVisible(false);
+        clearFooterHideTimer();
+        footerSwipeStartYRef.current = event.clientY;
+      }
+    },
+    [clearFooterHideTimer, isFooterVisible, revealFooter],
+  );
+
+  const endFooterSwipe = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (footerSwipePointerIdRef.current === event.pointerId) {
+        event.currentTarget.releasePointerCapture?.(event.pointerId);
+      }
+
+      footerSwipeStartYRef.current = null;
+      footerSwipePointerIdRef.current = null;
+
+      if (isFooterVisible && !isFooterInteracting) {
+        scheduleFooterHide();
+      }
+    },
+    [isFooterInteracting, isFooterVisible, scheduleFooterHide],
+  );
+
   const showUpdateDialog = useCallback((worker: ServiceWorker | null) => {
     setWaitingServiceWorker(worker);
     setUpdateDialogOpen(true);
@@ -456,29 +516,6 @@ function AppShell() {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
-
-  useEffect(() => {
-    const handleScroll = () => revealFooter();
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        [" ", "ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp"].includes(event.key)
-      ) {
-        revealFooter();
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("wheel", handleScroll, { passive: true });
-    window.addEventListener("touchmove", handleScroll, { passive: true });
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("wheel", handleScroll);
-      window.removeEventListener("touchmove", handleScroll);
-      window.removeEventListener("keydown", handleKeyDown);
-      clearFooterHideTimer();
-    };
-  }, [clearFooterHideTimer, revealFooter]);
 
   useEffect(() => {
     if (isFooterInteracting) {
@@ -835,7 +872,32 @@ function AppShell() {
         </>
       )}
 
+      <div
+        aria-hidden={isFooterVisible ? "true" : undefined}
+        inert={isFooterVisible ? true : undefined}
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-50 flex h-14 touch-none items-end justify-center pb-2 transition-opacity duration-150 motion-reduce:transition-none",
+          isFooterVisible ? "pointer-events-none opacity-0" : "opacity-100",
+        )}
+        onPointerDown={startFooterSwipe}
+        onPointerMove={updateFooterSwipe}
+        onPointerUp={endFooterSwipe}
+        onPointerCancel={endFooterSwipe}
+        onClick={revealFooter}
+      >
+        <button
+          type="button"
+          className="flex h-7 w-20 items-center justify-center rounded-full border bg-background/95 text-muted-foreground shadow-sm backdrop-blur transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          aria-label={copy.footerRevealAria}
+          onClick={revealFooter}
+        >
+          <GripHorizontal className="size-5" />
+        </button>
+      </div>
+
       <footer
+        aria-hidden={isFooterVisible ? undefined : "true"}
+        inert={!isFooterVisible ? true : undefined}
         className={cn(
           footerShellClassName,
           isFooterVisible
@@ -887,14 +949,8 @@ function AppShell() {
           </div>
           <nav
             aria-label={copy.footerLinksAria}
-            className="flex flex-wrap items-center gap-x-2 gap-y-1"
+            className="flex flex-wrap items-center gap-1"
           >
-            <span className="text-xs font-medium text-muted-foreground">
-              {copy.unofficialFanSiteLabel}
-            </span>
-            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-              ·
-            </span>
             <button
               type="button"
               className={footerLinkClassName}
@@ -902,33 +958,25 @@ function AppShell() {
             >
               {copy.noticeLinkLabel}
             </button>
-            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-              ·
-            </span>
-            <button
-              type="button"
-              className={footerLinkClassName}
-              onClick={() => setLegalDialog("privacy")}
-            >
-              {copy.privacyLinkLabel}
-            </button>
-            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-              ·
-            </span>
-            <a className={footerLinkClassName} href={githubUrl} rel="noreferrer" target="_blank">
-              {copy.githubLinkLabel}
-            </a>
-            <span aria-hidden="true" className="text-xs text-muted-foreground/60">
-              ·
-            </span>
             <a
-              className={footerLinkClassName}
+              className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+              href={githubUrl}
+              rel="noreferrer"
+              target="_blank"
+              aria-label={copy.githubLinkLabel}
+              title={copy.githubLinkLabel}
+            >
+              <GitBranch className="size-4" />
+            </a>
+            <a
+              className={cn(footerLinkClassName, "inline-flex items-center gap-1")}
               href={authorPagePath}
               onClick={(event) => {
                 event.preventDefault();
                 navigateToPage("author");
               }}
             >
+              <Info className="size-3.5" />
               {copy.authorLinkLabel}
             </a>
           </nav>
@@ -943,49 +991,41 @@ function AppShell() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{copy.noticeDialogTitle}</DialogTitle>
             <DialogDescription>{copy.noticeDialogDescription}</DialogDescription>
           </DialogHeader>
-          <ul className="grid gap-2 text-sm text-muted-foreground">
-            {copy.noticeItems.map((item) => (
-              <li key={item} className="rounded-lg border bg-muted/40 p-3 leading-6">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={legalDialog === "privacy"}
-        onOpenChange={(open) => {
-          if (!open) {
-            setLegalDialog(null);
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{copy.privacyDialogTitle}</DialogTitle>
-            <DialogDescription>{copy.privacyDialogDescription}</DialogDescription>
-          </DialogHeader>
-          <ul className="grid gap-2 text-sm text-muted-foreground">
-            {copy.privacyItems.map((item) => (
-              <li key={item} className="rounded-lg border bg-muted/40 p-3 leading-6">
-                {item}
-              </li>
-            ))}
-          </ul>
-          <a
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-            href={cloudflarePrivacyUrl}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {copy.privacyCloudflareLinkLabel}
-          </a>
+          <div className="grid gap-4">
+            <ul className="grid gap-2 text-sm text-muted-foreground">
+              {copy.noticeItems.map((item) => (
+                <li key={item} className="rounded-lg border bg-muted/40 p-3 leading-6">
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <section className="grid gap-2">
+              <h3 className="text-sm font-semibold">{copy.privacyDialogTitle}</h3>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {copy.privacyDialogDescription}
+              </p>
+              <ul className="grid gap-2 text-sm text-muted-foreground">
+                {copy.privacyItems.map((item) => (
+                  <li key={item} className="rounded-lg border bg-muted/40 p-3 leading-6">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <a
+                className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                href={cloudflarePrivacyUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                {copy.privacyCloudflareLinkLabel}
+              </a>
+            </section>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -1103,7 +1143,7 @@ function AuthorPage({
               target="_blank"
             >
               <span className="flex min-w-0 items-center gap-2">
-                <Code className="size-4 shrink-0" />
+                <GitBranch className="size-4 shrink-0" />
                 <span className="truncate">{copy.authorPageRepositoryLabel}</span>
               </span>
               <ExternalLink className="size-4 shrink-0 text-muted-foreground" />

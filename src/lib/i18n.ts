@@ -42,6 +42,7 @@ type Translation = {
   dateLocale: string;
   exclusionSettingsTitle: string;
   footerLinksAria: string;
+  footerRevealAria: string;
   githubLinkLabel: string;
   groupLegendAria: string;
   htmlLang: string;
@@ -62,7 +63,6 @@ type Translation = {
   privacyDialogDescription: string;
   privacyDialogTitle: string;
   privacyItems: string[];
-  privacyLinkLabel: string;
   resetExclusionsAria: string;
   resetExclusionsLabel: string;
   selectedMissionLabel: string;
@@ -74,7 +74,6 @@ type Translation = {
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
   title: string;
-  unofficialFanSiteLabel: string;
   authorLinkLabel: string;
   updateAvailable: string;
   updateButton: string;
@@ -99,15 +98,15 @@ export const languageOptions: Array<{ label: string | null; value: LocalePrefere
 
 const en: Translation = {
   authorPageBackLabel: "Back to missions",
-  authorPageDocumentTitle: "Author | Last War Assistant",
-  authorPageGitHubProfileLabel: "GitHub profile",
+  authorPageDocumentTitle: "About | Last War Assistant",
+  authorPageGitHubProfileLabel: "Maintainer GitHub profile",
   authorPageGreeting:
-    "Thank you for using this tool. I hope it makes checking star missions a little easier. If you notice anything, please reach out on X or GitHub.",
-  authorPageGreetingTitle: "Final note",
-  authorPageIntro: "This unofficial fan tool is maintained personally by ryoryoai.",
-  authorPageLinksTitle: "Profiles",
-  authorPageRepositoryLabel: "GitHub repository",
-  authorPageTitle: "Author",
+    "Thank you for using this tool. If you notice anything, please reach out on X or GitHub.",
+  authorPageGreetingTitle: "Contact",
+  authorPageIntro: "This is an unofficial fan tool maintained personally by ryoryoai.",
+  authorPageLinksTitle: "Related links",
+  authorPageRepositoryLabel: "Git repository",
+  authorPageTitle: "About this app",
   authorPageXProfileLabel: "X profile",
   calendarNextMonth: "Next month",
   calendarPreviousMonth: "Previous month",
@@ -124,7 +123,8 @@ const en: Translation = {
   dateLocale: "en-US",
   exclusionSettingsTitle: "Exclusion settings",
   footerLinksAria: "Site information",
-  githubLinkLabel: "GitHub repository",
+  footerRevealAria: "Open footer",
+  githubLinkLabel: "Git repository",
   groupLegendAria: "Group legend",
   htmlLang: "en",
   installAlreadyAdded: "Already added to Home.",
@@ -170,7 +170,6 @@ const en: Translation = {
     "This site does not collect personal information such as names or email addresses through forms, and does not use advertising cookies.",
     "Because this site is served on Cloudflare Pages, Cloudflare may process access logs and related data.",
   ],
-  privacyLinkLabel: "Privacy",
   resetExclusionsAria: "Reset exclusions to default",
   resetExclusionsLabel: "default",
   selectedMissionLabel: "Selected day mission",
@@ -186,8 +185,7 @@ const en: Translation = {
     system: "System",
   },
   title: "Today's Star Mission Servers | Last War Assistant",
-  unofficialFanSiteLabel: "Unofficial fan site",
-  authorLinkLabel: "Author",
+  authorLinkLabel: "About",
   updateAvailable: "A new version is available.",
   updateButton: "Update",
 };
@@ -197,15 +195,15 @@ export const translations: Record<LocaleCode, Translation> = {
   ja: {
     ...en,
     authorPageBackLabel: "星任務に戻る",
-    authorPageDocumentTitle: "作者 | Last War Assistant",
-    authorPageGitHubProfileLabel: "GitHubプロフィール",
+    authorPageDocumentTitle: "アプリ情報 | Last War Assistant",
+    authorPageGitHubProfileLabel: "メンテナーのGitHubプロフィール",
     authorPageGreeting:
-      "使ってくれてありがとうございます。星任務の確認が少しでも楽になればうれしいです。気づいたことがあれば X か GitHub から送ってください。",
-    authorPageGreetingTitle: "最後に",
-    authorPageIntro: "このサイトは ryoryoai が個人で作っている非公式ファンツールです。",
-    authorPageLinksTitle: "プロフィール",
-    authorPageRepositoryLabel: "GitHubリポジトリ",
-    authorPageTitle: "作者",
+      "使ってくれてありがとうございます。気づいたことがあれば X か GitHub から送ってください。",
+    authorPageGreetingTitle: "連絡先",
+    authorPageIntro: "このアプリは ryoryoai が個人で作っている非公式ファンツールです。",
+    authorPageLinksTitle: "関連リンク",
+    authorPageRepositoryLabel: "Gitリポジトリ",
+    authorPageTitle: "アプリ情報",
     authorPageXProfileLabel: "Xプロフィール",
     calendarTitle: "任務カレンダー",
     closeButton: "OK",
@@ -219,7 +217,8 @@ export const translations: Record<LocaleCode, Translation> = {
     dateLocale: "ja-JP",
     exclusionSettingsTitle: "除外サーバー設定",
     footerLinksAria: "サイト情報",
-    githubLinkLabel: "GitHubリポジトリ",
+    footerRevealAria: "フッターを開く",
+    githubLinkLabel: "Gitリポジトリ",
     groupLegendAria: "グループ凡例",
     htmlLang: "ja",
     installAlreadyAdded: "すでにホームに追加されています",
@@ -265,7 +264,6 @@ export const translations: Record<LocaleCode, Translation> = {
       "このサイトは、入力フォーム等で氏名・メールアドレスなどの個人情報を収集しません。広告目的の Cookie は使用しません。",
       "Cloudflare Pages で配信しているため、Cloudflare 側でアクセスログ等が処理される可能性があります。",
     ],
-    privacyLinkLabel: "プライバシー",
     selectedMissionLabel: "選択日の任務",
     selectedMissionSummary: (group, nextGroup) => `任務：${group} / 次：${nextGroup}`,
     serverDateLabel: (date) => `サーバー日：${date}`,
@@ -279,8 +277,7 @@ export const translations: Record<LocaleCode, Translation> = {
       system: "システム",
     },
     title: "今日の星任務サーバー | Last War Assistant",
-    unofficialFanSiteLabel: "非公式ファンサイト",
-    authorLinkLabel: "作者",
+    authorLinkLabel: "アプリ情報",
     updateAvailable: "新しいバージョンがあります",
     updateButton: "更新",
   },
