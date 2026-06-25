@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
@@ -82,10 +82,11 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-25-01";
+const appVersion = "2026-06-25-02";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
+const footerAutoHideDelayMs = 1600;
 const authorUrl = "https://github.com/ryoryoai";
 const githubUrl = "https://github.com/ryoryoai/last-war-assistant";
 const xProfileUrl = "https://x.com/ryoryoai";
@@ -93,7 +94,7 @@ const cloudflarePrivacyUrl = "https://www.cloudflare.com/privacypolicy/";
 const footerLinkClassName =
   "text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 const footerShellClassName =
-  "fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-2 shadow-[0_-8px_24px_rgb(0_0_0/0.08)] backdrop-blur supports-backdrop-filter:backdrop-blur sm:px-6";
+  "fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-2 shadow-[0_-8px_24px_rgb(0_0_0/0.08)] backdrop-blur transition-[transform,opacity] duration-200 ease-out supports-backdrop-filter:backdrop-blur motion-reduce:transition-none sm:px-6";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
   en: enUS,
@@ -280,6 +281,9 @@ function AppShell() {
   const [activeServerList, setActiveServerList] = useState<ServerListMode>("today");
   const [legalDialog, setLegalDialog] = useState<LegalDialog | null>(null);
   const [currentPage, setCurrentPage] = useState<AppPage>(readCurrentPage);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const [isFooterInteracting, setIsFooterInteracting] = useState(false);
+  const footerHideTimerRef = useRef<number | null>(null);
 
   const missionDay = useMemo(() => getServerMissionDay(now), [now]);
   const [selectedMissionSerial, setSelectedMissionSerial] = useState(missionDay.serial);
@@ -370,6 +374,34 @@ function AppShell() {
     [renderCalendarDayButton],
   );
 
+  const clearFooterHideTimer = useCallback(() => {
+    if (footerHideTimerRef.current === null) {
+      return;
+    }
+
+    window.clearTimeout(footerHideTimerRef.current);
+    footerHideTimerRef.current = null;
+  }, []);
+
+  const scheduleFooterHide = useCallback(() => {
+    clearFooterHideTimer();
+    footerHideTimerRef.current = window.setTimeout(() => {
+      setIsFooterVisible(false);
+      footerHideTimerRef.current = null;
+    }, footerAutoHideDelayMs);
+  }, [clearFooterHideTimer]);
+
+  const revealFooter = useCallback(() => {
+    setIsFooterVisible(true);
+
+    if (isFooterInteracting) {
+      clearFooterHideTimer();
+      return;
+    }
+
+    scheduleFooterHide();
+  }, [clearFooterHideTimer, isFooterInteracting, scheduleFooterHide]);
+
   const showUpdateDialog = useCallback((worker: ServiceWorker | null) => {
     setWaitingServiceWorker(worker);
     setUpdateDialogOpen(true);
@@ -424,6 +456,41 @@ function AppShell() {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => revealFooter();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        [" ", "ArrowDown", "ArrowUp", "End", "Home", "PageDown", "PageUp"].includes(event.key)
+      ) {
+        revealFooter();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("wheel", handleScroll, { passive: true });
+    window.addEventListener("touchmove", handleScroll, { passive: true });
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("wheel", handleScroll);
+      window.removeEventListener("touchmove", handleScroll);
+      window.removeEventListener("keydown", handleKeyDown);
+      clearFooterHideTimer();
+    };
+  }, [clearFooterHideTimer, revealFooter]);
+
+  useEffect(() => {
+    if (isFooterInteracting) {
+      setIsFooterVisible(true);
+      clearFooterHideTimer();
+      return;
+    }
+
+    if (isFooterVisible) {
+      scheduleFooterHide();
+    }
+  }, [clearFooterHideTimer, isFooterInteracting, isFooterVisible, scheduleFooterHide]);
 
   useEffect(() => {
     if (!hasManualCalendarSelection) {
@@ -599,7 +666,7 @@ function AppShell() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pt-4 pb-32 sm:px-6 sm:pb-24 lg:pt-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pt-4 pb-16 sm:px-6 sm:pb-20 lg:pt-6">
       {currentPage === "author" ? (
         <AuthorPage copy={copy} onBackHome={() => navigateToPage("home")} />
       ) : (
@@ -695,10 +762,11 @@ function AppShell() {
                 classNames={{
                   caption_label: "text-sm font-semibold",
                   day: "p-0",
-                  month: "w-full gap-3",
+                  month: "flex w-full flex-col gap-3",
+                  month_caption: "flex h-(--cell-size) w-full items-center justify-center px-14",
                   month_grid: "w-full",
-                  months: "w-full",
-                  nav: "absolute inset-x-0 top-0 flex items-center justify-between",
+                  months: "relative flex w-full flex-col gap-4",
+                  nav: "absolute top-0 left-1/2 flex w-44 -translate-x-1/2 items-center justify-between sm:w-52",
                   root: "w-full",
                   week: "mt-1 grid w-full grid-cols-7 gap-1",
                   weekday:
@@ -767,7 +835,25 @@ function AppShell() {
         </>
       )}
 
-      <footer className={footerShellClassName}>
+      <footer
+        className={cn(
+          footerShellClassName,
+          isFooterVisible
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none translate-y-[calc(100%+0.5rem)] opacity-0",
+        )}
+        onPointerEnter={() => setIsFooterInteracting(true)}
+        onPointerLeave={() => setIsFooterInteracting(false)}
+        onFocusCapture={() => setIsFooterInteracting(true)}
+        onBlurCapture={(event) => {
+          const footer = event.currentTarget;
+          window.setTimeout(() => {
+            if (!footer.contains(document.activeElement)) {
+              setIsFooterInteracting(false);
+            }
+          }, 0);
+        }}
+      >
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <ThemeModeToggle copy={copy} />
