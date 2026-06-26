@@ -42,7 +42,6 @@ type Translation = {
   dateLocale: string;
   exclusionSettingsTitle: string;
   footerLinksAria: string;
-  footerRevealAria: string;
   githubLinkLabel: string;
   groupLegendAria: string;
   htmlLang: string;
@@ -123,7 +122,6 @@ const en: Translation = {
   dateLocale: "en-US",
   exclusionSettingsTitle: "Exclusion settings",
   footerLinksAria: "Site information",
-  footerRevealAria: "Open footer",
   githubLinkLabel: "Git repository",
   groupLegendAria: "Group legend",
   htmlLang: "en",
@@ -217,7 +215,6 @@ export const translations: Record<LocaleCode, Translation> = {
     dateLocale: "ja-JP",
     exclusionSettingsTitle: "除外サーバー設定",
     footerLinksAria: "サイト情報",
-    footerRevealAria: "フッターを開く",
     githubLinkLabel: "Gitリポジトリ",
     groupLegendAria: "グループ凡例",
     htmlLang: "ja",

@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ExternalLink,
   GitBranch,
-  GripHorizontal,
   Home,
   Info,
   Languages,
@@ -84,7 +83,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-25-03";
+const appVersion = "2026-06-26-01";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
@@ -873,27 +872,16 @@ function AppShell() {
       )}
 
       <div
-        aria-hidden={isFooterVisible ? "true" : undefined}
-        inert={isFooterVisible ? true : undefined}
+        aria-hidden="true"
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 flex h-14 touch-none items-end justify-center pb-2 transition-opacity duration-150 motion-reduce:transition-none",
-          isFooterVisible ? "pointer-events-none opacity-0" : "opacity-100",
+          "fixed inset-x-0 bottom-0 z-50 h-8 touch-none",
+          isFooterVisible && "pointer-events-none",
         )}
         onPointerDown={startFooterSwipe}
         onPointerMove={updateFooterSwipe}
         onPointerUp={endFooterSwipe}
         onPointerCancel={endFooterSwipe}
-        onClick={revealFooter}
-      >
-        <button
-          type="button"
-          className="flex h-7 w-20 items-center justify-center rounded-full border bg-background/95 text-muted-foreground shadow-sm backdrop-blur transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-          aria-label={copy.footerRevealAria}
-          onClick={revealFooter}
-        >
-          <GripHorizontal className="size-5" />
-        </button>
-      </div>
+      />
 
       <footer
         aria-hidden={isFooterVisible ? undefined : "true"}
