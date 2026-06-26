@@ -41,7 +41,6 @@ type Translation = {
   currentTargetLabel: string;
   dateLocale: string;
   exclusionSettingsTitle: string;
-  footerLinksAria: string;
   githubLinkLabel: string;
   groupLegendAria: string;
   htmlLang: string;
@@ -69,6 +68,12 @@ type Translation = {
   serverDateLabel: (date: string) => string;
   serverListTabsAria: string;
   serverAria: (number: number, group: string) => string;
+  settingsAppSectionTitle: string;
+  settingsButtonLabel: string;
+  settingsDialogDescription: string;
+  settingsDialogTitle: string;
+  settingsDisplaySectionTitle: string;
+  settingsLanguageSectionTitle: string;
   followingGroupLabel: string;
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
@@ -102,7 +107,7 @@ const en: Translation = {
   authorPageGreeting:
     "Thank you for using this tool. If you notice anything, please reach out on X or GitHub.",
   authorPageGreetingTitle: "Contact",
-  authorPageIntro: "This is an unofficial fan tool maintained personally by ryoryoai.",
+  authorPageIntro: "This is an independently maintained unofficial fan tool.",
   authorPageLinksTitle: "Related links",
   authorPageRepositoryLabel: "Git repository",
   authorPageTitle: "About this app",
@@ -121,7 +126,6 @@ const en: Translation = {
   currentTargetLabel: "Today's group",
   dateLocale: "en-US",
   exclusionSettingsTitle: "Exclusion settings",
-  footerLinksAria: "Site information",
   githubLinkLabel: "Git repository",
   groupLegendAria: "Group legend",
   htmlLang: "en",
@@ -175,6 +179,12 @@ const en: Translation = {
   serverDateLabel: (date) => `Server day: ${date}`,
   serverListTabsAria: "Server list group",
   serverAria: (number, group) => `Server ${number}, group ${group}`,
+  settingsAppSectionTitle: "App",
+  settingsButtonLabel: "Settings",
+  settingsDialogDescription: "Display, language, install, and app information.",
+  settingsDialogTitle: "Settings",
+  settingsDisplaySectionTitle: "Display",
+  settingsLanguageSectionTitle: "Language",
   followingGroupLabel: "Next day group",
   themeAria: "Display theme",
   themeOptions: {
@@ -194,11 +204,11 @@ export const translations: Record<LocaleCode, Translation> = {
     ...en,
     authorPageBackLabel: "星任務に戻る",
     authorPageDocumentTitle: "アプリ情報 | Last War Assistant",
-    authorPageGitHubProfileLabel: "メンテナーのGitHubプロフィール",
+    authorPageGitHubProfileLabel: "運営者のGitHubプロフィール",
     authorPageGreeting:
       "使ってくれてありがとうございます。気づいたことがあれば X か GitHub から送ってください。",
     authorPageGreetingTitle: "連絡先",
-    authorPageIntro: "このアプリは ryoryoai が個人で作っている非公式ファンツールです。",
+    authorPageIntro: "このアプリは個人運営の非公式ファンツールです。",
     authorPageLinksTitle: "関連リンク",
     authorPageRepositoryLabel: "Gitリポジトリ",
     authorPageTitle: "アプリ情報",
@@ -214,7 +224,6 @@ export const translations: Record<LocaleCode, Translation> = {
     currentTargetLabel: "今日のグループ",
     dateLocale: "ja-JP",
     exclusionSettingsTitle: "除外サーバー設定",
-    footerLinksAria: "サイト情報",
     githubLinkLabel: "Gitリポジトリ",
     groupLegendAria: "グループ凡例",
     htmlLang: "ja",
@@ -266,6 +275,12 @@ export const translations: Record<LocaleCode, Translation> = {
     serverDateLabel: (date) => `サーバー日：${date}`,
     serverListTabsAria: "サーバーリスト切替",
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
+    settingsAppSectionTitle: "アプリ",
+    settingsButtonLabel: "設定",
+    settingsDialogDescription: "表示、言語、ホーム追加、アプリ情報をまとめています。",
+    settingsDialogTitle: "設定",
+    settingsDisplaySectionTitle: "表示",
+    settingsLanguageSectionTitle: "言語",
     followingGroupLabel: "翌日のグループ",
     themeAria: "表示テーマ",
     themeOptions: {

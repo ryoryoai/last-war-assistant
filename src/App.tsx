@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
@@ -8,13 +8,14 @@ import {
   Check,
   ChevronDown,
   ExternalLink,
-  GitBranch,
+  GitPullRequest,
   Home,
   Info,
   Languages,
   Monitor,
   Moon,
   RotateCcw,
+  Settings,
   Sun,
   User,
 } from "lucide-react";
@@ -83,20 +84,16 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-26-01";
+const appVersion = "2026-06-26-02";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
-const footerAutoHideDelayMs = 3200;
-const footerSwipeThreshold = 36;
 const authorUrl = "https://github.com/ryoryoai";
 const githubUrl = "https://github.com/ryoryoai/last-war-assistant";
 const xProfileUrl = "https://x.com/ryoryoai";
 const cloudflarePrivacyUrl = "https://www.cloudflare.com/privacypolicy/";
-const footerLinkClassName =
-  "text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
-const footerShellClassName =
-  "fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-2 shadow-[0_-8px_24px_rgb(0_0_0/0.08)] backdrop-blur transition-[transform,opacity] duration-200 ease-out supports-backdrop-filter:backdrop-blur motion-reduce:transition-none sm:px-6";
+const settingsLinkClassName =
+  "flex min-h-11 items-center justify-between gap-3 rounded-lg border bg-background p-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
   en: enUS,
@@ -136,7 +133,6 @@ type NavigatorWithStandalone = Navigator & {
   standalone?: boolean;
 };
 type ServerListMode = "today" | "next";
-type LegalDialog = "notice";
 type AppPage = "author" | "home";
 
 function detectInstallGuidePlatform(): InstallGuidePlatform {
@@ -281,13 +277,9 @@ function AppShell() {
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [waitingServiceWorker, setWaitingServiceWorker] = useState<ServiceWorker | null>(null);
   const [activeServerList, setActiveServerList] = useState<ServerListMode>("today");
-  const [legalDialog, setLegalDialog] = useState<LegalDialog | null>(null);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [noticeDialogOpen, setNoticeDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<AppPage>(readCurrentPage);
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
-  const [isFooterInteracting, setIsFooterInteracting] = useState(false);
-  const footerHideTimerRef = useRef<number | null>(null);
-  const footerSwipeStartYRef = useRef<number | null>(null);
-  const footerSwipePointerIdRef = useRef<number | null>(null);
 
   const missionDay = useMemo(() => getServerMissionDay(now), [now]);
   const [selectedMissionSerial, setSelectedMissionSerial] = useState(missionDay.serial);
@@ -378,89 +370,6 @@ function AppShell() {
     [renderCalendarDayButton],
   );
 
-  const clearFooterHideTimer = useCallback(() => {
-    if (footerHideTimerRef.current === null) {
-      return;
-    }
-
-    window.clearTimeout(footerHideTimerRef.current);
-    footerHideTimerRef.current = null;
-  }, []);
-
-  const scheduleFooterHide = useCallback(() => {
-    clearFooterHideTimer();
-    footerHideTimerRef.current = window.setTimeout(() => {
-      setIsFooterVisible(false);
-      footerHideTimerRef.current = null;
-    }, footerAutoHideDelayMs);
-  }, [clearFooterHideTimer]);
-
-  const revealFooter = useCallback(() => {
-    setIsFooterVisible(true);
-
-    if (isFooterInteracting) {
-      clearFooterHideTimer();
-      return;
-    }
-
-    scheduleFooterHide();
-  }, [clearFooterHideTimer, isFooterInteracting, scheduleFooterHide]);
-
-  const startFooterSwipe = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
-      if (event.pointerType === "mouse" && event.button !== 0) {
-        return;
-      }
-
-      footerSwipeStartYRef.current = event.clientY;
-      footerSwipePointerIdRef.current = event.pointerId;
-      event.currentTarget.setPointerCapture?.(event.pointerId);
-      clearFooterHideTimer();
-    },
-    [clearFooterHideTimer],
-  );
-
-  const updateFooterSwipe = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
-      if (
-        footerSwipePointerIdRef.current !== event.pointerId ||
-        footerSwipeStartYRef.current === null
-      ) {
-        return;
-      }
-
-      const swipeDistance = footerSwipeStartYRef.current - event.clientY;
-
-      if (!isFooterVisible && swipeDistance > footerSwipeThreshold) {
-        revealFooter();
-        footerSwipeStartYRef.current = event.clientY;
-      }
-
-      if (isFooterVisible && swipeDistance < -footerSwipeThreshold) {
-        setIsFooterVisible(false);
-        clearFooterHideTimer();
-        footerSwipeStartYRef.current = event.clientY;
-      }
-    },
-    [clearFooterHideTimer, isFooterVisible, revealFooter],
-  );
-
-  const endFooterSwipe = useCallback(
-    (event: React.PointerEvent<HTMLElement>) => {
-      if (footerSwipePointerIdRef.current === event.pointerId) {
-        event.currentTarget.releasePointerCapture?.(event.pointerId);
-      }
-
-      footerSwipeStartYRef.current = null;
-      footerSwipePointerIdRef.current = null;
-
-      if (isFooterVisible && !isFooterInteracting) {
-        scheduleFooterHide();
-      }
-    },
-    [isFooterInteracting, isFooterVisible, scheduleFooterHide],
-  );
-
   const showUpdateDialog = useCallback((worker: ServiceWorker | null) => {
     setWaitingServiceWorker(worker);
     setUpdateDialogOpen(true);
@@ -515,18 +424,6 @@ function AppShell() {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
-
-  useEffect(() => {
-    if (isFooterInteracting) {
-      setIsFooterVisible(true);
-      clearFooterHideTimer();
-      return;
-    }
-
-    if (isFooterVisible) {
-      scheduleFooterHide();
-    }
-  }, [clearFooterHideTimer, isFooterInteracting, isFooterVisible, scheduleFooterHide]);
 
   useEffect(() => {
     if (!hasManualCalendarSelection) {
@@ -702,16 +599,29 @@ function AppShell() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pt-4 pb-16 sm:px-6 sm:pb-20 lg:pt-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 pt-4 pb-8 sm:px-6 lg:pt-6">
       {currentPage === "author" ? (
         <AuthorPage copy={copy} onBackHome={() => navigateToPage("home")} />
       ) : (
         <>
           <Card className="shadow-sm">
             <CardHeader className="gap-3">
-              <CardTitle className="text-3xl leading-tight font-semibold tabular-nums sm:text-5xl">
-                {copy.countdownTitle(countdownLabel)}
-              </CardTitle>
+              <div className="flex items-start justify-between gap-3">
+                <CardTitle className="min-w-0 text-3xl leading-tight font-semibold tabular-nums sm:text-5xl">
+                  {copy.countdownTitle(countdownLabel)}
+                </CardTitle>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-lg"
+                  className="shrink-0"
+                  aria-label={copy.settingsButtonLabel}
+                  title={copy.settingsButtonLabel}
+                  onClick={() => setSettingsDialogOpen(true)}
+                >
+                  <Settings className="size-5" />
+                </Button>
+              </div>
               <div className="flex flex-wrap gap-2 text-sm font-medium text-muted-foreground">
                 <span>{copy.serverDateLabel(serverDateValue)}</span>
                 <span aria-hidden="true">·</span>
@@ -871,112 +781,100 @@ function AppShell() {
         </>
       )}
 
-      <div
-        aria-hidden="true"
-        className={cn(
-          "fixed inset-x-0 bottom-0 z-50 h-8 touch-none",
-          isFooterVisible && "pointer-events-none",
-        )}
-        onPointerDown={startFooterSwipe}
-        onPointerMove={updateFooterSwipe}
-        onPointerUp={endFooterSwipe}
-        onPointerCancel={endFooterSwipe}
-      />
-
-      <footer
-        aria-hidden={isFooterVisible ? undefined : "true"}
-        inert={!isFooterVisible ? true : undefined}
-        className={cn(
-          footerShellClassName,
-          isFooterVisible
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none translate-y-[calc(100%+0.5rem)] opacity-0",
-        )}
-        onPointerEnter={() => setIsFooterInteracting(true)}
-        onPointerLeave={() => setIsFooterInteracting(false)}
-        onFocusCapture={() => setIsFooterInteracting(true)}
-        onBlurCapture={(event) => {
-          const footer = event.currentTarget;
-          window.setTimeout(() => {
-            if (!footer.contains(document.activeElement)) {
-              setIsFooterInteracting(false);
-            }
-          }, 0);
-        }}
-      >
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <ThemeModeToggle copy={copy} />
-            <div className="flex items-center gap-2 rounded-lg border bg-background px-2">
-              <Languages className="size-4 text-muted-foreground" />
-              <Select
-                value={localePreference}
-                onValueChange={(value) => setLocalePreference(value as LocalePreference)}
-              >
-                <SelectTrigger
-                  className="h-8 border-0 bg-transparent px-0 shadow-none"
-                  aria-label={copy.languageAria}
+      <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{copy.settingsDialogTitle}</DialogTitle>
+            <DialogDescription>{copy.settingsDialogDescription}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <section className="grid gap-2">
+              <h3 className="text-sm font-semibold">{copy.settingsDisplaySectionTitle}</h3>
+              <ThemeModeToggle copy={copy} />
+            </section>
+            <section className="grid gap-2">
+              <h3 className="text-sm font-semibold">{copy.settingsLanguageSectionTitle}</h3>
+              <div className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
+                <Languages className="size-4 text-muted-foreground" />
+                <Select
+                  value={localePreference}
+                  onValueChange={(value) => setLocalePreference(value as LocalePreference)}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent align="start">
-                  {languageOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.value === "auto" ? copy.languageAuto : option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {!isInstalledApp && (
-              <Button variant="outline" onClick={handleInstall}>
-                <Home className="size-4" />
-                {copy.installButton}
-              </Button>
-            )}
+                  <SelectTrigger
+                    className="h-8 border-0 bg-transparent px-0 shadow-none"
+                    aria-label={copy.languageAria}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent align="start">
+                    {languageOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.value === "auto" ? copy.languageAuto : option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </section>
+            <section className="grid gap-2">
+              <h3 className="text-sm font-semibold">{copy.settingsAppSectionTitle}</h3>
+              {!isInstalledApp && (
+                <Button
+                  variant="outline"
+                  className="h-auto min-h-11 justify-start p-3"
+                  onClick={handleInstall}
+                >
+                  <Home className="size-4" />
+                  {copy.installButton}
+                </Button>
+              )}
+              <button
+                type="button"
+                className={settingsLinkClassName}
+                onClick={() => {
+                  setSettingsDialogOpen(false);
+                  setNoticeDialogOpen(true);
+                }}
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <Info className="size-4 shrink-0" />
+                  <span className="truncate">{copy.noticeLinkLabel}</span>
+                </span>
+              </button>
+              <a
+                className={settingsLinkClassName}
+                href={githubUrl}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <GitPullRequest className="size-4 shrink-0" />
+                  <span className="truncate">{copy.githubLinkLabel}</span>
+                </span>
+                <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
+              </a>
+              <button
+                type="button"
+                className={settingsLinkClassName}
+                onClick={() => {
+                  setSettingsDialogOpen(false);
+                  navigateToPage("author");
+                }}
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <Info className="size-4 shrink-0" />
+                  <span className="truncate">{copy.authorLinkLabel}</span>
+                </span>
+              </button>
+            </section>
           </div>
-          <nav
-            aria-label={copy.footerLinksAria}
-            className="flex flex-wrap items-center gap-1"
-          >
-            <button
-              type="button"
-              className={footerLinkClassName}
-              onClick={() => setLegalDialog("notice")}
-            >
-              {copy.noticeLinkLabel}
-            </button>
-            <a
-              className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-              href={githubUrl}
-              rel="noreferrer"
-              target="_blank"
-              aria-label={copy.githubLinkLabel}
-              title={copy.githubLinkLabel}
-            >
-              <GitBranch className="size-4" />
-            </a>
-            <a
-              className={cn(footerLinkClassName, "inline-flex items-center gap-1")}
-              href={authorPagePath}
-              onClick={(event) => {
-                event.preventDefault();
-                navigateToPage("author");
-              }}
-            >
-              <Info className="size-3.5" />
-              {copy.authorLinkLabel}
-            </a>
-          </nav>
-        </div>
-      </footer>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
-        open={legalDialog === "notice"}
+        open={noticeDialogOpen}
         onOpenChange={(open) => {
-          if (!open) {
-            setLegalDialog(null);
-          }
+          setNoticeDialogOpen(open);
         }}
       >
         <DialogContent className="sm:max-w-lg">
@@ -1131,7 +1029,7 @@ function AuthorPage({
               target="_blank"
             >
               <span className="flex min-w-0 items-center gap-2">
-                <GitBranch className="size-4 shrink-0" />
+                <GitPullRequest className="size-4 shrink-0" />
                 <span className="truncate">{copy.authorPageRepositoryLabel}</span>
               </span>
               <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
