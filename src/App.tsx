@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  type ComponentType,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { ThemeProvider, useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
@@ -84,7 +91,7 @@ import {
 } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const appVersion = "2026-06-26-02";
+const appVersion = "2026-06-26-03";
 const excludedServersCookieName = "lastwar-secret-mission-excluded-servers";
 const appBasePath = "/secret-mission/";
 const authorPagePath = "/secret-mission/author/";
@@ -92,8 +99,10 @@ const authorUrl = "https://github.com/ryoryoai";
 const githubUrl = "https://github.com/ryoryoai/last-war-assistant";
 const xProfileUrl = "https://x.com/ryoryoai";
 const cloudflarePrivacyUrl = "https://www.cloudflare.com/privacypolicy/";
-const settingsLinkClassName =
-  "flex min-h-11 items-center justify-between gap-3 rounded-lg border bg-background p-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
+const settingsActionClassName =
+  "flex min-h-14 w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
+const settingsIconClassName =
+  "flex size-9 shrink-0 items-center justify-center rounded-lg bg-background text-muted-foreground ring-1 ring-border";
 const dateFnsLocales: Record<LocaleCode, DateFnsLocale> = {
   de,
   en: enUS,
@@ -134,6 +143,7 @@ type NavigatorWithStandalone = Navigator & {
 };
 type ServerListMode = "today" | "next";
 type AppPage = "author" | "home";
+type AppCopy = (typeof translations)[LocaleCode];
 
 function detectInstallGuidePlatform(): InstallGuidePlatform {
   const userAgent = navigator.userAgent || "";
@@ -781,95 +791,17 @@ function AppShell() {
         </>
       )}
 
-      <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{copy.settingsDialogTitle}</DialogTitle>
-            <DialogDescription>{copy.settingsDialogDescription}</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4">
-            <section className="grid gap-2">
-              <h3 className="text-sm font-semibold">{copy.settingsDisplaySectionTitle}</h3>
-              <ThemeModeToggle copy={copy} />
-            </section>
-            <section className="grid gap-2">
-              <h3 className="text-sm font-semibold">{copy.settingsLanguageSectionTitle}</h3>
-              <div className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
-                <Languages className="size-4 text-muted-foreground" />
-                <Select
-                  value={localePreference}
-                  onValueChange={(value) => setLocalePreference(value as LocalePreference)}
-                >
-                  <SelectTrigger
-                    className="h-8 border-0 bg-transparent px-0 shadow-none"
-                    aria-label={copy.languageAria}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent align="start">
-                    {languageOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.value === "auto" ? copy.languageAuto : option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </section>
-            <section className="grid gap-2">
-              <h3 className="text-sm font-semibold">{copy.settingsAppSectionTitle}</h3>
-              {!isInstalledApp && (
-                <Button
-                  variant="outline"
-                  className="h-auto min-h-11 justify-start p-3"
-                  onClick={handleInstall}
-                >
-                  <Home className="size-4" />
-                  {copy.installButton}
-                </Button>
-              )}
-              <button
-                type="button"
-                className={settingsLinkClassName}
-                onClick={() => {
-                  setSettingsDialogOpen(false);
-                  setNoticeDialogOpen(true);
-                }}
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <Info className="size-4 shrink-0" />
-                  <span className="truncate">{copy.noticeLinkLabel}</span>
-                </span>
-              </button>
-              <a
-                className={settingsLinkClassName}
-                href={githubUrl}
-                rel="noreferrer"
-                target="_blank"
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <GitPullRequest className="size-4 shrink-0" />
-                  <span className="truncate">{copy.githubLinkLabel}</span>
-                </span>
-                <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
-              </a>
-              <button
-                type="button"
-                className={settingsLinkClassName}
-                onClick={() => {
-                  setSettingsDialogOpen(false);
-                  navigateToPage("author");
-                }}
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <Info className="size-4 shrink-0" />
-                  <span className="truncate">{copy.authorLinkLabel}</span>
-                </span>
-              </button>
-            </section>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SettingsDialog
+        copy={copy}
+        isInstalledApp={isInstalledApp}
+        localePreference={localePreference}
+        onInstall={handleInstall}
+        onLocalePreferenceChange={setLocalePreference}
+        onOpenAuthor={() => navigateToPage("author")}
+        onOpenNotice={() => setNoticeDialogOpen(true)}
+        onOpenChange={setSettingsDialogOpen}
+        open={settingsDialogOpen}
+      />
 
       <Dialog
         open={noticeDialogOpen}
@@ -955,11 +887,213 @@ function AppShell() {
   );
 }
 
+function SettingsDialog({
+  copy,
+  isInstalledApp,
+  localePreference,
+  onInstall,
+  onLocalePreferenceChange,
+  onOpenAuthor,
+  onOpenChange,
+  onOpenNotice,
+  open,
+}: {
+  copy: AppCopy;
+  isInstalledApp: boolean;
+  localePreference: LocalePreference;
+  onInstall: () => void;
+  onLocalePreferenceChange: (value: LocalePreference) => void;
+  onOpenAuthor: () => void;
+  onOpenChange: (open: boolean) => void;
+  onOpenNotice: () => void;
+  open: boolean;
+}) {
+  const openNotice = () => {
+    onOpenChange(false);
+    onOpenNotice();
+  };
+  const openAuthor = () => {
+    onOpenChange(false);
+    onOpenAuthor();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
+        <div className="flex items-start gap-3 pr-8">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+            <Settings className="size-5" />
+          </span>
+          <DialogHeader className="gap-1">
+            <DialogTitle>{copy.settingsDialogTitle}</DialogTitle>
+            <DialogDescription>{copy.settingsDialogDescription}</DialogDescription>
+          </DialogHeader>
+        </div>
+        <div className="grid gap-4">
+          <SettingsSection title={copy.settingsControlsSectionTitle}>
+            <div className="grid gap-2 rounded-xl border bg-muted/30 p-2">
+              <SettingsControlRow
+                description={copy.settingsDisplayDescription}
+                icon={Monitor}
+                label={copy.settingsDisplaySectionTitle}
+              >
+                <ThemeModeToggle className="sm:w-36" copy={copy} />
+              </SettingsControlRow>
+              <SettingsControlRow
+                description={copy.settingsLanguageDescription}
+                icon={Languages}
+                label={copy.settingsLanguageSectionTitle}
+              >
+                <Select
+                  value={localePreference}
+                  onValueChange={(value) => onLocalePreferenceChange(value as LocalePreference)}
+                >
+                  <SelectTrigger
+                    className="h-9 w-full bg-background sm:w-40"
+                    aria-label={copy.languageAria}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    {languageOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.value === "auto" ? copy.languageAuto : option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </SettingsControlRow>
+            </div>
+          </SettingsSection>
+
+          <SettingsSection title={copy.settingsInfoSectionTitle}>
+            <div className="grid gap-1 rounded-xl border bg-muted/30 p-1">
+              {!isInstalledApp && (
+                <SettingsButtonRow
+                  description={copy.settingsInstallDescription}
+                  icon={Home}
+                  label={copy.installButton}
+                  onClick={onInstall}
+                />
+              )}
+              <SettingsButtonRow
+                description={copy.settingsNoticeDescription}
+                icon={Info}
+                label={copy.noticeLinkLabel}
+                onClick={openNotice}
+              />
+              <SettingsAnchorRow
+                description={copy.settingsRepositoryDescription}
+                href={githubUrl}
+                icon={GitPullRequest}
+                label={copy.githubLinkLabel}
+              />
+              <SettingsButtonRow
+                description={copy.settingsAboutDescription}
+                icon={User}
+                label={copy.authorLinkLabel}
+                onClick={openAuthor}
+              />
+            </div>
+          </SettingsSection>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SettingsSection({ children, title }: { children: ReactNode; title: string }) {
+  return (
+    <section className="grid gap-2">
+      <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+        {title}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
+function SettingsControlRow({
+  children,
+  description,
+  icon: Icon,
+  label,
+}: {
+  children: ReactNode;
+  description: string;
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <div className="grid gap-3 rounded-lg bg-background/70 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+      <div className="flex min-w-0 items-start gap-3">
+        <span className={settingsIconClassName}>
+          <Icon className="size-4" />
+        </span>
+        <div className="grid min-w-0 gap-1">
+          <p className="text-sm font-medium">{label}</p>
+          <p className="text-xs leading-5 text-muted-foreground">{description}</p>
+        </div>
+      </div>
+      <div className="min-w-0 sm:justify-self-end">{children}</div>
+    </div>
+  );
+}
+
+function SettingsButtonRow({
+  description,
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  description: string;
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button className={settingsActionClassName} type="button" onClick={onClick}>
+      <span className={settingsIconClassName}>
+        <Icon className="size-4" />
+      </span>
+      <span className="grid min-w-0 flex-1 gap-1">
+        <span className="truncate text-sm font-medium">{label}</span>
+        <span className="text-xs leading-5 text-muted-foreground">{description}</span>
+      </span>
+    </button>
+  );
+}
+
+function SettingsAnchorRow({
+  description,
+  href,
+  icon: Icon,
+  label,
+}: {
+  description: string;
+  href: string;
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <a className={settingsActionClassName} href={href} rel="noreferrer" target="_blank">
+      <span className={settingsIconClassName}>
+        <Icon className="size-4" />
+      </span>
+      <span className="grid min-w-0 flex-1 gap-1">
+        <span className="truncate text-sm font-medium">{label}</span>
+        <span className="text-xs leading-5 text-muted-foreground">{description}</span>
+      </span>
+      <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
+    </a>
+  );
+}
+
 function AuthorPage({
   copy,
   onBackHome,
 }: {
-  copy: (typeof translations)[LocaleCode];
+  copy: AppCopy;
   onBackHome: () => void;
 }) {
   return (
@@ -1041,7 +1175,7 @@ function AuthorPage({
   );
 }
 
-function ThemeModeToggle({ copy }: { copy: (typeof translations)[LocaleCode] }) {
+function ThemeModeToggle({ className, copy }: { className?: string; copy: AppCopy }) {
   const { setTheme, theme = "system" } = useTheme();
   const options = [
     { icon: Monitor, value: "system" },
@@ -1055,7 +1189,7 @@ function ThemeModeToggle({ copy }: { copy: (typeof translations)[LocaleCode] }) 
 
   return (
     <div
-      className="grid h-9 grid-cols-3 rounded-lg border bg-background p-1"
+      className={cn("grid h-9 w-full max-w-52 grid-cols-3 rounded-lg border bg-background p-1", className)}
       aria-label={copy.themeAria}
       role="group"
     >
@@ -1064,7 +1198,7 @@ function ThemeModeToggle({ copy }: { copy: (typeof translations)[LocaleCode] }) 
           key={value}
           aria-label={copy.themeOptions[value]}
           aria-pressed={theme === value}
-          className="h-7 w-8 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+          className="h-7 w-full data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
           data-active={theme === value}
           size="icon-sm"
           title={copy.themeOptions[value]}

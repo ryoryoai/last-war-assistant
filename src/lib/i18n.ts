@@ -68,12 +68,20 @@ type Translation = {
   serverDateLabel: (date: string) => string;
   serverListTabsAria: string;
   serverAria: (number: number, group: string) => string;
+  settingsAboutDescription: string;
   settingsAppSectionTitle: string;
   settingsButtonLabel: string;
+  settingsControlsSectionTitle: string;
   settingsDialogDescription: string;
   settingsDialogTitle: string;
+  settingsDisplayDescription: string;
   settingsDisplaySectionTitle: string;
+  settingsInfoSectionTitle: string;
+  settingsInstallDescription: string;
+  settingsLanguageDescription: string;
   settingsLanguageSectionTitle: string;
+  settingsNoticeDescription: string;
+  settingsRepositoryDescription: string;
   followingGroupLabel: string;
   themeAria: string;
   themeOptions: Record<"dark" | "light" | "system", string>;
@@ -179,12 +187,20 @@ const en: Translation = {
   serverDateLabel: (date) => `Server day: ${date}`,
   serverListTabsAria: "Server list group",
   serverAria: (number, group) => `Server ${number}, group ${group}`,
+  settingsAboutDescription: "Contact and app information.",
   settingsAppSectionTitle: "App",
   settingsButtonLabel: "Settings",
-  settingsDialogDescription: "Display, language, install, and app information.",
+  settingsControlsSectionTitle: "Preferences",
+  settingsDialogDescription: "Adjust everyday preferences and open app information.",
   settingsDialogTitle: "Settings",
+  settingsDisplayDescription: "Match your device, or choose light or dark.",
   settingsDisplaySectionTitle: "Display",
+  settingsInfoSectionTitle: "Information",
+  settingsInstallDescription: "Open faster from your home screen.",
+  settingsLanguageDescription: "Use your browser language or choose manually.",
   settingsLanguageSectionTitle: "Language",
+  settingsNoticeDescription: "Rules, accuracy notes, and privacy.",
+  settingsRepositoryDescription: "Open the source repository.",
   followingGroupLabel: "Next day group",
   themeAria: "Display theme",
   themeOptions: {
@@ -275,12 +291,20 @@ export const translations: Record<LocaleCode, Translation> = {
     serverDateLabel: (date) => `サーバー日：${date}`,
     serverListTabsAria: "サーバーリスト切替",
     serverAria: (number, group) => `サーバー ${number} グループ ${group}`,
+    settingsAboutDescription: "連絡先とアプリ情報を確認します。",
     settingsAppSectionTitle: "アプリ",
     settingsButtonLabel: "設定",
-    settingsDialogDescription: "表示、言語、ホーム追加、アプリ情報をまとめています。",
+    settingsControlsSectionTitle: "よく使う設定",
+    settingsDialogDescription: "よく使う設定とアプリ情報をまとめています。",
     settingsDialogTitle: "設定",
+    settingsDisplayDescription: "端末設定に合わせるか、ライト/ダークを選択。",
     settingsDisplaySectionTitle: "表示",
+    settingsInfoSectionTitle: "情報とリンク",
+    settingsInstallDescription: "ホーム画面からすぐ開けます。",
+    settingsLanguageDescription: "ブラウザに合わせるか、手動で選択。",
     settingsLanguageSectionTitle: "言語",
+    settingsNoticeDescription: "注意事項、情報の精度、プライバシーを確認します。",
+    settingsRepositoryDescription: "ソースリポジトリを開きます。",
     followingGroupLabel: "翌日のグループ",
     themeAria: "表示テーマ",
     themeOptions: {
